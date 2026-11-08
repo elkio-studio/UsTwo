@@ -1,0 +1,8 @@
+interface:
+  display_name: "Especificación SDD de UsTwo"
+  short_description: "Define especificaciones verificables de UsTwo"
+  default_prompt: "Usa $ustwo-spec para convertir este cambio en una especificación SDD revisable."
+
+policy:
+  allow_implicit_invocation: true
+

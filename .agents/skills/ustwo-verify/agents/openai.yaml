@@ -1,0 +1,8 @@
+interface:
+  display_name: "Verificación SDD de UsTwo"
+  short_description: "Verifica cambios contra criterios y evidencias"
+  default_prompt: "Usa $ustwo-verify para verificar esta implementación con evidencias reales."
+
+policy:
+  allow_implicit_invocation: true
+

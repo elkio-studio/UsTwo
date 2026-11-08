@@ -1,0 +1,8 @@
+interface:
+  display_name: "Plan SDD de UsTwo"
+  short_description: "Convierte una spec aprobada en plan y tareas"
+  default_prompt: "Usa $ustwo-plan para crear el plan y las tareas de una especificación aprobada."
+
+policy:
+  allow_implicit_invocation: true
+

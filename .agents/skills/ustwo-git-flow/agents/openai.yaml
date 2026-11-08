@@ -1,0 +1,8 @@
+interface:
+  display_name: "Flujo Git local de UsTwo"
+  short_description: "Gestiona tareas Git locales con autorización"
+  default_prompt: "Usa $ustwo-git-flow para preparar de forma supervisada el trabajo Git de esta tarea."
+
+policy:
+  allow_implicit_invocation: true
+
