@@ -39,10 +39,10 @@ if [[ -n "$service" ]]; then
         || fail 'Render debe usar el plan Free, main y el autodespliegue desactivado.'
 fi
 
-APP_ENV=production APP_DEBUG=false LOG_CHANNEL=null DB_CONNECTION=pgsql \
+APP_ENV=production APP_DEBUG=false DB_CONNECTION=pgsql PGCONNECT_TIMEOUT=10 \
     DB_URL="$SUPABASE_MIGRATION_URL" DB_SSLMODE=require \
-    php artisan migrate --force --no-interaction >/dev/null 2>&1 \
-    || fail 'Fallaron las migraciones. No se ha solicitado el despliegue.'
+    php -d display_errors=0 -d log_errors=0 deploy/migrate.php \
+    || fail 'No se ha solicitado el despliegue.'
 printf 'Migraciones aplicadas para %s.\n' "$GITHUB_SHA"
 
 check_main
