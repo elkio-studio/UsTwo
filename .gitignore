@@ -29,3 +29,9 @@ Homestead.json
 .env.production
 .phpactor.json
 auth.json
+
+# Entorno local y resultados de la instalación mínima
+.env.*
+!.env.example
+/.phpunit.cache/
+/storage/**/*.log
