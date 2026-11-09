@@ -101,8 +101,8 @@ if (-not (Test-Path -LiteralPath 'database/database.sqlite')) {
     New-Item -ItemType File -Path 'database/database.sqlite' | Out-Null
 }
 & $php85Exe -c "$php85Dir/php.ini" -d extension=pdo_sqlite artisan migrate
-& $php85Exe -c "$php85Dir/php.ini" -d extension=pdo_sqlite artisan ustwo:account angel@example.test Ángel
-& $php85Exe -c "$php85Dir/php.ini" -d extension=pdo_sqlite artisan ustwo:account alejandra@example.test Alejandra
+& $php85Exe -c "$php85Dir/php.ini" -d extension=pdo_sqlite artisan ustwo:account angel@gmail.com Ángel
+& $php85Exe -c "$php85Dir/php.ini" -d extension=pdo_sqlite artisan ustwo:account alejandra@gmail.com Alejandra
 Push-Location public
 try {
     & $php85Exe -c "$php85Dir/php.ini" -d extension=pdo_sqlite -S 127.0.0.1:8000 ../vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php
@@ -114,6 +114,14 @@ try {
 Sustituye los correos de ejemplo por los de las cuentas. El comando pide
 la contraseña de forma interactiva. Para restablecerla manualmente, ejecuta
 el mismo comando con el correo de la cuenta. La base SQLite se ignora en Git.
+
+Para crear las dos cuentas de prueba con los correos de ejemplo, tras migrar
+SQLite y antes de arrancar el servidor, ejecuta el seeder local. Solicita
+las contraseñas y conserva las cuentas de ejemplo que ya existan.
+
+```powershell
+& $php85Exe -c "$php85Dir/php.ini" -d extension=pdo_sqlite artisan db:seed '--class=App\Database\Seeders\LocalUsersSeeder'
+```
 
 Para activar el catálogo, configura `TMDB_TOKEN` en `.env` con el token de
 lectura de TMDB. Si falta el token o falla el catálogo, la pantalla ofrece
