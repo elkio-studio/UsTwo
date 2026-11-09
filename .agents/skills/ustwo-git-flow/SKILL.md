@@ -6,7 +6,8 @@ description: "Gestiona de forma supervisada la rama, el registro local de tarea,
 # Flujo Git local de UsTwo
 
 Mantén exactamente una tarea Git activa y exige autorización concreta antes de
-cada mutación. La rama base de UsTwo es `main`.
+cada mutación. Las ramas de trabajo parten de `dev` y se integran en `dev`.
+`main` se reserva para despliegues.
 
 ## Registro local
 
@@ -39,8 +40,8 @@ otra autorización.
 
 ### `start`
 
-Exige ausencia de tarea activa, índice y árbol limpios, rama actual `main` y,
-si existe `origin/main`, ausencia de divergencia local conocida. Propón una rama
+Exige ausencia de tarea activa, índice y árbol limpios, rama actual `dev` y,
+si existe `origin/dev`, ausencia de divergencia local conocida. Propón una rama
 `<tipo>/<slug>` y, tras autorización, créala y registra su nombre y el commit
 base. Tipos permitidos: `feat`, `fix`, `refactor`, `docs`, `test` y `chore`; el
 slug debe ser ASCII en kebab-case.
@@ -50,9 +51,9 @@ comprobarse, informa de la limitación.
 
 ### `adopt`
 
-Permite registrar, con autorización, una rama local existente distinta de
-`main` cuando no hay tarea activa. Inspecciona primero sus cambios y propone el
-commit base, normalmente el `merge-base` con `main`. No cambies ni limpies el
+Permite registrar, con autorización, una rama local de trabajo existente
+cuando no hay tarea activa. Inspecciona primero sus cambios y propone el
+commit base, normalmente el `merge-base` con `dev`. No cambies ni limpies el
 trabajo existente.
 
 ### `commit`
@@ -66,8 +67,7 @@ incluyas cambios ajenos.
 ### `final-commit`
 
 Sigue las mismas reglas que `commit`. Solo después de que el commit final tenga
-éxito elimina ambas claves del registro activo. No cambies a `main` ni borres la
-rama.
+éxito elimina ambas claves del registro activo. Permanece en la rama de trabajo.
 
 ### `cancel`
 

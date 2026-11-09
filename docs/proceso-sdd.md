@@ -131,6 +131,22 @@ No escriben archivos ni sustituyen la aprobación del desarrollador.
 
 ## Memoria y cierre externo
 
+El cierre de una especificación ocurre tras completar su implementación y
+verificación final. Aprobar la especificación o el plan abre la fase siguiente.
+
+1. Crear los commits finales y publicar la rama de la especificación en
+   `origin`.
+2. Integrar la rama en `dev` y comprobar que el resultado está en
+   `origin/dev`. `main` se reserva para despliegues.
+3. Una vez confirmada la integración, borrar la rama de la especificación
+   en local y en `origin` si puede hacerse de forma segura y sin forzar.
+   Si queda trabajo sin integrar o el borrado requiere pasos adicionales,
+   conservar la rama e indicar el motivo.
+
+Las autorizaciones de Git se gestionan según la sección Git de
+`AGENTS.md`. Si falta una comprobación o una acción de cierre, se registra
+el pendiente.
+
 `MEMORY.md` solo mantiene trabajo incompleto, decisiones pendientes, contexto
 para continuar y el estado inmediato. No es backlog, historial ni autorización.
 

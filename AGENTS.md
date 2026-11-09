@@ -72,7 +72,8 @@ que se les delegue.
 ## Git
 
 Para futuros cambios realizados por un agente, aplica `$ustwo-git-flow` antes
-de modificar archivos. La rama base es `main`. Crear o adoptar ramas, preparar
+de modificar archivos. Las ramas de trabajo parten de `dev` y se integran en
+`dev`. `main` se reserva para despliegues. Crear o adoptar ramas, preparar
 archivos y crear commits requiere autorización concreta e inmediata.
 
 El desarrollador se reserva push, merge, integración, resolución de conflictos,
