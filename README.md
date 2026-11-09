@@ -182,10 +182,10 @@ base desechable `ustwo_ci` en el puerto local 55432.
 ### Configuración inicial
 
 1. Crea un proyecto Supabase Free vacío en Europa si está disponible.
-   Desactiva su Data API. Usa la URL del pooler de sesión y la CA del
-   proyecto para conectar mediante TLS con `verify-full`. Usa las URL de
-   conexión sin parámetros de consulta para que el modo TLS lo determine
-   la configuración de Laravel.
+   Desactiva su Data API y exige SSL. Usa la URL del pooler de sesión con
+   `sslmode=require`. Este modo exige cifrado TLS sin comprobar el nombre
+   del servidor. Deja las URL de conexión sin parámetros de consulta para
+   que el modo TLS lo determine la configuración de Laravel.
 2. Separa las credenciales. El rol de migración posee el esquema de UsTwo
    y puede crear y modificar sus tablas. El rol de aplicación puede
    conectar y usar el esquema, leer y modificar los datos necesarios y
@@ -194,7 +194,7 @@ base desechable `ustwo_ci` en el puerto local 55432.
    el rol de aplicación no puede crear tablas.
 3. Configura el entorno `production` de GitHub Actions restringido a
    `main` si el plan del repositorio lo permite. Guarda
-   `SUPABASE_MIGRATION_URL`, `SUPABASE_CA_PEM` y, cuando exista el servicio,
+   `SUPABASE_MIGRATION_URL` y, cuando exista el servicio,
    `RENDER_API_KEY` como secretos. Si el plan gratuito del repositorio
    carece de entornos, usa secretos del repositorio y protege `main`
    frente a cambios no autorizados. Comprueba las cuotas y evita habilitar
@@ -208,8 +208,7 @@ base desechable `ustwo_ci` en el puerto local 55432.
    para el health check. Configura antes del primer arranque
    `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL` con la URL HTTPS,
    `APP_KEY` estable, `DB_CONNECTION=pgsql`, `DB_URL` del rol de
-   aplicación, `DB_SSLMODE=verify-full`, `DB_SSLROOTCERT` apuntando al
-   archivo secreto de CA, `SESSION_DRIVER=database`,
+   aplicación, `DB_SSLMODE=require`, `SESSION_DRIVER=database`,
    `SESSION_SECURE_COOKIE=true`, `LOG_CHANNEL=stderr` y `TMDB_TOKEN`.
    Comprueba en Render que el primer despliegue corresponde al SHA de CI.
 6. Registra `RENDER_SERVICE_ID` y `RENDER_PUBLIC_URL` como variables,
@@ -220,7 +219,7 @@ base desechable `ustwo_ci` en el puerto local 55432.
 Mantén las URL con contraseña y tokens fuera de Git y de los comandos
 copiados en registros. En un equipo autorizado, configura temporalmente
 `APP_ENV=production`, `DB_CONNECTION=pgsql`, `DB_URL` con el rol de
-aplicación, `DB_SSLMODE=verify-full` y `DB_SSLROOTCERT` con la CA. Ejecuta
+aplicación y `DB_SSLMODE=require`. Ejecuta
 interactivamente este comando con PHP 8.5 y PDO PostgreSQL:
 
 ```text

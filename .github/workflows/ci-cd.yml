@@ -93,5 +93,4 @@ jobs:
           RENDER_BOOTSTRAP: ${{ vars.RENDER_BOOTSTRAP }}
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
           SUPABASE_MIGRATION_URL: ${{ secrets.SUPABASE_MIGRATION_URL }}
-          SUPABASE_CA_PEM: ${{ secrets.SUPABASE_CA_PEM }}
         run: bash deploy/publish.sh

@@ -16,8 +16,7 @@ else
         || fail 'Configuración de Render incompleta.'
 fi
 
-[[ -n "${SUPABASE_MIGRATION_URL:-}" && -n "${SUPABASE_CA_PEM:-}" ]] \
-    || fail 'Faltan credenciales o CA de Supabase.'
+[[ -n "${SUPABASE_MIGRATION_URL:-}" ]] || fail 'Faltan credenciales de Supabase.'
 [[ "$SUPABASE_MIGRATION_URL" != *\?* && "$SUPABASE_MIGRATION_URL" != *\#* ]] \
     || fail 'La URL de migración no debe incluir parámetros ni fragmentos.'
 
@@ -40,12 +39,8 @@ if [[ -n "$service" ]]; then
         || fail 'Render debe usar el plan Free, main y el autodespliegue desactivado.'
 fi
 
-umask 077
-ca="$(mktemp)"
-trap 'rm -f -- "$ca"' EXIT
-printf '%s\n' "$SUPABASE_CA_PEM" > "$ca"
 APP_ENV=production APP_DEBUG=false LOG_CHANNEL=null DB_CONNECTION=pgsql \
-    DB_URL="$SUPABASE_MIGRATION_URL" DB_SSLMODE=verify-full DB_SSLROOTCERT="$ca" \
+    DB_URL="$SUPABASE_MIGRATION_URL" DB_SSLMODE=require \
     php artisan migrate --force --no-interaction >/dev/null 2>&1 \
     || fail 'Fallaron las migraciones. No se ha solicitado el despliegue.'
 printf 'Migraciones aplicadas para %s.\n' "$GITHUB_SHA"

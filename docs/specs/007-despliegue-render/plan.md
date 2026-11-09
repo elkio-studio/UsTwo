@@ -30,8 +30,9 @@ y `main`; solo una revisión comprobada de `main` pasa a producción.
   bases desechables, sin secretos de producción. Verificar las migraciones
   y la comparación de valores entre motores, incluido orden, tipos, claves
   únicas y cascadas.
-- Usar el pooler de sesión IPv4 de Supabase por TLS, con comprobación de
-  certificado y nombre de host usando la CA de Supabase. Separar el rol de
+- Usar el pooler de sesión IPv4 de Supabase por TLS con `sslmode=require`
+  en GitHub Actions y Render. Supabase exige SSL. El cliente no requiere
+  el archivo de CA ni verifica el nombre del servidor. Separar el rol de
   ejecución con permisos de datos del rol que aplica migraciones. Probar
   los permisos de ambos y configurar los permisos de tablas nuevas.
   Deshabilitar la Data API del proyecto de UsTwo y comprobar que las

@@ -156,6 +156,9 @@ siguen las especificaciones 005 y 006.
 - Región europea cuando los planes gratuitos la permitan, reactivación
   documentada y exportaciones manuales cifradas antes de cambios de esquema.
 - El desarrollador aprobó la especificación 007 el 2026-11-09.
+- El desarrollador aprobó usar `sslmode=require` en las conexiones a
+  Supabase desde GitHub Actions, Render y el equipo autorizado, sin
+  depender de un archivo de CA. Se mantiene SSL obligatorio en Supabase.
 
 ## Decisiones pendientes
 

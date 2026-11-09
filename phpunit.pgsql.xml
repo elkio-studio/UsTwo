@@ -27,7 +27,6 @@
         <env name="DB_USERNAME" value="ustwo_ci" force="true"/>
         <env name="DB_PASSWORD" value="ustwo_ci" force="true"/>
         <env name="DB_SSLMODE" value="disable" force="true"/>
-        <env name="DB_SSLROOTCERT" value="" force="true"/>
         <env name="MAIL_MAILER" value="array" force="true"/>
         <env name="QUEUE_CONNECTION" value="sync" force="true"/>
         <env name="SESSION_DRIVER" value="array" force="true"/>
