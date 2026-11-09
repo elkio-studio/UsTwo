@@ -2,7 +2,7 @@
 
 ## Foco actual
 
-Preparar la especificación visual «Una casa compartida».
+Continuar desde la identidad visual «Una casa compartida».
 
 ## Estado inmediato
 
@@ -11,7 +11,8 @@ Preparar la especificación visual «Una casa compartida».
   verificación en sus tareas.
 - El flujo SDD local está disponible para futuros cambios relevantes.
 - Las tres skills de diseño están instaladas en `.agents/skills/` e integradas
-  en el flujo SDD. La dirección visual del MVP figura en la especificación 005.
+  en el flujo SDD. La identidad visual 006 está implementada y verificada
+  en móvil y escritorio. La evidencia está en las tareas de la especificación.
 - La base del stack está aprobada: Laravel + Inertia + React (JavaScript/JSX),
   CSS puro y CSS Modules; véase DT-001.
 - `docs/specs/001-stack-tecnologico/spec.md` está aprobada tras revisión `PASS`
@@ -37,7 +38,6 @@ Preparar la especificación visual «Una casa compartida».
 
 ## Próximo paso útil
 
-Definir la identidad visual con ejemplos de Películas, Sitios y Compras.
 La fase posterior de despliegue contempla Render, GitHub Actions y
 PostgreSQL (DT-006).
 

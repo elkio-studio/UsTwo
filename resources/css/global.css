@@ -9,13 +9,13 @@
   --line-height-heading: 1.1;
 
   /* Colores */
-  --color-canvas: #f2f6f3;
-  --color-text: #182e25;
+  --color-canvas: #f4f2ed;
+  --color-text: #252b2a;
   --color-control-border: #62786c;
-  --color-surface: #fff;
-  --color-link: #234f40;
+  --color-surface: #fffdfa;
+  --color-link: #24564f;
   --color-focus: #1d4ed8;
-  --color-brand: #224438;
+  --color-brand: #24564f;
   --color-divider: #a4b8ae;
   --color-success: #166534;
   --color-diagnostic-border: #64748b;
@@ -33,7 +33,6 @@
   --control-min-height: 2.75rem;
   --cursor-interactive: pointer;
   --cursor-busy: wait;
-  --opacity-disabled: .7;
   --focus-width: 2px;
   --focus-offset: 3px;
 }
@@ -66,8 +65,8 @@ button, input, textarea {
 }
 
 button, a[href] { cursor: var(--cursor-interactive); }
-button:disabled { cursor: var(--cursor-busy); opacity: var(--opacity-disabled); }
-a { color: var(--color-link); }
+button:disabled { cursor: var(--cursor-busy); border-style: dashed; }
+a { color: var(--color-link); text-underline-offset: .18em; }
 textarea { min-height: 6rem; resize: vertical; }
 
 :focus-visible {
@@ -101,6 +100,7 @@ textarea { min-height: 6rem; resize: vertical; }
 }
 
 .ustwo-journal-journal h1 {
+  margin-block: clamp(1.25rem, 5vw, 2.5rem) 1.25rem;
   font-family: var(--font-display);
   font-size: var(--font-size-heading);
   line-height: var(--line-height-heading);
@@ -110,6 +110,7 @@ textarea { min-height: 6rem; resize: vertical; }
 .ustwo-journal-header {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: var(--space-medium);
   padding-block: var(--space-medium);
@@ -161,6 +162,7 @@ textarea { min-height: 6rem; resize: vertical; }
   display: block;
   padding-block: var(--space-medium);
   border-block: var(--border-width) solid var(--color-divider);
+  font-family: var(--font-display);
   font-size: 1.3rem;
 }
 
@@ -245,11 +247,17 @@ textarea { min-height: 6rem; resize: vertical; }
   overflow-wrap: anywhere;
 }
 
+.ustwo-movies-entry strong {
+  flex: 1 1 16rem;
+  min-inline-size: 0;
+}
+
 .ustwo-movies-scores {
   display: flex;
   flex-wrap: wrap;
   gap: .25rem 1rem;
   font-variant-numeric: tabular-nums;
+  max-inline-size: 100%;
 }
 
 /* StackCheck */
