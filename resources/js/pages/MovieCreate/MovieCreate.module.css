@@ -1,0 +1,11 @@
+.choices {
+  composes: ustwo-movie-create-choices from global;
+}
+
+.editor {
+  composes: ustwo-movie-create-editor from global;
+}
+
+.candidates {
+  composes: ustwo-movie-create-candidates from global;
+}

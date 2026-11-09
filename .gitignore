@@ -35,3 +35,4 @@ auth.json
 !.env.example
 /.phpunit.cache/
 /storage/**/*.log
+/database/*.sqlite*

@@ -7,10 +7,9 @@ Laravel 13 y PHP 8.5 separado de XAMPP están aprobados en DT-003.
 Composer 2.11.1 independiente para UsTwo está aprobado en DT-004.
 La base mínima de instalación está confirmada en DT-005.
 La instalación local mínima está completada con auditoría final `PASS`.
-El modelo de datos,
-la autenticación, los servicios externos, el almacenamiento, la infraestructura
-y el despliegue siguen pendientes; no hay autorización para desarrollar producto
-o publicar la base local como efecto secundario de la instalación.
+La especificación y el plan del MVP 005 están aprobados. El MVP usa SQLite en
+local y TMDB como catálogo de películas. Render, GitHub Actions y la
+verificación con PostgreSQL corresponden a la fase de despliegue (DT-006).
 
 Hasta que exista una decisión aprobada, una especificación o un plan puede
 presentar alternativas, pero no elegir ni implementar una de ellas.
@@ -113,6 +112,18 @@ presentar alternativas, pero no elegir ni implementar una de ellas.
   La configuración local temporal
   no decide persistencia, sesiones o arquitectura de producción.
 - Especificación: [004-instalacion-stack/spec.md](specs/004-instalacion-stack/spec.md).
+
+### DT-006 — Render y GitHub Actions para el despliegue
+
+- Estado: plataformas y separación de fases aprobadas por el desarrollador.
+- Decisión: desplegar UsTwo en Render y usar GitHub Actions para CI/CD.
+- Alcance: el primer plan del MVP cubre implementación y verificación local.
+  La configuración de Render y de GitHub Actions se planificará en la fase
+  de despliegue.
+- Persistencia aprobada: SQLite para el MVP y sus pruebas locales.
+  PostgreSQL se utilizará para verificar el despliegue en la fase posterior.
+  Quedan por concretar el servicio de PostgreSQL y el plan de alojamiento.
+- Especificación: [005-mvp-ustwo/spec.md](specs/005-mvp-ustwo/spec.md).
 
 Cuando se apruebe una decisión relevante, se añadirá aquí de forma concisa con:
 

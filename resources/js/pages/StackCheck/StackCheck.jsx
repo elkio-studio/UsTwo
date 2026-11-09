@@ -1,6 +1,6 @@
 import { Head } from '@inertiajs/react';
-import RuntimeCheck from '../components/RuntimeCheck';
-import '../../css/global.css';
+import RuntimeCheck from '../../components/RuntimeCheck/RuntimeCheck';
+import '../../../css/global.css';
 import styles from './StackCheck.module.css';
 
 export default function StackCheck({ message }) {

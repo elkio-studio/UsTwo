@@ -1,0 +1,11 @@
+.page {
+  composes: ustwo-stack-check-page from global;
+}
+
+.status {
+  composes: ustwo-stack-check-status from global;
+}
+
+.note {
+  composes: ustwo-stack-check-note from global;
+}

@@ -9,10 +9,10 @@ un dashboard desde el que cada lista abre su propia página.
 El proyecto está en fase de definición de producto. La base tecnológica aprobada
 es Laravel 13 + Inertia 3 + React 19 con JavaScript y JSX, CSS puro y CSS Modules,
 con PHP 8.5 separado de XAMPP, Vite 8, Composer y npm con configuración mínima.
-La base local está instalada en la raíz, con una página técnica de comprobación.
-No usa base de datos: sesiones y caché locales en archivos y colas síncronas.
-El producto, su diseño, los datos, el acceso y la infraestructura de producción
-siguen pendientes de definición. Esta base no está preparada para uso público.
+El MVP local ofrece el cuaderno privado de películas vistas y usa SQLite para
+las cuentas, películas y valoraciones. Las sesiones y la caché locales usan
+archivos y las colas son síncronas. La verificación con PostgreSQL y el
+despliegue en Render quedan para la fase posterior.
 
 ## Decisiones de producto confirmadas
 
@@ -89,13 +89,39 @@ autoload y descubre paquetes; el proyecto no tiene un script `setup` que cree BD
 requieren una tarea explícita y sus comprobaciones. Las demás dependencias
 directas permanecen fijadas al parche indicado en sus manifiestos.
 
-### Desarrollo
+### Preparar y arrancar el MVP local
 
-Con las variables PHP anteriores preparadas en la terminal:
+Con las variables PHP anteriores preparadas, revisa que `.env` tenga
+`DB_CONNECTION=sqlite`. Si vienes de la instalación inicial, cambia el valor
+`null` por `sqlite`. El controlador SQLite se habilita en estos comandos
+solo para el proceso de UsTwo.
 
 ```powershell
-& $php85Exe -c "$php85Dir/php.ini" artisan serve --host=127.0.0.1 --port=8000 --no-reload
+if (-not (Test-Path -LiteralPath 'database/database.sqlite')) {
+    New-Item -ItemType File -Path 'database/database.sqlite' | Out-Null
+}
+& $php85Exe -c "$php85Dir/php.ini" -d extension=pdo_sqlite artisan migrate
+& $php85Exe -c "$php85Dir/php.ini" -d extension=pdo_sqlite artisan ustwo:account angel@example.test Ángel
+& $php85Exe -c "$php85Dir/php.ini" -d extension=pdo_sqlite artisan ustwo:account alejandra@example.test Alejandra
+Push-Location public
+try {
+    & $php85Exe -c "$php85Dir/php.ini" -d extension=pdo_sqlite -S 127.0.0.1:8000 ../vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php
+} finally {
+    Pop-Location
+}
 ```
+
+Sustituye los correos de ejemplo por los de las cuentas. El comando pide
+la contraseña de forma interactiva. Para restablecerla manualmente, ejecuta
+el mismo comando con el correo de la cuenta. La base SQLite se ignora en Git.
+
+Para activar el catálogo, configura `TMDB_TOKEN` en `.env` con el token de
+lectura de TMDB. Si falta el token o falla el catálogo, la pantalla ofrece
+el alta manual.
+
+Si PHP en Windows devuelve el error cURL 60, configura `curl.cainfo` en
+el `php.ini` independiente de UsTwo con un archivo PEM de certificados raíz
+de confianza. Mantén habilitada la verificación TLS.
 
 En otra terminal, desde la misma raíz:
 
@@ -103,9 +129,9 @@ En otra terminal, desde la misma raíz:
 npm.cmd run dev
 ```
 
-Abrir `http://127.0.0.1:8000`. Vite escucha en `127.0.0.1:5173` y actualiza
-JSX/CSS durante el desarrollo. La página muestra una prop de Laravel y un
-contador local; es una prueba técnica, no el dashboard de producto.
+Abrir `http://127.0.0.1:8000` para iniciar sesión. Vite escucha en
+`127.0.0.1:5173` y actualiza JSX/CSS durante el desarrollo. La comprobación
+del stack sigue disponible en `/comprobacion`.
 Detener ambos comandos con `Ctrl+C` al terminar; no exponerlos a la red.
 
 ### Build y pruebas
@@ -114,7 +140,7 @@ Detener Vite antes de comprobar los assets de producción:
 
 ```powershell
 npm.cmd run build
-& $php85Exe -c "$php85Dir/php.ini" $composerLocal --no-plugins run-script test -- --testdox
+& $php85Exe -c "$php85Dir/php.ini" -d extension=pdo_sqlite vendor/bin/phpunit --testdox
 & $php85Exe -c "$php85Dir/php.ini" $composerLocal validate --strict
 & $php85Exe -c "$php85Dir/php.ini" $composerLocal check-platform-reqs
 & $php85Exe -c "$php85Dir/php.ini" $composerLocal audit
@@ -122,14 +148,18 @@ npm.cmd ls --depth=0
 npm.cmd audit
 ```
 
-Las tres pruebas PHPUnit comprueban HTML inicial, respuesta Inertia y salud
-local sin abrir conexiones a una BD. No se usa `artisan test` ni se han añadido
-linters o herramientas de navegador adicionales. El build es una comprobación
-local, no un despliegue. Los servidores iniciados para verificar la instalación
-se han detenido al terminar las pruebas.
+PHPUnit usa SQLite en memoria para verificar el MVP sin tocar el fichero de
+datos local. Las pruebas de catálogo simulan las respuestas de TMDB. El build
+genera los assets locales de producción.
 
-Los componentes propios usan `.jsx` y su `.module.css` correspondiente.
-`resources/css/global.css` se importa solo desde páginas principales. SSR está
+Cada componente o página tiene su propia carpeta en `resources/js/components`
+o `resources/js/pages`. La carpeta final contiene solo `Nombre.jsx` y
+`Nombre.module.css`. Inertia identifica las páginas como `Nombre/Nombre`.
+Todos los estilos se definen en `resources/css/global.css`, incluidas las
+variables compartidas y las reglas de componentes y páginas. Los archivos
+`.module.css` solo enlazan las clases que usa cada componente con
+`composes: nombre-de-clase from global`.
+El CSS global se importa solo desde páginas principales. SSR está
 desactivado en Laravel y Vite. `.env`, dependencias, sesiones, cachés, logs y
 assets compilados quedan fuera de Git; los dos archivos de bloqueo se conservan.
 

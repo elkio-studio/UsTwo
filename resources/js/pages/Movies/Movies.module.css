@@ -1,0 +1,15 @@
+.add {
+  composes: ustwo-movies-add from global;
+}
+
+.list {
+  composes: ustwo-movies-list from global;
+}
+
+.entry {
+  composes: ustwo-movies-entry from global;
+}
+
+.scores {
+  composes: ustwo-movies-scores from global;
+}

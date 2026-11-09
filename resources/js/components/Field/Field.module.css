@@ -1,0 +1,7 @@
+.field {
+  composes: ustwo-field-field from global;
+}
+
+.error {
+  composes: ustwo-field-error from global;
+}

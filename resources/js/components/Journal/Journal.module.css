@@ -1,0 +1,11 @@
+.journal {
+  composes: ustwo-journal-journal from global;
+}
+
+.header {
+  composes: ustwo-journal-header from global;
+}
+
+.wordmark {
+  composes: ustwo-journal-wordmark from global;
+}

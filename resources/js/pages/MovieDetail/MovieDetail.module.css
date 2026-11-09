@@ -1,0 +1,15 @@
+.section {
+  composes: ustwo-movie-detail-section from global;
+}
+
+.contribution {
+  composes: ustwo-movie-detail-contribution from global;
+}
+
+.actions {
+  composes: ustwo-movie-detail-actions from global;
+}
+
+.danger {
+  composes: ustwo-movie-detail-danger from global;
+}

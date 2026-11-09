@@ -1,6 +1,14 @@
 <?php
 
 return [
+    'devtools' => [
+        'enabled' => false,
+    ],
+
+    'history' => [
+        'encrypt' => true,
+    ],
+
     'ssr' => [
         'enabled' => false,
     ],

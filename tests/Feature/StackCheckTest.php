@@ -12,33 +12,32 @@ class StackCheckTest extends TestCase
     {
         $this->withoutVite();
 
-        $this->get('/')
+        $this->get('/comprobacion')
             ->assertOk()
             ->assertSee('lang="es"', false)
             ->assertInertia(fn (Assert $page) => $page
-                ->component('StackCheck')
+                ->component('StackCheck/StackCheck')
                 ->where('message', 'Laravel e Inertia están conectados con React.')
             );
 
-        $this->assertNull(config('database.default'));
         $this->assertSame([], DB::getConnections());
     }
 
     public function test_inertia_requests_receive_json_without_opening_database_connections(): void
     {
         $this->withoutVite();
-        $initialPage = $this->get('/')->assertOk()->viewData('page');
+        $initialPage = $this->get('/comprobacion')->assertOk()->viewData('page');
 
-        $this->get('/', [
+        $this->get('/comprobacion', [
             'X-Inertia' => 'true',
             'X-Requested-With' => 'XMLHttpRequest',
             'X-Inertia-Version' => $initialPage['version'] ?? '',
         ])
             ->assertOk()
             ->assertHeader('X-Inertia', 'true')
-            ->assertJsonPath('component', 'StackCheck')
+            ->assertJsonPath('component', 'StackCheck/StackCheck')
             ->assertJsonPath('props.message', 'Laravel e Inertia están conectados con React.')
-            ->assertJsonPath('url', '/');
+            ->assertJsonPath('url', '/comprobacion');
 
         $this->assertSame([], DB::getConnections());
     }
@@ -49,6 +48,5 @@ class StackCheckTest extends TestCase
 
         $this->assertSame([], DB::getConnections());
         $this->assertSame('sync', config('queue.default'));
-        $this->assertFileDoesNotExist(database_path('database.sqlite'));
     }
 }
