@@ -1,0 +1,97 @@
+name: UsTwo CI/CD
+
+on:
+  push:
+    branches: [dev, main]
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: ustwo_ci
+          POSTGRES_USER: ustwo_ci
+          POSTGRES_PASSWORD: ustwo_ci
+        ports:
+          - 55432:5432
+        options: >-
+          --health-cmd "pg_isready -U ustwo_ci -d ustwo_ci"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962
+        with:
+          php-version: '8.5'
+          extensions: pdo_sqlite, pdo_pgsql, curl, mbstring, zip
+          tools: composer:2.11.1
+          coverage: none
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Instalar dependencias y compilar
+        run: |
+          composer install --no-interaction --prefer-dist
+          cp .env.example .env
+          php artisan key:generate --no-interaction
+          npm ci --ignore-scripts
+          npm run build
+      - name: Probar SQLite y PostgreSQL aislados
+        run: |
+          vendor/bin/phpunit
+          vendor/bin/phpunit -c phpunit.pgsql.xml
+      - name: Construir y arrancar la imagen de Render
+        run: |
+          docker build --tag ustwo-ci .
+          container="$(docker run --detach --network host \
+            --env PORT=18080 \
+            --env APP_URL=http://127.0.0.1:18080 \
+            --env APP_KEY="$(php artisan key:generate --show)" \
+            --env DB_CONNECTION=pgsql \
+            --env DB_URL=postgresql://ustwo_ci:ustwo_ci@127.0.0.1:55432/ustwo_ci \
+            --env DB_SSLMODE=disable \
+            --env SESSION_DRIVER=database ustwo-ci)"
+          trap 'docker rm -f "$container" >/dev/null' EXIT
+          curl --fail --silent --show-error --retry 12 --retry-connrefused \
+            --header 'Accept: application/json' http://127.0.0.1:18080/up \
+            | jq -e '.status == "up"'
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' \
+            http://127.0.0.1:18080/acceso)" = 200
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment: production
+    concurrency:
+      group: ustwo-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962
+        with:
+          php-version: '8.5'
+          extensions: pdo_pgsql, curl, mbstring, zip
+          tools: composer:2.11.1
+          coverage: none
+      - run: composer install --no-dev --no-interaction --prefer-dist
+      - name: Migrar y publicar el commit comprobado
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RENDER_SERVICE_ID: ${{ vars.RENDER_SERVICE_ID }}
+          RENDER_PUBLIC_URL: ${{ vars.RENDER_PUBLIC_URL }}
+          RENDER_BOOTSTRAP: ${{ vars.RENDER_BOOTSTRAP }}
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          SUPABASE_MIGRATION_URL: ${{ secrets.SUPABASE_MIGRATION_URL }}
+          SUPABASE_CA_PEM: ${{ secrets.SUPABASE_CA_PEM }}
+        run: bash deploy/publish.sh

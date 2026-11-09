@@ -122,7 +122,12 @@ presentar alternativas, pero no elegir ni implementar una de ellas.
   de despliegue.
 - Persistencia aprobada: SQLite para el MVP y sus pruebas locales.
   PostgreSQL se utilizará para verificar el despliegue en la fase posterior.
-  Quedan por concretar el servicio de PostgreSQL y el plan de alojamiento.
+  La especificación y el plan 007 concretan Render Free con Docker y PHP 8.5,
+  PostgreSQL y sesiones en Supabase Free por TLS, y CI en cada push a
+  `dev` o `main`. Tras CI en `main`, GitHub Actions migra con una credencial
+  separada y solicita el despliegue del mismo commit. El seeder inicial se
+  ejecuta desde un equipo autorizado.
+- Despliegue: [007-despliegue-render/spec.md](specs/007-despliegue-render/spec.md).
 - Especificación: [005-mvp-ustwo/spec.md](specs/005-mvp-ustwo/spec.md).
 
 Cuando se apruebe una decisión relevante, se añadirá aquí de forma concisa con:

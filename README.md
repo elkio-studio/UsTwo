@@ -171,6 +171,85 @@ El CSS global se importa solo desde páginas principales. SSR está
 desactivado en Laravel y Vite. `.env`, dependencias, sesiones, cachés, logs y
 assets compilados quedan fuera de Git; los dos archivos de bloqueo se conservan.
 
+## Despliegue en Render Free
+
+El flujo de GitHub Actions verifica cada push a `dev` y `main`. Compila los
+recursos, ejecuta PHPUnit con SQLite y con PostgreSQL temporal, y construye
+la imagen de Render. Solo CI correcto en `main` habilita la publicación.
+La configuración de PostgreSQL para pruebas se usa exclusivamente con una
+base desechable `ustwo_ci` en el puerto local 55432.
+
+### Configuración inicial
+
+1. Crea un proyecto Supabase Free vacío en Europa si está disponible.
+   Desactiva su Data API. Usa la URL del pooler de sesión y la CA del
+   proyecto para conectar mediante TLS con `verify-full`. Usa las URL de
+   conexión sin parámetros de consulta para que el modo TLS lo determine
+   la configuración de Laravel.
+2. Separa las credenciales. El rol de migración posee el esquema de UsTwo
+   y puede crear y modificar sus tablas. El rol de aplicación puede
+   conectar y usar el esquema, leer y modificar los datos necesarios y
+   usar las secuencias, sin permisos DDL. Configura esos permisos también
+   para tablas y secuencias que cree el rol de migración. Comprueba que
+   el rol de aplicación no puede crear tablas.
+3. Configura el entorno `production` de GitHub Actions restringido a
+   `main` si el plan del repositorio lo permite. Guarda
+   `SUPABASE_MIGRATION_URL`, `SUPABASE_CA_PEM` y, cuando exista el servicio,
+   `RENDER_API_KEY` como secretos. Si el plan gratuito del repositorio
+   carece de entornos, usa secretos del repositorio y protege `main`
+   frente a cambios no autorizados. Comprueba las cuotas y evita habilitar
+   consumo de pago.
+4. Para el primer arranque, activa la variable `RENDER_BOOTSTRAP=true`
+   y mantén estable `main`. Promueve el commit aprobado. Espera a que CI
+   pase y el trabajo de publicación confirme las migraciones de ese SHA.
+   Hasta el alta del servicio, el trabajo indica «publicación pendiente».
+5. Con el mismo SHA en `main`, crea un **Web Service Free** de Render
+   enlazado al repositorio con Docker y **Auto-Deploy Off**. Usa `/up`
+   para el health check. Configura antes del primer arranque
+   `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL` con la URL HTTPS,
+   `APP_KEY` estable, `DB_CONNECTION=pgsql`, `DB_URL` del rol de
+   aplicación, `DB_SSLMODE=verify-full`, `DB_SSLROOTCERT` apuntando al
+   archivo secreto de CA, `SESSION_DRIVER=database`,
+   `SESSION_SECURE_COOKIE=true`, `LOG_CHANNEL=stderr` y `TMDB_TOKEN`.
+   Comprueba en Render que el primer despliegue corresponde al SHA de CI.
+6. Registra `RENDER_SERVICE_ID` y `RENDER_PUBLIC_URL` como variables,
+   guarda el secreto de la API de Render y desactiva `RENDER_BOOTSTRAP`.
+   Reejecuta la publicación del mismo SHA. GitHub Actions aplica las
+   migraciones pendientes y espera a que Render confirme el SHA y HTTPS.
+
+Mantén las URL con contraseña y tokens fuera de Git y de los comandos
+copiados en registros. En un equipo autorizado, configura temporalmente
+`APP_ENV=production`, `DB_CONNECTION=pgsql`, `DB_URL` con el rol de
+aplicación, `DB_SSLMODE=verify-full` y `DB_SSLROOTCERT` con la CA. Ejecuta
+interactivamente este comando con PHP 8.5 y PDO PostgreSQL:
+
+```text
+php artisan db:seed --class="App\Database\Seeders\ProductionUsersSeeder" --force
+```
+
+Verifica las dos cuentas con los mismos correos al repetir el seeder. Para
+recuperar una contraseña, usa `ustwo:account` con el correo existente
+desde el equipo autorizado. Retira la configuración temporal al terminar.
+
+### Comprobación y recuperación
+
+- Comprueba en GitHub Actions y Render el estado del despliegue y su SHA.
+  Prueba `/up`, el acceso de ambas cuentas, el rechazo anónimo, TMDB y un
+  registro compartido que siga disponible tras redesplegar.
+- Si falla una migración, revisa sus resultados desde una conexión
+  autorizada antes de reintentar. Si falla el despliegue, revisa el estado
+  de la revisión anterior. Un rollback de aplicación exige que esa
+  revisión siga siendo compatible con el esquema actual.
+- Render Free puede tardar en responder tras reposo. Si Supabase está
+  pausado, restáuralo desde su panel y vuelve a comprobar `/up`.
+- Antes de promover cambios de esquema sobre datos existentes, exporta
+  el esquema y los datos de UsTwo con `pg_dump` usando TLS desde un
+  equipo autorizado. Cifra la copia con una herramienta local y guárdala
+  fuera del repositorio. Comprueba una restauración con `pg_restore`
+  en PostgreSQL aislado antes de usar una copia para recuperar producción.
+- Revisa periódicamente los planes y cuotas de Render, Supabase y GitHub
+  Actions. Detén el proceso si continuar requiere recursos de pago.
+
 ## Proceso de trabajo
 
 Los cambios relevantes siguen el proceso SDD descrito en

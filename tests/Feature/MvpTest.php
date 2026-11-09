@@ -48,13 +48,15 @@ class MvpTest extends TestCase
         $this->get('/peliculas/nueva')->assertInertia(fn (Assert $page) => $page->component('MovieCreate/MovieCreate'));
         $this->post('/peliculas', ['title' => 'Sin fecha'])->assertSessionHasErrors('watched_on');
         $this->post('/peliculas', ['watched_on' => '2024-01-01'])->assertSessionHasErrors('title');
-        $this->post('/peliculas', ['title' => 'Alien', 'watched_on' => '2024-01-01'])->assertRedirect('/peliculas/1');
+        $this->post('/peliculas', ['title' => 'Alien', 'watched_on' => '2024-01-01'])
+            ->assertRedirect(route('movies.show', Movie::where('title', 'Alien')->firstOrFail()));
         $this->actingAs($this->alejandra)->post('/peliculas', ['title' => 'Arrival', 'watched_on' => '2025-01-01'])
-            ->assertRedirect('/peliculas/2');
+            ->assertRedirect(route('movies.show', Movie::where('title', 'Arrival')->firstOrFail()));
         $this->get('/peliculas')->assertInertia(fn (Assert $page) => $page
             ->where('movies.0.title', 'Arrival')->where('movies.1.title', 'Alien')->missing('movies.1.watched_on'));
-        $this->patch('/peliculas/1', ['watched_on' => '2025-01-02'])->assertRedirect('/peliculas/1');
-        $this->actingAs($this->angel)->get('/peliculas/1')->assertInertia(fn (Assert $page) => $page
+        $alien = route('movies.show', Movie::where('title', 'Alien')->firstOrFail());
+        $this->patch($alien, ['watched_on' => '2025-01-02'])->assertRedirect($alien);
+        $this->actingAs($this->angel)->get($alien)->assertInertia(fn (Assert $page) => $page
             ->where('movie.watched_on', '2025-01-02'));
         $this->assertDatabaseCount('movies', 2);
     }
@@ -66,11 +68,14 @@ class MvpTest extends TestCase
         $this->post('/peliculas', ['title' => 'Crash', 'watched_on' => '2024-02-01'])->assertSessionHasErrors('release_year');
         $data = ['title' => 'Crash', 'release_year' => 2004, 'watched_on' => '2024-02-01'];
         $this->post('/peliculas', $data)->assertSessionHasErrors('match')->assertSessionHas('movie_candidates.0.id', $movie->id);
-        $this->post('/peliculas', $data + ['candidate_id' => $movie->id])->assertRedirect('/peliculas/1');
-        $this->post('/peliculas', $data + ['distinct' => true, 'candidate_ids' => [$movie->id]])->assertRedirect('/peliculas/2');
+        $this->post('/peliculas', $data + ['candidate_id' => $movie->id])->assertRedirect(route('movies.show', $movie));
+        $response = $this->post('/peliculas', $data + ['distinct' => true, 'candidate_ids' => [$movie->id]]);
+        $distinct = Movie::where('release_year', 2004)->firstOrFail();
+        $response->assertRedirect(route('movies.show', $distinct));
         $movie->update(['release_year' => 1996]);
-        $this->post('/peliculas', $data)->assertSessionHasErrors('match')->assertSessionHas('movie_candidates.0.id', 2);
-        $this->post('/peliculas', array_replace($data, ['release_year' => 2024]))->assertRedirect('/peliculas/3');
+        $this->post('/peliculas', $data)->assertSessionHasErrors('match')->assertSessionHas('movie_candidates.0.id', $distinct->id);
+        $response = $this->post('/peliculas', array_replace($data, ['release_year' => 2024]));
+        $response->assertRedirect(route('movies.show', Movie::where('release_year', 2024)->firstOrFail()));
     }
 
     public function test_rating_ownership_and_concurrent_common_edits_and_deletion(): void
@@ -116,15 +121,17 @@ class MvpTest extends TestCase
         $second->ratings()->create(['user_id' => $this->angel->id, 'score' => 80, 'note' => 'Conservar']);
         $this->post('/peliculas', ['tmdb_id' => 44])->assertSessionHasErrors('match')
             ->assertSessionHas('movie_candidates', fn ($matches) => collect($matches)->pluck('id')->all() === [$first->id, $second->id]);
-        $this->post('/peliculas', ['tmdb_id' => 44, 'candidate_id' => $second->id])->assertRedirect('/peliculas/2');
+        $this->post('/peliculas', ['tmdb_id' => 44, 'candidate_id' => $second->id])->assertRedirect(route('movies.show', $second));
         $this->assertDatabaseHas('movies', ['id' => $second->id, 'watched_on' => '2024-02-01', 'tmdb_id' => 44]);
         $this->assertDatabaseHas('movies', ['id' => $first->id, 'tmdb_id' => null]);
         $this->assertDatabaseHas('movie_ratings', ['movie_id' => $second->id, 'score' => 80, 'note' => 'Conservar']);
-        $this->post('/peliculas', ['tmdb_id' => 44])->assertRedirect('/peliculas/2');
-        $this->post('/peliculas', ['title' => 'Sin año', 'release_year' => 2011, 'watched_on' => '2024-03-01'])->assertRedirect('/peliculas/3');
+        $this->post('/peliculas', ['tmdb_id' => 44])->assertRedirect(route('movies.show', $second));
+        $response = $this->post('/peliculas', ['title' => 'Sin año', 'release_year' => 2011, 'watched_on' => '2024-03-01']);
+        $manual = Movie::where('title', 'Sin año')->firstOrFail();
+        $response->assertRedirect(route('movies.show', $manual));
         $this->post('/peliculas', ['tmdb_id' => 45])->assertSessionHasErrors('match');
-        $this->post('/peliculas', ['tmdb_id' => 45, 'distinct' => true, 'candidate_ids' => [3], 'watched_on' => '2024-04-01'])
-            ->assertRedirect('/peliculas/4');
+        $response = $this->post('/peliculas', ['tmdb_id' => 45, 'distinct' => true, 'candidate_ids' => [$manual->id], 'watched_on' => '2024-04-01']);
+        $response->assertRedirect(route('movies.show', Movie::where('tmdb_id', 45)->firstOrFail()));
         $this->get('/creditos')->assertInertia(fn (Assert $page) => $page->component('Credits/Credits'));
     }
 

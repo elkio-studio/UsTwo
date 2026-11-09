@@ -2,7 +2,7 @@
 
 ## Foco actual
 
-Continuar desde la identidad visual «Una casa compartida».
+Verificar y publicar el despliegue 007 de UsTwo.
 
 ## Estado inmediato
 
