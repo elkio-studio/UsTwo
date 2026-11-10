@@ -10,13 +10,10 @@ horizontal en escritorio y vertical en móvil. Películas es el único cajón
 interactivo y los demás huecos quedan abiertos. Se quitó la altura mínima
 ligada al ancho para evitar el scroll de la escena.
 
-Pendiente decidir cómo adaptar el fondo a tablets. El ajuste actual estira
-la imagen al ancho y alto del espacio. La propuesta es conservar las dos
-escenas y sus proporciones, elegir el encuadre por la forma de la pantalla,
-prolongar visualmente la pared hasta los bordes y anclar el cajón a las
-coordenadas de la imagen. Si en tablet el mueble queda demasiado pequeño,
-valorar una tercera composición. Esta propuesta aún no está aprobada ni
-implementada.
+La adaptación a tablet conserva las dos escenas y sus proporciones. La
+orientación de la pantalla selecciona la imagen y el cajón comparte su
+marco. Los bordes se funden con un fondo de tonos de pared cálida. Queda
+pendiente revisar en pantalla si el tamaño del mueble en tablet es adecuado.
 
 El build pasó tras el último ajuste y se ejecutaron las pruebas SQLite en
 la implementación inicial. Falta comprobar en pantalla escritorio, móvil y

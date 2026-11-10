@@ -207,6 +207,19 @@ body:has(.ustwo-dashboard-shelf) {
 }
 
 .ustwo-dashboard-shelf {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  display: grid;
+  place-items: center;
+  container-type: size;
+  background: radial-gradient(ellipse at 12% 32%, #713310, transparent 55%),
+    radial-gradient(ellipse at 86% 20%, #632d12, var(--shelf-wall) 68%);
+}
+
+.ustwo-dashboard-scene {
+  --scene-ratio: 16 / 9;
+  --scene-image: url('../images/estanteria/escena-horizontal.webp');
   --drawer-x: 33.25%;
   --drawer-y: 32.1%;
   --drawer-width: 18.75%;
@@ -215,11 +228,21 @@ body:has(.ustwo-dashboard-shelf) {
   --candle-one-y: 22%;
   --candle-two-x: 88.65%;
   --candle-two-y: 17.8%;
+  position: relative;
+  isolation: isolate;
+  width: min(100cqw, calc(100cqh * var(--scene-ratio)));
+  aspect-ratio: var(--scene-ratio);
+}
+
+.ustwo-dashboard-scene::before {
+  content: '';
   position: absolute;
   inset: 0;
-  z-index: -1;
-  isolation: isolate;
-  background: #553016 url('../images/estanteria/escena-horizontal.webp') center / 100% 100% no-repeat;
+  pointer-events: none;
+  background: var(--scene-image) center / contain no-repeat;
+  mask-image: linear-gradient(to right, transparent, black 3%, black 97%, transparent),
+    linear-gradient(to bottom, transparent, black 4%, black 96%, transparent);
+  mask-composite: intersect;
 }
 
 .ustwo-dashboard-drawer {
@@ -303,8 +326,10 @@ body:has(.ustwo-dashboard-shelf) {
   65% { opacity: .55; transform: scale(.99); }
 }
 
-@media (max-width: 42rem) {
-  .ustwo-dashboard-shelf {
+@media (orientation: portrait) {
+  .ustwo-dashboard-scene {
+    --scene-ratio: 3 / 4;
+    --scene-image: url('../images/estanteria/escena-vertical.webp');
     --drawer-x: 51.7%;
     --drawer-y: 28%;
     --drawer-width: 28.7%;
@@ -313,7 +338,6 @@ body:has(.ustwo-dashboard-shelf) {
     --candle-one-y: 19.7%;
     --candle-two-x: 77.4%;
     --candle-two-y: 22.2%;
-    background-image: url('../images/estanteria/escena-vertical.webp');
   }
 }
 

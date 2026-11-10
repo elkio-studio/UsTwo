@@ -6,6 +6,10 @@
   composes: ustwo-dashboard-shelf from global;
 }
 
+.scene {
+  composes: ustwo-dashboard-scene from global;
+}
+
 .drawer {
   composes: ustwo-dashboard-drawer from global;
 }

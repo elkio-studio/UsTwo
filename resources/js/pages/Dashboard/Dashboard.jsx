@@ -33,11 +33,13 @@ export default function Dashboard() {
     <Journal title="Nuestra estantería">
       <p className={styles.subtitle}>Lo que guardamos juntos</p>
       <nav aria-label="Colecciones de UsTwo" className={styles.shelf}>
-        <span className={styles.candle} aria-hidden="true" />
-        <span className={styles.candle} aria-hidden="true" />
-        <Link href="/peliculas" className={styles.drawer} data-opening={opening} onClick={openDrawer}>
-          <span>Películas</span>
-        </Link>
+        <div className={styles.scene}>
+          <span className={styles.candle} aria-hidden="true" />
+          <span className={styles.candle} aria-hidden="true" />
+          <Link href="/peliculas" className={styles.drawer} data-opening={opening} onClick={openDrawer}>
+            <span>Películas</span>
+          </Link>
+        </div>
       </nav>
     </Journal>
   );
