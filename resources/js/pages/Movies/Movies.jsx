@@ -5,7 +5,7 @@ import styles from './Movies.module.css';
 
 export default function Movies({ movies, people }) {
   return (
-    <Journal title="Películas vistas" back={{ href: '/', label: 'Volver al cuaderno' }}>
+    <Journal title="Películas vistas" back={{ href: '/', label: 'Volver a la estantería' }}>
       <Link className={styles.add} href="/peliculas/nueva">{movies.length ? 'Añadir película' : 'Añadir la primera película'}</Link>
       {movies.length === 0 ? <p>Aún no hay películas registradas.</p> : (
         <ul className={styles.list}>

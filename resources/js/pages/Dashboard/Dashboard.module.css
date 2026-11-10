@@ -1,3 +1,15 @@
-.lists {
-  composes: ustwo-dashboard-lists from global;
+.subtitle {
+  composes: ustwo-dashboard-subtitle from global;
+}
+
+.shelf {
+  composes: ustwo-dashboard-shelf from global;
+}
+
+.drawer {
+  composes: ustwo-dashboard-drawer from global;
+}
+
+.candle {
+  composes: ustwo-dashboard-candle from global;
 }

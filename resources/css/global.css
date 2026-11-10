@@ -158,12 +158,169 @@ textarea { min-height: 6rem; resize: vertical; }
 }
 
 /* Dashboard */
-.ustwo-dashboard-lists a {
-  display: block;
-  padding-block: var(--space-medium);
-  border-block: var(--border-width) solid var(--color-divider);
+body:has(.ustwo-dashboard-shelf) {
+  --shelf-wall: #2f190f;
+  --shelf-text: #f7e4c8;
+  --shelf-label: #f0d5ad;
+  --shelf-ink: #382013;
+  --shelf-focus: #ffe3a3;
+  background: var(--shelf-wall);
+  color: var(--shelf-text);
+}
+
+.ustwo-journal-journal:has(> .ustwo-dashboard-shelf) {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-height: 100svh;
+  padding: 0 1rem 2rem;
+}
+
+.ustwo-journal-journal:has(> .ustwo-dashboard-shelf) .ustwo-journal-header {
+  margin-inline: auto;
+  max-width: 76rem;
+  border-color: #906646;
+}
+
+.ustwo-journal-journal:has(> .ustwo-dashboard-shelf) .ustwo-journal-wordmark {
+  color: inherit;
+}
+
+.ustwo-journal-journal:has(> .ustwo-dashboard-shelf) .ustwo-journal-header button {
+  border-color: #b08966;
+  background: var(--shelf-wall);
+}
+
+.ustwo-journal-journal:has(> .ustwo-dashboard-shelf) h1 {
+  margin-block: 0 .25rem;
+  text-align: center;
+  font-size: clamp(1.85rem, 4.5vw, 4rem);
+  text-shadow: 0 2px 8px var(--shelf-wall);
+}
+
+.ustwo-dashboard-subtitle {
+  margin-block: 0 1.25rem;
+  text-align: center;
   font-family: var(--font-display);
-  font-size: 1.3rem;
+  font-style: italic;
+  text-shadow: 0 2px 8px var(--shelf-wall);
+}
+
+.ustwo-dashboard-shelf {
+  --drawer-x: 33.25%;
+  --drawer-y: 32.1%;
+  --drawer-width: 18.75%;
+  --drawer-height: 24.3%;
+  --candle-one-x: 84.55%;
+  --candle-one-y: 22%;
+  --candle-two-x: 88.65%;
+  --candle-two-y: 17.8%;
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  isolation: isolate;
+  background: #553016 url('../images/estanteria/escena-horizontal.webp') center / 100% 100% no-repeat;
+}
+
+.ustwo-dashboard-drawer {
+  position: absolute;
+  inset: var(--drawer-y) auto auto var(--drawer-x);
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: clamp(.3rem, 1.5vw, 1rem);
+  width: var(--drawer-width);
+  height: var(--drawer-height);
+  min-width: var(--control-min-height);
+  min-height: var(--control-min-height);
+  border: 1px solid #5b3117;
+  border-radius: .15rem;
+  background: linear-gradient(125deg, #ffca7c38, #1c0a0038), url('../images/estanteria/frente-roble.webp') center / cover, #a3622c;
+  box-shadow: inset 0 1px #ffc88380, 0 2px 5px #180c05;
+  text-decoration: none;
+  transition: transform 220ms ease, box-shadow 220ms ease;
+}
+
+.ustwo-dashboard-drawer span {
+  padding: .12rem clamp(.2rem, 1vw, .65rem);
+  border-radius: .12rem;
+  background: var(--shelf-label);
+  color: var(--shelf-ink);
+  font: var(--font-weight-semibold) clamp(.72rem, 2vw, 1.35rem) / 1.3 var(--font-display);
+}
+
+.ustwo-dashboard-drawer::after {
+  content: '';
+  width: clamp(1.4rem, 5vw, 4rem);
+  height: clamp(.45rem, 1.3vw, .95rem);
+  border: 1px solid #623817;
+  border-radius: 65% 65% 25% 25%;
+  background: linear-gradient(165deg, #f3d18b, #99622d 55%, #5a351c);
+  box-shadow: 0 2px 3px #291406;
+}
+
+.ustwo-dashboard-drawer:hover { transform: translateY(2%); }
+.ustwo-dashboard-drawer:focus-visible { outline-color: var(--shelf-focus); }
+
+.ustwo-dashboard-drawer[data-opening='true'] {
+  transform: translateY(22%) scale(1.04);
+  box-shadow: 0 .5rem .9rem #180c05;
+}
+
+.ustwo-dashboard-candle {
+  position: absolute;
+  inset: var(--candle-one-y) auto auto var(--candle-one-x);
+  width: 14%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  pointer-events: none;
+  background: radial-gradient(ellipse, #ffc36344, transparent 69%);
+  mix-blend-mode: screen;
+  animation: ustwo-candle-glow 3.2s ease-in-out infinite alternate;
+}
+
+.ustwo-dashboard-candle + .ustwo-dashboard-candle {
+  inset: var(--candle-two-y) auto auto var(--candle-two-x);
+  animation-duration: 2.7s;
+  animation-delay: -1.6s;
+}
+
+.ustwo-dashboard-candle::after {
+  content: '';
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 3%;
+  height: 11%;
+  translate: -50% -50%;
+  border-radius: 75% 25% 60% 40%;
+  background: #fff3bf;
+  filter: blur(1px);
+}
+
+@keyframes ustwo-candle-glow {
+  0%, 100% { opacity: .45; transform: scale(.95); }
+  33% { opacity: .8; transform: scale(1.04); }
+  65% { opacity: .55; transform: scale(.99); }
+}
+
+@media (max-width: 42rem) {
+  .ustwo-dashboard-shelf {
+    --drawer-x: 51.7%;
+    --drawer-y: 28%;
+    --drawer-width: 28.7%;
+    --drawer-height: 12.7%;
+    --candle-one-x: 70.6%;
+    --candle-one-y: 19.7%;
+    --candle-two-x: 77.4%;
+    --candle-two-y: 22.2%;
+    background-image: url('../images/estanteria/escena-vertical.webp');
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ustwo-dashboard-candle { animation: none; opacity: .55; }
+  .ustwo-dashboard-drawer { transition: none; }
+  .ustwo-dashboard-drawer:hover { transform: none; }
 }
 
 /* Login */

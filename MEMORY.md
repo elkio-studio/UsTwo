@@ -2,10 +2,30 @@
 
 ## Foco actual
 
-El despliegue 007 está verificado y la especificación está completada.
+La especificación 008 «Nuestra estantería» está en implementación en
+`feat/nuestra-estanteria`, creada desde `dev`. Especificación y plan aprobados.
+El panel compartido usa un fondo de pared cálida a pantalla completa, con
+estantería suspendida, luna de pared en forma de C y velas. La escena es
+horizontal en escritorio y vertical en móvil. Películas es el único cajón
+interactivo y los demás huecos quedan abiertos. Se quitó la altura mínima
+ligada al ancho para evitar el scroll de la escena.
+
+Pendiente decidir cómo adaptar el fondo a tablets. El ajuste actual estira
+la imagen al ancho y alto del espacio. La propuesta es conservar las dos
+escenas y sus proporciones, elegir el encuadre por la forma de la pantalla,
+prolongar visualmente la pared hasta los bordes y anclar el cajón a las
+coordenadas de la imagen. Si en tablet el mueble queda demasiado pequeño,
+valorar una tercera composición. Esta propuesta aún no está aprobada ni
+implementada.
+
+El build pasó tras el último ajuste y se ejecutaron las pruebas SQLite en
+la implementación inicial. Falta comprobar en pantalla escritorio, móvil y
+tablet, además de apertura, retorno, teclado, tacto, fallo de imágenes y
+movimiento reducido. No abrir el navegador salvo petición expresa.
 
 ## Estado inmediato
 
+- El despliegue 007 está verificado y su especificación está completada.
 - El MVP 005 está implementado con SQLite local y tiene auditoría final
   `PASS`, incluida la integración real de TMDB. Véase la evidencia de
   verificación en sus tareas.
