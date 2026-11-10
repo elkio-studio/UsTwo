@@ -4,10 +4,11 @@ import { useState } from 'react';
 import { useForm } from '@inertiajs/react';
 import Journal from '../../components/Journal/Journal';
 import Field from '../../components/Field/Field';
+import MoviePoster from '../../components/MoviePoster/MoviePoster';
 import '../../../css/global.css';
 import styles from './MovieCreate.module.css';
 
-export default function MovieCreate({ candidates }) {
+export default function MovieCreate({ candidates, spaceId }) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState(null);
   const [searching, setSearching] = useState(false);
@@ -17,6 +18,8 @@ export default function MovieCreate({ candidates }) {
   const form = useForm({ title: '', release_year: '', watched_on: '' });
   const matches = form.errors.match ? candidates : [];
 
+  const moviesUrl = `/espacios/${spaceId}/peliculas`;
+
   async function search(event) {
     event.preventDefault();
     setSearching(true);
@@ -25,7 +28,7 @@ export default function MovieCreate({ candidates }) {
     setSelected(null);
     form.clearErrors();
     try {
-      const response = await fetch('/peliculas/catalogo?' + new URLSearchParams({ q: query }), {
+      const response = await fetch(`${moviesUrl}/catalogo?` + new URLSearchParams({ q: query }), {
         headers: { Accept: 'application/json' },
       });
       const payload = await response.json();
@@ -38,13 +41,14 @@ export default function MovieCreate({ candidates }) {
     }
   }
 
-  function save(extra = {}) {
+  function save(extra = {}, movie = selected) {
     form.transform((data) => ({
       ...data,
-      tmdb_id: manual ? null : selected.tmdb_id,
+      tmdb_id: manual ? null : movie.tmdb_id,
+      watched_on: manual ? data.watched_on : null,
       ...extra,
     }));
-    form.post('/peliculas', { preserveScroll: true });
+    form.post(moviesUrl, { preserveScroll: true, replace: true });
   }
 
   function changeIdentity(key, value) {
@@ -53,7 +57,7 @@ export default function MovieCreate({ candidates }) {
   }
 
   return (
-    <Journal title="Añadir película" back={{ href: '/peliculas', label: 'Volver a películas vistas' }}>
+    <Journal className={styles.cinema} title="Añadir película" back={{ href: moviesUrl, label: 'Volver a películas vistas' }}>
       {!manual && (
         <>
           <form onSubmit={search}>
@@ -61,22 +65,25 @@ export default function MovieCreate({ candidates }) {
               onChange={(event) => setQuery(event.target.value)} error={searchError} />
             <button disabled={searching || form.processing}>{searching ? 'Buscando…' : 'Buscar'}</button>
           </form>
-          {results && <p role="status">{results.length ? 'Elige la película entre los resultados.' : 'No hay resultados.'}</p>}
-          {results && <ul className={styles.choices}>
+          {!matches.length && (form.errors.catalog || form.errors.save || form.errors.match) &&
+            <p role="alert">{form.errors.catalog || form.errors.save || form.errors.match}</p>}
+          {results && !matches.length && <p role="status">{results.length ? 'Pulsa una película para añadirla con la fecha de hoy.' : 'No hay resultados.'}</p>}
+          {results && !matches.length && <ul className={styles.choices}>
             {results.map((movie) => <li key={movie.tmdb_id}>
               <button type="button" disabled={form.processing} aria-pressed={selected?.tmdb_id === movie.tmdb_id}
-                onClick={() => { setSelected(movie); form.clearErrors(); }}>
-                {movie.title}{movie.release_year ? ` (${movie.release_year})` : ''}
+                onClick={() => { setSelected(movie); form.clearErrors(); save({}, movie); }}>
+                <MoviePoster path={movie.poster_path} title={movie.title} size="w185" />
+                <span>{movie.title}{movie.release_year ? ` (${movie.release_year})` : ''}</span>
               </button>
             </li>)}
           </ul>}
-          {(results || searchError || form.errors.catalog) && <button type="button" disabled={form.processing}
-            onClick={() => { setManual(true); form.clearErrors(); }}>Añadir a mano</button>}
+          <button type="button" disabled={searching || form.processing}
+            onClick={() => { setManual(true); form.clearErrors(); }}>Añadir a mano</button>
         </>
       )}
       {manual && <button type="button" disabled={form.processing}
         onClick={() => { setManual(false); setSelected(null); form.clearErrors(); }}>Volver al catálogo</button>}
-      {(manual || selected) && (
+      {(manual || (selected && matches.length > 0)) && (
         <form className={styles.editor} onSubmit={(event) => { event.preventDefault(); save(); }}>
           <h2>{manual ? 'Alta manual' : selected.title}</h2>
           {manual && <>
@@ -85,8 +92,8 @@ export default function MovieCreate({ candidates }) {
             <Field label="Año de estreno (opcional)" type="number" min="1000" max="9999" value={form.data.release_year}
               onChange={(event) => changeIdentity('release_year', event.target.value)} error={form.errors.release_year} />
           </>}
-          <Field label="Fecha de visionado" type="date" required value={form.data.watched_on}
-            onChange={(event) => form.setData('watched_on', event.target.value)} error={form.errors.watched_on} />
+          {manual && <Field label="Fecha de visionado" type="date" required value={form.data.watched_on}
+            onChange={(event) => form.setData('watched_on', event.target.value)} error={form.errors.watched_on} />}
           {(form.errors.catalog || form.errors.save || form.errors.match) &&
             <p role="alert">{form.errors.catalog || form.errors.save || form.errors.match}</p>}
           {matches.length > 0 ? (
@@ -100,6 +107,8 @@ export default function MovieCreate({ candidates }) {
                 onClick={() => save({ distinct: true, candidate_ids: matches.map((movie) => movie.id) })}>
                 Ninguna corresponde, guardar otra
               </button>
+              {!manual && <button disabled={form.processing} type="button"
+                onClick={() => { setSelected(null); form.clearErrors(); }}>Volver a los resultados</button>}
             </fieldset>
           ) : <button disabled={form.processing}>Guardar película</button>}
         </form>

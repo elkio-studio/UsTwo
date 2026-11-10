@@ -3,6 +3,7 @@
 namespace App\Database\Seeders;
 
 use App\Models\User;
+use App\Models\Space;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -59,7 +60,16 @@ class ProductionUsersSeeder extends Seeder
                 throw new RuntimeException('Las cuentas cambiaron durante el aprovisionamiento.');
             }
             foreach (array_diff(array_keys($accounts), $existing) as $email) {
-                User::create(['email' => $email, 'name' => $accounts[$email], 'password' => $passwords[$email]]);
+                $username = $accounts[$email] === 'Ángel' ? 'angl_j_rgl' : 'Aleismowgli';
+                User::create([
+                    'email' => $email, 'name' => $accounts[$email], 'password' => $passwords[$email],
+                    'username' => $username, 'username_key' => strtolower($username),
+                ]);
+            }
+            if ($existing === []) {
+                $members = User::whereIn('email', array_keys($accounts))->pluck('id', 'email');
+                $space = Space::create(['name' => 'Nuestra estantería', 'owner_id' => $members[array_key_first($accounts)]]);
+                $space->members()->attach($members->values()->all());
             }
         });
     }

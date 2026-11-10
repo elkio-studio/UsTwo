@@ -9,8 +9,8 @@ un dashboard desde el que cada lista abre su propia página.
 El proyecto está en fase de definición de producto. La base tecnológica aprobada
 es Laravel 13 + Inertia 3 + React 19 con JavaScript y JSX, CSS puro y CSS Modules,
 con PHP 8.5 separado de XAMPP, Vite 8, Composer y npm con configuración mínima.
-El MVP local ofrece el cuaderno privado de películas vistas y usa SQLite para
-las cuentas, películas y valoraciones. Las sesiones y la caché locales usan
+UsTwo ofrece un cuaderno privado de películas por espacio compartido. En
+local, SQLite guarda las cuentas, espacios, invitaciones, películas y valoraciones. Las sesiones y la caché locales usan
 archivos y las colas son síncronas. La verificación con PostgreSQL y el
 despliegue en Render quedan para la fase posterior.
 
@@ -123,8 +123,6 @@ if (-not (Test-Path -LiteralPath 'database/database.sqlite')) {
     New-Item -ItemType File -Path 'database/database.sqlite' | Out-Null
 }
 & $php85Exe -c "$php85Dir/php.ini" -d extension=pdo_sqlite artisan migrate
-& $php85Exe -c "$php85Dir/php.ini" -d extension=pdo_sqlite artisan ustwo:account angel@gmail.com Ángel
-& $php85Exe -c "$php85Dir/php.ini" -d extension=pdo_sqlite artisan ustwo:account alejandra@gmail.com Alejandra
 Push-Location public
 try {
     & $php85Exe -c "$php85Dir/php.ini" -d extension=pdo_sqlite -S 127.0.0.1:8000 ../vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php
@@ -133,13 +131,29 @@ try {
 }
 ```
 
-Sustituye los correos de ejemplo por los de las cuentas. El comando pide
-la contraseña de forma interactiva. Para restablecerla manualmente, ejecuta
-el mismo comando con el correo de la cuenta. La base SQLite se ignora en Git.
+En El recibidor puedes iniciar sesión o crear una cuenta con un nombre de
+usuario único. **Tus estanterías** muestra tus estanterías y permite crear
+otra al final de la lista. Dentro de cada una, el propietario puede
+renombrarla, invitar por nombre de usuario, retirar accesos o borrarla.
+Los invitados pueden salir de ella. La persona invitada responde desde el
+botón circular de la esquina inferior izquierda. El menú de tu `@usuario`
+abre **Mi cuenta**, donde puedes cambiar tus credenciales y consultar tu rol
+en cada estantería. El botón `+` permite colocar o mover Películas.
+
+En una base local ya usada, copia `database/database.sqlite` antes de migrar.
+La migración asigna las películas y valoraciones de las dos cuentas
+originales a Nuestra estantería, propiedad de Ángel. Si detecta cuentas
+heredadas diferentes, se detiene para que se compruebe la identidad de las
+cuentas. La base SQLite se ignora en Git.
+
+Para restablecer manualmente la contraseña de una cuenta, usa
+`artisan ustwo:account <correo> <nombre>`. Si creas una cuenta con ese
+comando, añade `--username=<nombre_de_usuario>`.
 
 Para crear las dos cuentas de prueba con los correos de ejemplo, tras migrar
 SQLite y antes de arrancar el servidor, ejecuta el seeder local. Solicita
-las contraseñas y conserva las cuentas de ejemplo que ya existan.
+las contraseñas, conserva las cuentas de ejemplo que ya existan y, si la
+base está vacía, prepara el espacio inicial de Ángel y Alejandra.
 
 ```powershell
 & $php85Exe -c "$php85Dir/php.ini" -d extension=pdo_sqlite artisan db:seed '--class=App\Database\Seeders\LocalUsersSeeder'
@@ -148,6 +162,10 @@ las contraseñas y conserva las cuentas de ejemplo que ya existan.
 Para activar el catálogo, configura `TMDB_TOKEN` en `.env` con el token de
 lectura de TMDB. Si falta el token o falla el catálogo, la pantalla ofrece
 el alta manual.
+
+La colección muestra portadas y sinopsis de TMDB cuando están disponibles.
+El comando `php artisan ustwo:movie-metadata` completa estos datos en películas
+ya vinculadas sin cambiar sus títulos, fechas ni valoraciones.
 
 Si PHP en Windows devuelve el error cURL 60, configura `curl.cainfo` en
 el `php.ini` independiente de UsTwo con un archivo PEM de certificados raíz
@@ -252,9 +270,36 @@ en el `.env` local, el seeder usa esa contraseña para ambas cuentas nuevas.
 Si falta o está vacía, solicita cada contraseña de forma oculta.
 Retira `PASSWORD_ACCOUNT` del `.env` después del alta.
 
-Verifica las dos cuentas con los mismos correos al repetir el seeder. Para
+Verifica las dos cuentas con los mismos correos al repetir el seeder.
+Con la base vacía, el seeder también crea su espacio compartido inicial. Para
 recuperar una contraseña, usa `ustwo:account` con el correo existente
 desde el equipo autorizado. Retira la configuración temporal al terminar.
+
+### Primera publicación de El recibidor
+
+1. Prepara una copia cifrada y comprueba su restauración en PostgreSQL aislado.
+   Registra los permisos actuales de `ustwo_app` sobre las dos tablas.
+2. Durante la ventana de mantenimiento, retira esos permisos. Desde una
+   conexión autorizada con capacidad para administrar el esquema, ejecuta:
+
+   ```sql
+   REVOKE SELECT, INSERT, UPDATE, DELETE, TRUNCATE
+   ON TABLE public.movies, public.movie_ratings FROM ustwo_app;
+   ```
+
+   Comprueba con una conexión existente y otra nueva del rol de aplicación
+   que ya no pueden leer ni escribir en esas tablas. Revisa también posibles
+   permisos heredados. La migración espera a que terminen las operaciones en
+   curso y falla si el rol de aplicación conserva acceso.
+3. Promueve a `main` con el bloqueo vigente y espera al flujo de GitHub
+   Actions. Antes de reponer los permisos originales, confirma en Render que
+   el commit nuevo sirve tráfico y que la revisión anterior ya no lo recibe.
+4. Comprueba el acceso de las dos cuentas y la conservación de sus datos.
+   Si falla la publicación, conserva el bloqueo hasta validar una revisión
+   que aplique el aislamiento. Para recuperar el esquema, restaura la copia
+   previa en un entorno aislado y valida los datos antes de reabrir el servicio.
+   Una vez creados varios espacios, la versión de recuperación también debe
+   aislar sus colecciones.
 
 ### Comprobación y recuperación
 

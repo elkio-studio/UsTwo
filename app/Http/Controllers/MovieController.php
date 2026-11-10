@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Movie;
-use App\Models\User;
+use App\Models\Space;
 use App\Services\Tmdb;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
@@ -14,37 +14,66 @@ use Inertia\Inertia;
 
 class MovieController extends Controller
 {
-    public function index()
+    public function legacy(Request $request, ?string $legacy = null)
     {
+        $spaces = $request->user()->spaces();
+        $space = (clone $spaces)->whereKey($request->session()->get('active_space'))->first()
+            ?? $spaces->orderBy('spaces.id')->first();
+        abort_unless($space, 404);
+
+        if ($legacy === null || $legacy === 'nueva') {
+            return to_route($legacy === null ? 'movies.index' : 'movies.create', $space);
+        }
+
+        return to_route('movies.show', [$space, $space->movies()->findOrFail($legacy)]);
+    }
+
+    public function index(Space $space)
+    {
+        $movies = $space->movies()->with('ratings:id,movie_id,user_id,score')
+            ->orderByDesc('watched_on')->orderByDesc('id')->paginate(12, ['id', 'title', 'poster_path']);
+
+        if ($movies->currentPage() > $movies->lastPage()) {
+            return redirect($movies->url($movies->lastPage()));
+        }
+
         return Inertia::render('Movies/Movies', [
-            'movies' => Movie::with('ratings:id,movie_id,user_id,score')
-                ->orderByDesc('watched_on')->orderByDesc('id')->get(['id', 'title']),
-            'people' => User::orderBy('id')->get(['id', 'name']),
+            'spaceId' => $space->id,
+            'spaceSlug' => $space->slug,
+            'movies' => $movies->items(),
+            'pagination' => [
+                'page' => $movies->currentPage(),
+                'last' => $movies->lastPage(),
+                'previous' => $movies->previousPageUrl(),
+                'next' => $movies->nextPageUrl(),
+            ],
+            'people' => $space->members()->orderBy('users.id')->get(['users.id', 'name'])->map->only(['id', 'name']),
         ]);
     }
 
-    public function create(Request $request)
+    public function create(Request $request, Space $space)
     {
-        return Inertia::render('MovieCreate/MovieCreate', ['candidates' => $request->session()->get('movie_candidates', [])]);
+        return Inertia::render('MovieCreate/MovieCreate', ['spaceId' => $space->id, 'candidates' => $request->session()->get('movie_candidates.'.$space->id, [])]);
     }
 
-    public function search(Request $request, Tmdb $tmdb)
+    public function search(Request $request, Space $space, Tmdb $tmdb)
     {
         $query = $request->validate(['q' => 'required|string|max:255']);
 
         return response()->json(['movies' => $tmdb->search($query['q'])]);
     }
 
-    public function show(Movie $movie, Request $request)
+    public function show(Request $request, Space $space, Movie $movie)
     {
         return Inertia::render('MovieDetail/MovieDetail', [
+            'spaceId' => $space->id,
             'movie' => $movie->load('ratings'),
-            'people' => User::orderBy('id')->get(['id', 'name']),
+            'people' => $space->members()->orderBy('users.id')->get(['users.id', 'name'])->map->only(['id', 'name']),
             'viewerId' => $request->user()->id,
         ]);
     }
 
-    public function store(Request $request, Tmdb $tmdb)
+    public function store(Request $request, Space $space, Tmdb $tmdb)
     {
         $input = $request->validate([
             'tmdb_id' => 'nullable|integer|min:1',
@@ -55,8 +84,8 @@ class MovieController extends Controller
         ]);
         $tmdbId = $input['tmdb_id'] ?? null;
 
-        if ($tmdbId && ($existing = Movie::where('tmdb_id', $tmdbId)->first())) {
-            return to_route('movies.show', $existing);
+        if ($tmdbId && ($existing = $space->movies()->where('tmdb_id', $tmdbId)->first())) {
+            return to_route('movies.show', [$space, $existing]);
         }
 
         $metadata = $tmdbId
@@ -68,8 +97,8 @@ class MovieController extends Controller
         $year = $metadata['release_year'] ?? null;
 
         try {
-            return DB::transaction(function () use ($request, $input, $tmdbId, $metadata, $year) {
-                $sameTitle = Movie::when($tmdbId, fn ($query) => $query->whereNull('tmdb_id'))
+            return DB::transaction(function () use ($request, $space, $input, $tmdbId, $metadata, $year) {
+                $sameTitle = $space->movies()->when($tmdbId, fn ($query) => $query->whereNull('tmdb_id'))
                     ->orderBy('id')->get(['id', 'title', 'release_year', 'watched_on'])
                     ->filter(fn (Movie $movie) => mb_strtolower($movie->title) === mb_strtolower($metadata['title']));
 
@@ -82,15 +111,19 @@ class MovieController extends Controller
 
                 if ($candidateId = $input['candidate_id'] ?? null) {
                     $candidate = $candidates->firstWhere('id', $candidateId);
-                    if ($candidate && (! $tmdbId || Movie::whereKey($candidateId)->whereNull('tmdb_id')->update(['tmdb_id' => $tmdbId]))) {
-                        return to_route('movies.show', $candidate);
+                    if ($candidate && (! $tmdbId || $space->movies()->whereKey($candidateId)->whereNull('tmdb_id')->update([
+                        'tmdb_id' => $tmdbId,
+                        'poster_path' => $metadata['poster_path'],
+                        'overview' => $metadata['overview'],
+                    ]))) {
+                        return to_route('movies.show', [$space, $candidate]);
                     }
                 }
 
                 $reviewedIds = collect($input['candidate_ids'] ?? [])->map(fn ($id) => (int) $id)->sort()->values()->all();
                 if ($candidates->isNotEmpty() && (! ($input['distinct'] ?? false)
                     || $reviewedIds !== $candidates->pluck('id')->sort()->values()->all())) {
-                    return back()->with('movie_candidates', $candidates)
+                    return back()->with('movie_candidates.'.$space->id, $candidates)
                         ->withErrors(['match' => 'Confirma si alguna entrada corresponde a la misma película.']);
                 }
 
@@ -98,21 +131,23 @@ class MovieController extends Controller
                     throw ValidationException::withMessages(['match' => 'La entrada elegida ya no está disponible. Revisa la selección.']);
                 }
 
-                $date = $request->validate(['watched_on' => 'required|date_format:Y-m-d|before_or_equal:today']);
-                $movie = Movie::create($metadata + $date);
+                $date = $request->validate([
+                    'watched_on' => ($tmdbId ? 'nullable' : 'required').'|date_format:Y-m-d|before_or_equal:today',
+                ]);
+                $movie = $space->movies()->create($metadata + ['watched_on' => $date['watched_on'] ?? today()->toDateString()]);
 
-                return to_route('movies.show', $movie);
+                return to_route('movies.show', [$space, $movie]);
             });
         } catch (UniqueConstraintViolationException $exception) {
-            if ($tmdbId && ($existing = Movie::where('tmdb_id', $tmdbId)->first())) {
-                return to_route('movies.show', $existing);
+            if ($tmdbId && ($existing = $space->movies()->where('tmdb_id', $tmdbId)->first())) {
+                return to_route('movies.show', [$space, $existing]);
             }
 
             throw $exception;
         }
     }
 
-    public function update(Request $request, Movie $movie)
+    public function update(Request $request, Space $space, Movie $movie)
     {
         $data = $request->validate([
             'title' => 'sometimes|required|string|max:255',
@@ -124,16 +159,16 @@ class MovieController extends Controller
         $year = array_key_exists('release_year', $data) ? $data['release_year'] : $movie->release_year;
 
         if ($movie->tmdb_id === null && $year === null && ($request->has('title') || $request->has('release_year'))
-            && Movie::whereKeyNot($movie->id)->pluck('title')->contains(fn ($other) => mb_strtolower($other) === mb_strtolower($title))) {
+            && $space->movies()->whereKeyNot($movie->id)->pluck('title')->contains(fn ($other) => mb_strtolower($other) === mb_strtolower($title))) {
             throw ValidationException::withMessages(['release_year' => 'Indica el año de estreno para distinguir títulos iguales.']);
         }
 
         $movie->update($data);
 
-        return to_route('movies.show', $movie);
+        return to_route('movies.show', [$space, $movie]);
     }
 
-    public function rating(Request $request, Movie $movie)
+    public function rating(Request $request, Space $space, Movie $movie)
     {
         $data = Validator::make($request->all(), [
             'score' => 'present|nullable|integer|between:0,100',
@@ -147,14 +182,14 @@ class MovieController extends Controller
             ['score', 'note'],
         );
 
-        return to_route('movies.show', $movie);
+        return to_route('movies.show', [$space, $movie]);
     }
 
-    public function destroy(Request $request, Movie $movie)
+    public function destroy(Request $request, Space $space, Movie $movie)
     {
         $request->validate(['confirmed' => 'accepted']);
         $movie->delete();
 
-        return to_route('movies.index');
+        return to_route('movies.index', $space);
     }
 }

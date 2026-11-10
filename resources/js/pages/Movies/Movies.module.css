@@ -2,6 +2,18 @@
   composes: ustwo-movies-add from global;
 }
 
+.cinema {
+  composes: ustwo-cinema from global;
+}
+
+.intro {
+  composes: ustwo-movies-intro from global;
+}
+
+.empty {
+  composes: ustwo-movies-empty from global;
+}
+
 .list {
   composes: ustwo-movies-list from global;
 }
@@ -12,4 +24,12 @@
 
 .scores {
   composes: ustwo-movies-scores from global;
+}
+
+.caption {
+  composes: ustwo-movies-caption from global;
+}
+
+.pagination {
+  composes: ustwo-movies-pagination from global;
 }

@@ -1,3 +1,7 @@
+.actions {
+  composes: ustwo-journal-actions from global;
+}
+
 .journal {
   composes: ustwo-journal-journal from global;
 }
@@ -8,4 +12,16 @@
 
 .wordmark {
   composes: ustwo-journal-wordmark from global;
+}
+
+.back {
+  composes: ustwo-journal-back from global;
+}
+
+.accountMenu {
+  composes: ustwo-account-menu from global;
+}
+
+.accountActions {
+  composes: ustwo-account-actions from global;
 }

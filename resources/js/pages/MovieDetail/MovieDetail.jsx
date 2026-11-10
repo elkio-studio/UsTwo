@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { useForm } from '@inertiajs/react';
 import Journal from '../../components/Journal/Journal';
 import Field from '../../components/Field/Field';
+import MoviePoster from '../../components/MoviePoster/MoviePoster';
 import '../../../css/global.css';
 import styles from './MovieDetail.module.css';
 
-export default function MovieDetail({ movie, people, viewerId }) {
+export default function MovieDetail({ movie, people, viewerId, spaceId }) {
   const [confirming, setConfirming] = useState(false);
-  const url = `/peliculas/${movie.id}`;
+  const moviesUrl = `/espacios/${spaceId}/peliculas`;
+  const url = `${moviesUrl}/${movie.id}`;
   const ownRating = movie.ratings.find((rating) => rating.user_id === viewerId);
   const common = useForm({ title: movie.title, release_year: movie.release_year ?? '', watched_on: movie.watched_on });
   const [savedCommon, setSavedCommon] = useState(common.data);
@@ -17,20 +19,32 @@ export default function MovieDetail({ movie, people, viewerId }) {
   const deletion = useForm({ confirmed: true });
 
   return (
-    <Journal title={movie.title} back={{ href: '/peliculas', label: 'Volver a películas vistas' }}>
-      <dl>
-        <dt>Fecha de visionado</dt><dd>{movie.watched_on}</dd>
-        {movie.release_year && <><dt>Año de estreno</dt><dd>{movie.release_year}</dd></>}
-      </dl>
+    <Journal className={styles.cinema} title={movie.title} back={{ href: moviesUrl, label: 'Volver a películas vistas' }}>
+      <div className={styles.feature}>
+        <MoviePoster path={movie.poster_path} title={movie.title} size="w500" eager />
+        <dl>
+          <dt>Fecha de visionado</dt><dd><time dateTime={movie.watched_on}>{movie.watched_on.split('-').reverse().join('/')}</time></dd>
+          {movie.release_year && <><dt>Año de estreno</dt><dd>{movie.release_year}</dd></>}
+          <dt>Ficha</dt><dd>{movie.tmdb_id ? <a href={`https://www.themoviedb.org/movie/${movie.tmdb_id}`}>Ver en TMDB</a> : 'Añadida a mano'}</dd>
+        </dl>
+        {movie.overview && <section className={styles.overview}>
+          <h2>Sinopsis</h2>
+          <p>{movie.overview}</p>
+        </section>}
+      </div>
       <section className={styles.section}>
         <h2>Vuestras valoraciones</h2>
-        {people.map((person) => {
+        <div className={styles.reviews}>{people.map((person) => {
           const contribution = movie.ratings.find((entry) => entry.user_id === person.id);
           return <article className={styles.contribution} key={person.id}>
-            <h3>{person.name} · {contribution?.score == null ? 'Sin puntuación' : `${contribution.score} / 100`}</h3>
+            <h3>{person.name}</h3>
+            <p><strong>{contribution?.score == null ? 'Sin puntuación' : `${contribution.score} / 100`}</strong></p>
             {contribution?.note && <p>{contribution.note}</p>}
           </article>;
-        })}
+        })}</div>
+      </section>
+      <details className={styles.section} open={rating.hasErrors || undefined}>
+        <summary>Tu valoración</summary>
         <form onSubmit={(event) => {
           event.preventDefault();
           rating.put(url + '/valoracion', { preserveScroll: true });
@@ -42,9 +56,9 @@ export default function MovieDetail({ movie, people, viewerId }) {
           {rating.errors.save && <p role="alert">{rating.errors.save}</p>}
           <button disabled={rating.processing}>Guardar mi valoración</button>
         </form>
-      </section>
-      <section className={styles.section}>
-        <h2>Editar datos comunes</h2>
+      </details>
+      <details className={styles.section} open={common.hasErrors || undefined}>
+        <summary>Editar datos comunes</summary>
         <form onSubmit={(event) => {
           event.preventDefault();
           common.transform((data) => Object.fromEntries(Object.entries(data).filter(([key, value]) =>
@@ -61,10 +75,10 @@ export default function MovieDetail({ movie, people, viewerId }) {
           {common.errors.save && <p role="alert">{common.errors.save}</p>}
           <button disabled={common.processing}>Guardar datos comunes</button>
         </form>
-      </section>
+      </details>
       <section className={styles.section} aria-label="Borrar película">
         {confirming ? <>
-          <p role="alert">Se borrarán definitivamente la película, las puntuaciones y las notas de ambos.</p>
+          <p role="alert">Se borrarán definitivamente la película, sus puntuaciones y sus notas.</p>
           <div className={styles.actions}>
             <button autoFocus disabled={deletion.processing} onClick={() => setConfirming(false)}>Cancelar</button>
             <button className={styles.danger} disabled={deletion.processing}

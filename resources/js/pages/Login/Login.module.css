@@ -1,3 +1,27 @@
+.receivingRoom {
+  composes: ustwo-login-room from global;
+}
+
+.welcome {
+  composes: ustwo-login-welcome from global;
+}
+
+.moon {
+  composes: ustwo-login-moon from global;
+}
+
+.wordmark {
+  composes: ustwo-login-wordmark from global;
+}
+
+.linen {
+  composes: ustwo-login-linen from global;
+}
+
+.options {
+  composes: ustwo-login-options from global;
+}
+
 .form {
   composes: ustwo-login-form from global;
 }

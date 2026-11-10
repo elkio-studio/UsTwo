@@ -54,6 +54,8 @@ class DeploymentTest extends TestCase
         config(['session.driver' => 'database']);
         $user = User::create([
             'name' => 'Ángel',
+            'username' => 'angel',
+            'username_key' => 'angel',
             'email' => 'angel@example.test',
             'password' => 'session-fixture',
         ]);

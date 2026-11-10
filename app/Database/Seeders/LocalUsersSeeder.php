@@ -3,6 +3,7 @@
 namespace App\Database\Seeders;
 
 use App\Models\User;
+use App\Models\Space;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
@@ -16,16 +17,13 @@ class LocalUsersSeeder extends Seeder
         }
 
         $accounts = [
-            'angel@gmail.com' => ['Ángel', 'USTWO_SEED_ANGEL_PASSWORD'],
-            'alejandra@gmail.com' => ['Alejandra', 'USTWO_SEED_ALEJANDRA_PASSWORD'],
+            'angel@gmail.com' => ['Ángel', 'angl_j_rgl', 'USTWO_SEED_ANGEL_PASSWORD'],
+            'alejandra@gmail.com' => ['Alejandra', 'Aleismowgli', 'USTWO_SEED_ALEJANDRA_PASSWORD'],
         ];
 
         DB::transaction(function () use ($accounts): void {
-            if (User::whereNotIn('email', array_keys($accounts))->exists()) {
-                throw new RuntimeException('La base local ya tiene otras cuentas.');
-            }
-
-            foreach ($accounts as $email => [$name, $variable]) {
+            $bootstrap = ! User::exists();
+            foreach ($accounts as $email => [$name, $username, $variable]) {
                 if (User::where('email', $email)->exists()) {
                     continue;
                 }
@@ -35,7 +33,16 @@ class LocalUsersSeeder extends Seeder
                     throw new RuntimeException("Falta la contraseña local de {$name}.");
                 }
 
-                User::create(['email' => $email, 'name' => $name, 'password' => $password]);
+                User::create([
+                    'email' => $email, 'name' => $name, 'password' => $password,
+                    'username' => $username, 'username_key' => strtolower($username),
+                ]);
+            }
+
+            if ($bootstrap) {
+                $members = User::whereIn('email', array_keys($accounts))->pluck('id', 'email');
+                $space = Space::create(['name' => 'Nuestra estantería', 'owner_id' => $members['angel@gmail.com']]);
+                $space->members()->attach($members->values()->all());
             }
         });
     }

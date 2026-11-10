@@ -5,3 +5,7 @@
 .error {
   composes: ustwo-field-error from global;
 }
+
+.withAction {
+  composes: ustwo-field-with-action from global;
+}

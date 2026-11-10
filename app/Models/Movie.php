@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Movie extends Model
 {
-    protected $fillable = ['title', 'release_year', 'watched_on', 'tmdb_id'];
+    protected $fillable = ['title', 'release_year', 'watched_on', 'tmdb_id', 'poster_path', 'overview'];
 
     public function ratings(): HasMany
     {

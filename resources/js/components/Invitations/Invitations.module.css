@@ -1,0 +1,23 @@
+.tray {
+  composes: ustwo-invitations-tray from global;
+}
+
+.trigger {
+  composes: ustwo-invitations-trigger from global;
+}
+
+.badge {
+  composes: ustwo-invitations-badge from global;
+}
+
+.label {
+  composes: ustwo-invitations-label from global;
+}
+
+.panel {
+  composes: ustwo-invitations-panel from global;
+}
+
+.actions {
+  composes: ustwo-invitations-actions from global;
+}

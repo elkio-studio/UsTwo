@@ -9,3 +9,6 @@
 .candidates {
   composes: ustwo-movie-create-candidates from global;
 }
+.cinema {
+  composes: ustwo-cinema from global;
+}

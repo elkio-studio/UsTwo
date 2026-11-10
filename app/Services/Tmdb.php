@@ -50,11 +50,16 @@ class Tmdb
         }
 
         $date = $result['release_date'] ?? '';
+        $poster = $result['poster_path'] ?? null;
+        $overview = $result['overview'] ?? null;
 
         return [
             'tmdb_id' => (int) $result['id'],
             'title' => $result['title'],
             'release_year' => preg_match('/^\d{4}-/', $date) ? (int) substr($date, 0, 4) : null,
+            'poster_path' => is_string($poster) && preg_match('~\A/[A-Za-z0-9_-]{1,200}\.(?:jpg|jpeg|png|webp)\z~i', $poster)
+                ? $poster : null,
+            'overview' => is_string($overview) && trim($overview) !== '' ? trim($overview) : null,
         ];
     }
 }

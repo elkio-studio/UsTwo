@@ -2,6 +2,22 @@
   composes: ustwo-movie-detail-section from global;
 }
 
+.cinema {
+  composes: ustwo-cinema from global;
+}
+
+.feature {
+  composes: ustwo-movie-detail-feature from global;
+}
+
+.overview {
+  composes: ustwo-movie-detail-overview from global;
+}
+
+.reviews {
+  composes: ustwo-movie-detail-reviews from global;
+}
+
 .contribution {
   composes: ustwo-movie-detail-contribution from global;
 }

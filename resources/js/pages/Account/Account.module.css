@@ -1,0 +1,16 @@
+.page {
+  composes: ustwo-cinema from global;
+  composes: ustwo-account-page from global;
+}
+
+.section {
+  composes: ustwo-account-section from global;
+}
+
+.shelves {
+  composes: ustwo-account-shelves from global;
+}
+
+.shelfActions {
+  composes: ustwo-account-shelf-actions from global;
+}

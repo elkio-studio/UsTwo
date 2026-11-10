@@ -2,13 +2,14 @@
 
 ## Foco actual
 
-La especificación 008 «Nuestra estantería» está completada y verificada.
-El cierre se registra en feat/nuestra-estanteria antes de integrarlo en dev.
-Las pruebas manuales y locales constan en las tareas de la spec.
+La especificación 009 «El recibidor» está completada y verificada en
+`feat/login-calido`. Las pruebas automatizadas y la comprobación manual
+del desarrollador constan en las tareas de la spec.
 
 ## Estado inmediato
 
 - El despliegue 007 está verificado y su especificación está completada.
+- Nuestra estantería (008) está completada y verificada.
 - El MVP 005 está implementado con SQLite local y tiene auditoría final
   `PASS`, incluida la integración real de TMDB. Véase la evidencia de
   verificación en sus tareas.
@@ -41,6 +42,6 @@ Las pruebas manuales y locales constan en las tareas de la spec.
 
 ## Próximo paso útil
 
-La fase posterior de despliegue contempla Render, GitHub Actions y
-PostgreSQL (DT-006).
+El cierre documental está registrado en la rama de trabajo. La primera
+publicación de la spec 009 requiere la ventana de mantenimiento del README.
 
