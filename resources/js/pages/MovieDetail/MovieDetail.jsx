@@ -8,9 +8,10 @@ import MoviePoster from '../../components/MoviePoster/MoviePoster';
 import '../../../css/global.css';
 import styles from './MovieDetail.module.css';
 
-export default function MovieDetail({ movie, people, viewerId, spaceId }) {
+export default function MovieDetail({ movie, people, viewerId, spaceId, series = false }) {
   const [confirming, setConfirming] = useState(false);
-  const moviesUrl = `/espacios/${spaceId}/peliculas`;
+  const item = series ? 'serie' : 'película';
+  const moviesUrl = `/espacios/${spaceId}/${series ? 'series' : 'peliculas'}`;
   const url = `${moviesUrl}/${movie.id}`;
   const ownRating = movie.ratings.find((rating) => rating.user_id === viewerId);
   const common = useForm({ title: movie.title, release_year: movie.release_year ?? '', watched_on: movie.watched_on });
@@ -19,13 +20,13 @@ export default function MovieDetail({ movie, people, viewerId, spaceId }) {
   const deletion = useForm({ confirmed: true });
 
   return (
-    <Journal className={styles.cinema} title={movie.title} back={{ href: moviesUrl, label: 'Volver a películas vistas' }}>
+    <Journal className={styles.cinema} title={movie.title} back={{ href: moviesUrl, label: `Volver a ${item}s vistas` }}>
       <div className={styles.feature}>
         <MoviePoster path={movie.poster_path} title={movie.title} size="w500" eager />
         <dl>
           <dt>Fecha de visionado</dt><dd><time dateTime={movie.watched_on}>{movie.watched_on.split('-').reverse().join('/')}</time></dd>
           {movie.release_year && <><dt>Año de estreno</dt><dd>{movie.release_year}</dd></>}
-          <dt>Ficha</dt><dd>{movie.tmdb_id ? <a href={`https://www.themoviedb.org/movie/${movie.tmdb_id}`}>Ver en TMDB</a> : 'Añadida a mano'}</dd>
+          <dt>Ficha</dt><dd>{movie.tmdb_id ? <a href={`https://www.themoviedb.org/${series ? 'tv' : 'movie'}/${movie.tmdb_id}`}>Ver en TMDB</a> : 'Añadida a mano'}</dd>
         </dl>
         {movie.overview && <section className={styles.overview}>
           <h2>Sinopsis</h2>
@@ -76,16 +77,16 @@ export default function MovieDetail({ movie, people, viewerId, spaceId }) {
           <button disabled={common.processing}>Guardar datos comunes</button>
         </form>
       </details>
-      <section className={styles.section} aria-label="Borrar película">
+      <section className={styles.section} aria-label={`Borrar ${item}`}>
         {confirming ? <>
-          <p role="alert">Se borrarán definitivamente la película, sus puntuaciones y sus notas.</p>
+          <p role="alert">Se borrarán definitivamente la {item}, sus puntuaciones y sus notas.</p>
           <div className={styles.actions}>
             <button autoFocus disabled={deletion.processing} onClick={() => setConfirming(false)}>Cancelar</button>
             <button className={styles.danger} disabled={deletion.processing}
               onClick={() => deletion.delete(url)}>Confirmar borrado</button>
           </div>
           {(deletion.errors.save || deletion.errors.confirmed) && <p role="alert">{deletion.errors.save || deletion.errors.confirmed}</p>}
-        </> : <button type="button" onClick={() => setConfirming(true)}>Borrar película</button>}
+        </> : <button type="button" onClick={() => setConfirming(true)}>Borrar {item}</button>}
       </section>
     </Journal>
   );

@@ -138,7 +138,8 @@ renombrarla, invitar por nombre de usuario, retirar accesos o borrarla.
 Los invitados pueden salir de ella. La persona invitada responde desde el
 botón circular de la esquina inferior izquierda. El menú de tu `@usuario`
 abre **Mi cuenta**, donde puedes cambiar tus credenciales y consultar tu rol
-en cada estantería. El botón `+` permite colocar o mover Películas.
+en cada estantería. El botón `+` permite colocar o mover Películas y
+Series en huecos libres. Mover un cajón conserva su colección.
 
 En una base local ya usada, copia `database/database.sqlite` antes de migrar.
 La migración asigna las películas y valoraciones de las dos cuentas
@@ -164,6 +165,8 @@ lectura de TMDB. Si falta el token o falla el catálogo, la pantalla ofrece
 el alta manual.
 
 La colección muestra portadas y sinopsis de TMDB cuando están disponibles.
+Series usa el mismo catálogo y guarda una ficha por serie completa.
+En ambos cajones se puede añadir una ficha a mano si falla la búsqueda.
 El comando `php artisan ustwo:movie-metadata` completa estos datos en películas
 ya vinculadas sin cambiar sus títulos, fechas ni valoraciones.
 

@@ -8,7 +8,7 @@ import MoviePoster from '../../components/MoviePoster/MoviePoster';
 import '../../../css/global.css';
 import styles from './MovieCreate.module.css';
 
-export default function MovieCreate({ candidates, spaceId }) {
+export default function MovieCreate({ candidates, spaceId, series = false }) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState(null);
   const [searching, setSearching] = useState(false);
@@ -18,7 +18,8 @@ export default function MovieCreate({ candidates, spaceId }) {
   const form = useForm({ title: '', release_year: '', watched_on: '' });
   const matches = form.errors.match ? candidates : [];
 
-  const moviesUrl = `/espacios/${spaceId}/peliculas`;
+  const item = series ? 'serie' : 'película';
+  const moviesUrl = `/espacios/${spaceId}/${series ? 'series' : 'peliculas'}`;
 
   async function search(event) {
     event.preventDefault();
@@ -57,7 +58,7 @@ export default function MovieCreate({ candidates, spaceId }) {
   }
 
   return (
-    <Journal className={styles.cinema} title="Añadir película" back={{ href: moviesUrl, label: 'Volver a películas vistas' }}>
+    <Journal className={styles.cinema} title={`Añadir ${item}`} back={{ href: moviesUrl, label: `Volver a ${item}s vistas` }}>
       {!manual && (
         <>
           <form onSubmit={search}>
@@ -67,7 +68,7 @@ export default function MovieCreate({ candidates, spaceId }) {
           </form>
           {!matches.length && (form.errors.catalog || form.errors.save || form.errors.match) &&
             <p role="alert">{form.errors.catalog || form.errors.save || form.errors.match}</p>}
-          {results && !matches.length && <p role="status">{results.length ? 'Pulsa una película para añadirla con la fecha de hoy.' : 'No hay resultados.'}</p>}
+          {results && !matches.length && <p role="status">{results.length ? `Pulsa una ${item} para añadirla con la fecha de hoy.` : 'No hay resultados.'}</p>}
           {results && !matches.length && <ul className={styles.choices}>
             {results.map((movie) => <li key={movie.tmdb_id}>
               <button type="button" disabled={form.processing} aria-pressed={selected?.tmdb_id === movie.tmdb_id}
@@ -98,7 +99,7 @@ export default function MovieCreate({ candidates, spaceId }) {
             <p role="alert">{form.errors.catalog || form.errors.save || form.errors.match}</p>}
           {matches.length > 0 ? (
             <fieldset className={styles.candidates}>
-              <legend>¿Es la misma película?</legend>
+              <legend>¿Es la misma {item}?</legend>
               {matches.map((movie) => <button key={movie.id} type="button" disabled={form.processing}
                 onClick={() => save({ candidate_id: movie.id })}>
                 {manual ? 'Abrir' : 'Vincular con'} {movie.title} · {movie.release_year ?? 'Año desconocido'} · vista el {movie.watched_on}
@@ -110,7 +111,7 @@ export default function MovieCreate({ candidates, spaceId }) {
               {!manual && <button disabled={form.processing} type="button"
                 onClick={() => { setSelected(null); form.clearErrors(); }}>Volver a los resultados</button>}
             </fieldset>
-          ) : <button disabled={form.processing}>Guardar película</button>}
+          ) : <button disabled={form.processing}>Guardar {item}</button>}
         </form>
       )}
     </Journal>

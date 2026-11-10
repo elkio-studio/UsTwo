@@ -37,7 +37,7 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (QueryException $exception, Request $request) {
-            if ($request->is('espacios/*/peliculas', 'espacios/*/peliculas/*')
+            if ($request->is('espacios/*/peliculas', 'espacios/*/peliculas/*', 'espacios/*/series', 'espacios/*/series/*')
                 && ! $request->isMethodSafe() && ! $request->expectsJson()) {
                 return back(303)->withErrors(['save' => 'No se ha podido guardar el cambio. Puedes volver a intentarlo.']);
             }

@@ -33,7 +33,7 @@ class SpaceController extends Controller
 
         return Inertia::render('Dashboard/Dashboard', [
             'spaces' => $spaces->map->only(['id', 'name', 'slug']),
-            'activeSpace' => $active?->only(['id', 'name', 'slug', 'movie_slot']),
+            'activeSpace' => $active?->only(['id', 'name', 'slug', 'movie_slot', 'series_slot']),
             'isOwner' => (bool) $isOwner,
             'editing' => $isOwner && $request->boolean('editar'),
             'members' => $isOwner ? $active->members()->whereKeyNot($active->owner_id)->orderBy('users.id')
@@ -89,9 +89,25 @@ class SpaceController extends Controller
 
     public function placeMovieDrawer(Request $request, Space $space)
     {
+        return $this->placeDrawer($request, $space, 'movie_slot', 'series_slot');
+    }
+
+    public function placeSeriesDrawer(Request $request, Space $space)
+    {
+        return $this->placeDrawer($request, $space, 'series_slot', 'movie_slot');
+    }
+
+    private function placeDrawer(Request $request, Space $space, string $column, string $other)
+    {
         $data = $request->validate(['slot' => 'required|integer|between:1,8']);
-        $space->movie_slot = (int) $data['slot'];
-        $space->save();
+        $slot = (int) $data['slot'];
+        $placed = Space::whereKey($space->id)
+            ->where(fn ($query) => $query->whereNull($other)->orWhere($other, '!=', $slot))
+            ->update([$column => $slot]);
+
+        if (! $placed) {
+            throw ValidationException::withMessages(['slot' => 'Este hueco ya está ocupado. Elige otro.']);
+        }
 
         return to_route('spaces.show', $space->slug);
     }

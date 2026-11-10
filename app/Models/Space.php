@@ -11,7 +11,7 @@ class Space extends Model
 {
     protected $fillable = ['name', 'owner_id'];
 
-    protected $casts = ['movie_slot' => 'integer'];
+    protected $casts = ['movie_slot' => 'integer', 'series_slot' => 'integer'];
 
     protected static function booted(): void
     {
@@ -40,6 +40,11 @@ class Space extends Model
     public function movies(): HasMany
     {
         return $this->hasMany(Movie::class);
+    }
+
+    public function series(): HasMany
+    {
+        return $this->hasMany(Series::class);
     }
 
     public function invitations(): HasMany

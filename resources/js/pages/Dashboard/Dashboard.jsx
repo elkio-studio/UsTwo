@@ -7,6 +7,11 @@ import Journal from '../../components/Journal/Journal';
 import '../../../css/global.css';
 import styles from './Dashboard.module.css';
 
+const drawers = [
+  { label: 'Películas', path: 'peliculas', position: 'movie_slot' },
+  { label: 'Series', path: 'series', position: 'series_slot' },
+];
+
 export default function Dashboard({ spaces, activeSpace, isOwner, outgoing, members, editing }) {
   const [opening, setOpening] = useState(false);
   const navigation = useRef(null);
@@ -25,7 +30,7 @@ export default function Dashboard({ spaces, activeSpace, isOwner, outgoing, memb
     if (navigation.current !== null) return;
 
     const destination = event.currentTarget.href;
-    setOpening(true);
+    setOpening(new URL(destination).pathname);
     navigation.current = window.setTimeout(() => {
       router.visit(destination, { onFinish: () => {
         navigation.current = null;
@@ -55,11 +60,14 @@ export default function Dashboard({ spaces, activeSpace, isOwner, outgoing, memb
             <div className={styles.slots}>
               {Array.from({ length: 8 }, (_, index) => {
                 const slot = index + 1;
+                const drawer = drawers.find(({ position }) => activeSpace[position] === slot);
                 return (
                   <div className={styles.slot} key={slot}>
-                    {activeSpace.movie_slot === slot ? (
-                      <Link href={`/espacios/${activeSpace.id}/peliculas`} className={styles.drawer} data-opening={opening} onClick={openDrawer}>
-                        <span>Películas</span>
+                    {drawer ? (
+                      <Link href={`/espacios/${activeSpace.id}/${drawer.path}`} className={styles.drawer}
+                        data-opening={opening === `/espacios/${activeSpace.id}/${drawer.path}`}
+                        onClick={openDrawer}>
+                        <span>{drawer.label}</span>
                       </Link>
                     ) : (
                       <button type="button" className={styles.addDrawer} aria-label={`Añadir cajón en el hueco ${slot}`}
@@ -77,15 +85,17 @@ export default function Dashboard({ spaces, activeSpace, isOwner, outgoing, memb
         </nav>
         <dialog ref={drawerDialog} className={styles.drawerDialog} aria-labelledby="drawer-dialog-title">
           <h2 id="drawer-dialog-title">Elige un cajón</h2>
-          <p>{activeSpace.movie_slot ? 'Mueve Películas a este hueco. La colección se conserva.' : 'Añade la colección de Películas a este hueco.'}</p>
+          <p>Si mueves un cajón, su colección se conserva.</p>
           {placement.errors.slot && <p role="alert">{placement.errors.slot}</p>}
           <div className={styles.drawerActions}>
-            <button type="button" disabled={placement.processing} onClick={() => {
-              placement.put(`/espacios/${activeSpace.id}/cajones/peliculas`, {
-                preserveScroll: true,
-                onSuccess: () => drawerDialog.current?.close(),
-              });
-            }}>{activeSpace.movie_slot ? 'Mover Películas aquí' : 'Añadir Películas'}</button>
+            {drawers.map(({ label, path, position }) => (
+              <button key={path} type="button" disabled={placement.processing} onClick={() => {
+                placement.put(`/espacios/${activeSpace.id}/cajones/${path}`, {
+                  preserveScroll: true,
+                  onSuccess: () => drawerDialog.current?.close(),
+                });
+              }}>{activeSpace[position] ? `Mover ${label} aquí` : `Añadir ${label}`}</button>
+            ))}
             <button type="button" onClick={() => drawerDialog.current.close()}>Cancelar</button>
           </div>
         </dialog>

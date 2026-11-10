@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\MovieController;
+use App\Http\Controllers\SeriesController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\SpaceController;
 use App\Http\Middleware\RequireSpaceMembership;
@@ -28,6 +29,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('/espacios/{space}')->where(['space' => '[0-9]+'])->scopeBindings()->middleware(RequireSpaceMembership::class)->group(function () {
         Route::put('/activo', [SpaceController::class, 'select']);
         Route::put('/cajones/peliculas', [SpaceController::class, 'placeMovieDrawer']);
+        Route::put('/cajones/series', [SpaceController::class, 'placeSeriesDrawer']);
         Route::delete('/pertenencia', [SpaceController::class, 'leave']);
         Route::patch('/', [SpaceController::class, 'rename']);
         Route::delete('/miembros/{member}', [SpaceController::class, 'removeMember'])->whereNumber('member');
@@ -43,6 +45,15 @@ Route::middleware('auth')->group(function () {
         Route::patch('/peliculas/{movie}', [MovieController::class, 'update'])->whereNumber('movie');
         Route::put('/peliculas/{movie}/valoracion', [MovieController::class, 'rating'])->whereNumber('movie');
         Route::delete('/peliculas/{movie}', [MovieController::class, 'destroy'])->whereNumber('movie');
+
+        Route::get('/series', [SeriesController::class, 'index'])->name('series.index');
+        Route::get('/series/nueva', [SeriesController::class, 'create'])->name('series.create');
+        Route::get('/series/catalogo', [SeriesController::class, 'search'])->middleware('throttle:60,1');
+        Route::post('/series', [SeriesController::class, 'store']);
+        Route::get('/series/{entry}', [SeriesController::class, 'show'])->whereNumber('entry')->name('series.show');
+        Route::patch('/series/{entry}', [SeriesController::class, 'update'])->whereNumber('entry');
+        Route::put('/series/{entry}/valoracion', [SeriesController::class, 'rating'])->whereNumber('entry');
+        Route::delete('/series/{entry}', [SeriesController::class, 'destroy'])->whereNumber('entry');
     });
 
     Route::get('/{shelf}', [SpaceController::class, 'show'])->where('shelf', '[a-z0-9]+(?:-[a-z0-9]+)*')->name('spaces.show');
