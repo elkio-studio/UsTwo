@@ -1,7 +1,7 @@
 ---
 id: "008"
 title: "Nuestra estantería"
-status: approved
+status: completed
 ---
 
 # 008 — Nuestra estantería

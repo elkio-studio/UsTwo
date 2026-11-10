@@ -264,33 +264,48 @@ body:has(.ustwo-dashboard-shelf) {
   aspect-ratio: 1;
   translate: -50% -50%;
   pointer-events: none;
-  background: radial-gradient(ellipse, #ffc36344, transparent 69%);
   mix-blend-mode: screen;
-  animation: ustwo-candle-glow 3.2s ease-in-out infinite alternate;
 }
 
 .ustwo-dashboard-candle + .ustwo-dashboard-candle {
   inset: var(--candle-two-y) auto auto var(--candle-two-x);
-  animation-duration: 2.7s;
-  animation-delay: -1.6s;
+  --candle-delay: -.73s;
+}
+
+.ustwo-dashboard-candle::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse, #ffc363ad, #ffa3424d 33%, transparent 70%);
+  animation: ustwo-candle-glow 1.8s ease-in-out var(--candle-delay, 0s) infinite;
 }
 
 .ustwo-dashboard-candle::after {
   content: '';
   position: absolute;
   inset: 50% auto auto 50%;
-  width: 3%;
-  height: 11%;
+  width: 4%;
+  height: 14%;
   translate: -50% -50%;
   border-radius: 75% 25% 60% 40%;
   background: #fff3bf;
-  filter: blur(1px);
+  box-shadow: 0 0 .35rem #ffb44c;
+  transform-origin: center bottom;
+  animation: ustwo-candle-flame 1.45s ease-in-out var(--candle-delay, 0s) infinite;
 }
 
 @keyframes ustwo-candle-glow {
-  0%, 100% { opacity: .45; transform: scale(.95); }
-  33% { opacity: .8; transform: scale(1.04); }
-  65% { opacity: .55; transform: scale(.99); }
+  0%, 100% { opacity: .55; transform: scale(.94); }
+  30% { opacity: .76; transform: scale(1.04); }
+  61% { opacity: .59; transform: scale(.97); }
+  79% { opacity: .7; transform: scale(1.01); }
+}
+
+@keyframes ustwo-candle-flame {
+  0%, 100% { transform: rotate(-4deg) scaleY(.94); }
+  28% { transform: rotate(4deg) scaleY(1.07); }
+  59% { transform: rotate(-2deg) scaleY(.97); }
+  78% { transform: rotate(2deg) scaleY(1.03); }
 }
 
 @media (min-width: 75rem) and (orientation: landscape) {
@@ -315,7 +330,8 @@ body:has(.ustwo-dashboard-shelf) {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ustwo-dashboard-candle { animation: none; opacity: .55; }
+  .ustwo-dashboard-candle::before { animation: none; opacity: .55; }
+  .ustwo-dashboard-candle::after { animation: none; }
   .ustwo-dashboard-drawer { transition: none; }
   .ustwo-dashboard-drawer:hover { transform: none; }
 }

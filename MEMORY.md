@@ -2,23 +2,9 @@
 
 ## Foco actual
 
-La especificación 008 «Nuestra estantería» está en implementación en
-`feat/nuestra-estanteria`, creada desde `dev`. Especificación y plan aprobados.
-El panel compartido usa un fondo de pared cálida a pantalla completa, con
-estantería suspendida, luna de pared en forma de C y velas. La escena es
-horizontal en escritorio y vertical en móvil. Películas es el único cajón
-interactivo y los demás huecos quedan abiertos. Se quitó la altura mínima
-ligada al ancho para evitar el scroll de la escena.
-
-La adaptación a tablet conserva las dos escenas y sus proporciones. La
-orientación de la pantalla selecciona la imagen y el cajón comparte su
-marco. Los bordes se funden con un fondo de tonos de pared cálida. Queda
-pendiente revisar en pantalla si el tamaño del mueble en tablet es adecuado.
-
-El build pasó tras el último ajuste y se ejecutaron las pruebas SQLite en
-la implementación inicial. Falta comprobar en pantalla escritorio, móvil y
-tablet, además de apertura, retorno, teclado, tacto, fallo de imágenes y
-movimiento reducido. No abrir el navegador salvo petición expresa.
+La especificación 008 «Nuestra estantería» está completada y verificada.
+El cierre se registra en feat/nuestra-estanteria antes de integrarlo en dev.
+Las pruebas manuales y locales constan en las tareas de la spec.
 
 ## Estado inmediato
 
