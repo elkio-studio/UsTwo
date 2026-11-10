@@ -160,8 +160,7 @@ npm.cmd run dev
 ```
 
 Abrir `http://127.0.0.1:8000` para iniciar sesión. Vite escucha en
-`127.0.0.1:5173` y actualiza JSX/CSS durante el desarrollo. La comprobación
-del stack sigue disponible en `/comprobacion`.
+`127.0.0.1:5173` y actualiza JSX/CSS durante el desarrollo.
 Detener ambos comandos con `Ctrl+C` al terminar; no exponerlos a la red.
 
 ### Build y pruebas

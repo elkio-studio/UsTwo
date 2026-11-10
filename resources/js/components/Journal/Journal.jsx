@@ -1,3 +1,5 @@
+// Estructura compartida de las páginas con cabecera y navegación.
+
 import { Head, Link } from '@inertiajs/react';
 import styles from './Journal.module.css';
 

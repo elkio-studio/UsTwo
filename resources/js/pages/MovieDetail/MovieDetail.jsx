@@ -1,3 +1,5 @@
+// Ficha de película con valoraciones, datos compartidos y opciones de edición.
+
 import { useState } from 'react';
 import { useForm } from '@inertiajs/react';
 import Journal from '../../components/Journal/Journal';

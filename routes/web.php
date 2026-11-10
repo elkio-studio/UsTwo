@@ -5,12 +5,6 @@ use App\Http\Controllers\SessionController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/comprobacion', function () {
-    return Inertia::render('StackCheck/StackCheck', [
-        'message' => 'Laravel e Inertia están conectados con React.',
-    ]);
-})->name('stack-check');
-
 Route::middleware('guest')->group(function () {
     Route::get('/acceso', fn () => Inertia::render('Login/Login'))->name('login');
     Route::post('/acceso', [SessionController::class, 'store'])->middleware('throttle:10,1');

@@ -1,3 +1,5 @@
+// Página para añadir una película desde el catálogo o de forma manual.
+
 import { useState } from 'react';
 import { useForm } from '@inertiajs/react';
 import Journal from '../../components/Journal/Journal';

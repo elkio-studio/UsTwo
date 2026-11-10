@@ -1,3 +1,5 @@
+// Espacio compartido con la estantería y el acceso a las colecciones.
+
 import { useEffect, useRef, useState } from 'react';
 import { Link, router } from '@inertiajs/react';
 import Journal from '../../components/Journal/Journal';

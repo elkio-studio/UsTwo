@@ -76,9 +76,12 @@ huecos abiertos permiten distinguir dónde hay una colección disponible.
 
 ## Criterios de aceptación
 
-- **CA-01.** A 1280 px de ancho, la estantería es más ancha que alta. A 375 px,
-  es más alta que ancha y los huecos se disponen en más filas que columnas,
-  sin desbordamiento horizontal.
+- **CA-01.** Si la ventana es más ancha que alta, se muestra la estantería
+  horizontal, con más columnas que filas. Si la ventana es más alta que
+  ancha o cuadrada, se muestra la vertical, con más filas que columnas.
+  Ambas imágenes mantienen sus proporciones y se ven completas. La pared
+  se prolonga hasta los bordes y el cajón sigue alineado con su hueco,
+  sin desbordamiento horizontal al redimensionar o girar la pantalla.
 - **CA-02.** En ambas vistas aparece exactamente un cajón etiquetado
   «Películas». Los huecos restantes muestran su interior y quedan fuera
   del recorrido del teclado. Una lista sin películas mantiene su cajón.

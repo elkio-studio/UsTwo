@@ -1,3 +1,5 @@
+// Pantalla de inicio de sesión de UsTwo.
+
 import { useForm } from '@inertiajs/react';
 import Journal from '../../components/Journal/Journal';
 import Field from '../../components/Field/Field';

@@ -1,3 +1,5 @@
+// Campo de formulario reutilizable con etiqueta y mensaje de error.
+
 import { useId } from 'react';
 import styles from './Field.module.css';
 

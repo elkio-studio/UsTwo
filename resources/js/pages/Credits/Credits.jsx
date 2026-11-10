@@ -1,3 +1,5 @@
+// Página de créditos y atribución del catálogo de películas.
+
 import Journal from '../../components/Journal/Journal';
 import '../../../css/global.css';
 import styles from './Credits.module.css';

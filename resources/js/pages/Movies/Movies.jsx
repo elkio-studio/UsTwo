@@ -1,3 +1,5 @@
+// Listado de películas vistas y acceso a sus fichas.
+
 import { Link } from '@inertiajs/react';
 import Journal from '../../components/Journal/Journal';
 import '../../../css/global.css';
