@@ -1,7 +1,7 @@
 ---
 id: "007"
 title: "Despliegue de UsTwo en Render"
-status: approved
+status: completed
 ---
 
 # 007 — Despliegue de UsTwo en Render

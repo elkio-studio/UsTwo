@@ -2,7 +2,7 @@
 
 ## Foco actual
 
-Verificar y publicar el despliegue 007 de UsTwo.
+El despliegue 007 está verificado y la especificación está completada.
 
 ## Estado inmediato
 

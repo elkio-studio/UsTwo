@@ -91,10 +91,32 @@ directas permanecen fijadas al parche indicado en sus manifiestos.
 
 ### Preparar y arrancar el MVP local
 
-Con las variables PHP anteriores preparadas, revisa que `.env` tenga
-`DB_CONNECTION=sqlite`. Si vienes de la instalación inicial, cambia el valor
-`null` por `sqlite`. El controlador SQLite se habilita en estos comandos
-solo para el proceso de UsTwo.
+Después de copiar `.env.example`, completa estos valores en `.env` y conserva
+el `APP_KEY` generado en el paso anterior:
+
+```dotenv
+APP_NAME=UsTwo
+APP_ENV=local
+APP_DEBUG=true
+APP_URL=http://127.0.0.1:8000
+APP_LOCALE=es
+APP_FALLBACK_LOCALE=es
+APP_MAINTENANCE_DRIVER=file
+LOG_CHANNEL=stack
+LOG_LEVEL=debug
+DB_CONNECTION=sqlite
+DB_URL=
+SESSION_DRIVER=file
+CACHE_STORE=file
+QUEUE_CONNECTION=sync
+FILESYSTEM_DISK=local
+BROADCAST_CONNECTION=log
+MAIL_MAILER=log
+```
+
+Deja `DB_URL` vacía para que Laravel use `database/database.sqlite`. Compila
+los recursos con `npm.cmd run build`. El controlador SQLite se habilita en
+los siguientes comandos solo para el proceso de UsTwo.
 
 ```powershell
 if (-not (Test-Path -LiteralPath 'database/database.sqlite')) {
@@ -225,6 +247,11 @@ interactivamente este comando con PHP 8.5 y PDO PostgreSQL:
 ```text
 php artisan db:seed --class="App\Database\Seeders\ProductionUsersSeeder" --force
 ```
+
+Introduce los correos cuando se soliciten. Si defines `PASSWORD_ACCOUNT`
+en el `.env` local, el seeder usa esa contraseña para ambas cuentas nuevas.
+Si falta o está vacía, solicita cada contraseña de forma oculta.
+Retira `PASSWORD_ACCOUNT` del `.env` después del alta.
 
 Verifica las dos cuentas con los mismos correos al repetir el seeder. Para
 recuperar una contraseña, usa `ustwo:account` con el correo existente

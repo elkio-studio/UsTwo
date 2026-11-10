@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Database\Seeders\ProductionUsersSeeder;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Env;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
@@ -12,6 +13,31 @@ use Tests\TestCase;
 class DeploymentTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_production_seeder_uses_the_shared_password_for_both_accounts(): void
+    {
+        if (DB::getDefaultConnection() !== 'pgsql') {
+            $this->markTestSkipped('El seeder de producción requiere PostgreSQL aislado.');
+        }
+
+        app()->instance('env', 'production');
+        $environment = Env::getRepository();
+        $password = 'shared-test-fixture';
+
+        try {
+            $environment->set('PASSWORD_ACCOUNT', $password);
+            $this->artisan('db:seed', ['--class' => ProductionUsersSeeder::class, '--force' => true])
+                ->expectsQuestion('Correo de Ángel', 'angel@example.test')
+                ->expectsQuestion('Correo de Alejandra', 'alejandra@example.test')
+                ->assertSuccessful();
+
+            $accounts = User::pluck('password', 'email');
+            $this->assertTrue(Hash::check($password, $accounts['angel@example.test']));
+            $this->assertTrue(Hash::check($password, $accounts['alejandra@example.test']));
+        } finally {
+            $environment->clear('PASSWORD_ACCOUNT');
+        }
+    }
 
     public function test_production_health_checks_the_database_without_disclosing_errors(): void
     {
@@ -49,14 +75,20 @@ class DeploymentTest extends TestCase
 
         app()->instance('env', 'production');
         $command = ['--class' => ProductionUsersSeeder::class, '--force' => true];
-        $this->artisan('db:seed', $command)
-            ->expectsQuestion('Correo de Ángel', 'angel@example.test')
-            ->expectsQuestion('Correo de Alejandra', 'alejandra@example.test')
-            ->expectsQuestion('Contraseña de Ángel (mínimo 12 caracteres)', 'test-fixture-one')
-            ->expectsQuestion('Repite la contraseña de Ángel', 'test-fixture-one')
-            ->expectsQuestion('Contraseña de Alejandra (mínimo 12 caracteres)', 'test-fixture-two')
-            ->expectsQuestion('Repite la contraseña de Alejandra', 'test-fixture-two')
-            ->assertSuccessful();
+        $environment = Env::getRepository();
+        $environment->set('PASSWORD_ACCOUNT', '');
+        try {
+            $this->artisan('db:seed', $command)
+                ->expectsQuestion('Correo de Ángel', 'angel@example.test')
+                ->expectsQuestion('Correo de Alejandra', 'alejandra@example.test')
+                ->expectsQuestion('Contraseña de Ángel (mínimo 12 caracteres)', 'test-fixture-one')
+                ->expectsQuestion('Repite la contraseña de Ángel', 'test-fixture-one')
+                ->expectsQuestion('Contraseña de Alejandra (mínimo 12 caracteres)', 'test-fixture-two')
+                ->expectsQuestion('Repite la contraseña de Alejandra', 'test-fixture-two')
+                ->assertSuccessful();
+        } finally {
+            $environment->clear('PASSWORD_ACCOUNT');
+        }
 
         $accounts = User::orderBy('email')->pluck('password', 'email')->all();
         $this->assertCount(2, $accounts);

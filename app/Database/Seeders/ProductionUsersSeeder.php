@@ -37,8 +37,13 @@ class ProductionUsersSeeder extends Seeder
         $passwords = [];
         foreach (array_diff(array_keys($accounts), $existing) as $email) {
             $name = $accounts[$email];
-            $password = $this->command->secret("Contraseña de {$name} (mínimo 12 caracteres)", false);
-            $confirmation = $this->command->secret("Repite la contraseña de {$name}", false);
+            $password = env('PASSWORD_ACCOUNT');
+            if ($password === null || $password === '') {
+                $password = $this->command->secret("Contraseña de {$name} (mínimo 12 caracteres)", false);
+                $confirmation = $this->command->secret("Repite la contraseña de {$name}", false);
+            } else {
+                $confirmation = $password;
+            }
             if (! is_string($password) || mb_strlen($password) < 12
                 || strlen($password) > 72 || $password !== $confirmation) {
                 throw new RuntimeException('La contraseña no cumple los requisitos o no coincide.');
