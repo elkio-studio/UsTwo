@@ -1,23 +1,92 @@
-.tray {
-  composes: ustwo-invitations-tray from global;
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-small);
 }
 
 .trigger {
-  composes: ustwo-invitations-trigger from global;
+  display: grid;
+  place-content: center;
+  min-height: var(--control-min-height);
+  padding: .45rem .75rem;
+  list-style: none;
+  cursor: var(--cursor-interactive);
+  border: var(--border-width) solid var(--color-control-border);
+  border-radius: var(--radius-control);
 }
 
-.badge {
-  composes: ustwo-invitations-badge from global;
-}
-
-.label {
-  composes: ustwo-invitations-label from global;
+.panel,
+.trigger {
+  --color-control-border: var(--color-warm-border);
+  --color-surface: var(--color-warm-surface);
+  --color-focus: var(--color-warm-focus);
+  background: var(--color-warm-linen);
+  color: var(--color-warm-ink);
 }
 
 .panel {
-  composes: ustwo-invitations-panel from global;
+  position: absolute;
+  z-index: 2;
+  width: min(20rem, 100vw - 2rem);
+  max-height: min(28rem, 65svh);
+  overflow: auto;
+  padding: var(--space-medium);
+  border: var(--border-width) solid var(--color-control-border);
+  border-radius: var(--radius-control);
+  overflow-wrap: anywhere;
 }
 
-.actions {
-  composes: ustwo-invitations-actions from global;
+.tray {
+  position: fixed;
+  z-index: 3;
+  inset: auto auto 1rem 1rem;
+}
+
+.trigger {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 3rem;
+  min-height: 3rem;
+  border-radius: 999px;
+}
+
+.badge {
+  --badge-background: var(--palette-badge-background);
+  --badge-border: var(--palette-badge-border);
+  position: absolute;
+  inset: -.35rem -.35rem auto auto;
+  display: grid;
+  place-items: center;
+  min-width: 1.4rem;
+  height: 1.4rem;
+  padding-inline: .2rem;
+  border: 1px solid var(--badge-border);
+  border-radius: 999px;
+  background: var(--badge-background);
+  color: var(--color-warm-ink);
+  font-size: .75rem;
+  font-weight: var(--font-weight-semibold);
+}
+
+.label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.panel {
+  inset: auto auto calc(100% + .5rem) 0;
+}
+
+.panel ul {
+  list-style: none;
+  padding: 0;
+}
+
+.panel li+li {
+  margin-top: var(--space-medium);
 }

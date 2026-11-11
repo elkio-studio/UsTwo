@@ -1,3 +1,3 @@
 .attribution {
-  composes: ustwo-credits-attribution from global;
+  font-size: 1.1rem;
 }
