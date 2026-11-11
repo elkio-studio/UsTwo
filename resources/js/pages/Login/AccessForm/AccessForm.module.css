@@ -1,0 +1,62 @@
+.linen {
+  min-width: 0;
+  padding: clamp(1.15rem, 4vw, 2.5rem);
+  border-radius: .5rem;
+  background: repeating-linear-gradient(0deg, var(--recibidor-linen) 0 3px, var(--recibidor-thread) 3px 4px);
+  box-shadow: 0 1rem 3rem var(--recibidor-wall);
+  color: var(--recibidor-ink);
+}
+
+.linen h1 {
+  margin: 1.2rem 0 .6rem;
+  font: 700 clamp(1.85rem, 4vw, 2.75rem) / 1.1 var(--font-display);
+}
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-small);
+}
+
+.options button[aria-pressed="true"],
+.form button[type="submit"] {
+  background: var(--recibidor-action);
+  color: var(--color-surface);
+}
+
+.form input {
+  min-width: 0;
+}
+
+[data-registering="true"] .linen {
+  padding: clamp(.875rem, 2.5vw, 2rem);
+}
+
+[data-registering="true"] .linen h1 {
+  margin-block: .65rem .25rem;
+}
+
+[data-registering="true"] .linen>p {
+  margin-block: 0 .6rem;
+}
+
+[data-registering="true"] .form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: .5rem;
+}
+
+[data-registering="true"] [data-field] {
+  margin: 0;
+}
+
+[data-registering="true"] .form small {
+  display: block;
+  margin-top: .2rem;
+  line-height: 1.25;
+}
+
+[data-registering="true"] .form button[type="submit"] {
+  justify-self: start;
+}

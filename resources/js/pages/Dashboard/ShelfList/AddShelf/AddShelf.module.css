@@ -1,0 +1,20 @@
+.summary {
+  display: block;
+  width: 100%;
+  min-height: var(--control-min-height);
+  padding: .45rem .75rem;
+  border: var(--border-width) solid var(--color-warm-border);
+  border-radius: var(--radius-control);
+  color: var(--color-warm-ink);
+  text-align: start;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  border-style: dashed;
+  background: var(--color-warm-surface);
+  cursor: var(--cursor-interactive);
+  list-style: none;
+}
+
+.form {
+  padding-inline: .75rem;
+}
