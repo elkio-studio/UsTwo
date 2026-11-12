@@ -96,3 +96,11 @@ Validar épicas y versiones con Rafa y Ángel; después redactar historias con c
 
 ### Próximo paso
 Refinar solo las épicas de v0.2 con Rafa y Ángel, validar historias y criterios de aceptación y, después, crear Issues y planificarlas. Mantener este documento como banco de ideas hasta aprobación e integración de este PR.
+
+
+### EP-01 — selección de ubicación confirmada (12/11/2026)
+- **Decisión aprobada:** ofrecer **búsqueda por nombre o dirección** y **pulsación directa en el mapa para colocar la chincheta**, **si la investigación confirma la viabilidad** de ambas con presupuesto 0 €.
+- La investigación US-01.1 debe verificar por separado: proveedor y licencia del mapa, geocodificación/búsqueda, selección manual de coordenadas, cuotas, claves y restricciones de uso.
+- Si una de las dos vías no resulta viable, **no se considera aprobada su eliminación automática**: documentar alternativas e impacto para decidir con Rafa antes de modificar el alcance.
+- Historias candidatas conservadas: US-01.1 investigación; US-01.2 cajón Sitios; US-01.3 registro; US-01.4 mapa y marcadores; US-01.5 consulta, edición y eliminación.
+- **Estado de la épica:** refinamiento funcional avanzado, pendiente de aprobación final y resolución de investigación técnica. No crear Issues todavía.
