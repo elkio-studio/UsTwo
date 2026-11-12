@@ -1,0 +1,5 @@
+.candidates {
+  display: grid;
+  gap: var(--space-small);
+  min-inline-size: 0;
+}

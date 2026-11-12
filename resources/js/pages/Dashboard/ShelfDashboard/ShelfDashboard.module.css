@@ -1,0 +1,13 @@
+.index {
+  --color-brand: var(--color-warm-linen);
+  --color-surface: var(--dashboard-wall);
+  --color-control-border: var(--color-warm-border);
+  --color-divider: var(--color-warm-border);
+  --color-focus: var(--palette-cinema-focus);
+  --color-error: var(--palette-warm-error);
+  min-height: 100svh;
+}
+
+.index input {
+  color-scheme: dark;
+}

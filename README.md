@@ -202,15 +202,11 @@ PHPUnit usa SQLite en memoria para verificar el MVP sin tocar el fichero de
 datos local. Las pruebas de catálogo simulan las respuestas de TMDB. El build
 genera los assets locales de producción.
 
-Cada componente o página tiene su propia carpeta en `resources/js/components`
-o `resources/js/pages`. La carpeta final contiene solo `Nombre.jsx` y
-`Nombre.module.css`. Inertia identifica las páginas como `Nombre/Nombre`.
-Todos los estilos se definen en `resources/css/global.css`, incluidas las
-variables compartidas y las reglas de componentes y páginas. Los archivos
-`.module.css` solo enlazan las clases que usa cada componente con
-`composes: nombre-de-clase from global`.
-El CSS global se importa solo desde páginas principales. SSR está
-desactivado en Laravel y Vite. `.env`, dependencias, sesiones, cachés, logs y
+La guía de [convenciones de frontend](docs/convenciones-frontend.md) recoge
+la organización de componentes, el formato, los estilos, los hooks y las
+utilidades.
+
+SSR está desactivado en Laravel y Vite. `.env`, dependencias, sesiones, cachés, logs y
 assets compilados quedan fuera de Git; los dos archivos de bloqueo se conservan.
 
 ## Despliegue en Render Free

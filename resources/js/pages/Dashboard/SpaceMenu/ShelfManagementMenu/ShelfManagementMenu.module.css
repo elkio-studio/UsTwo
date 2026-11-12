@@ -1,0 +1,138 @@
+.menu {
+  position: relative;
+}
+
+.menu > summary {
+  display: grid;
+  place-content: center;
+  min-height: var(--control-min-height);
+  padding: 0.45rem 0.75rem;
+  list-style: none;
+  cursor: var(--cursor-interactive);
+  border: var(--border-width) solid var(--color-control-border);
+  border-radius: var(--radius-control);
+}
+
+.panel {
+  position: absolute;
+  z-index: 2;
+  width: min(20rem, 100vw - 2rem);
+  max-height: min(28rem, 65svh);
+  overflow: auto;
+  padding: var(--space-medium);
+  border: var(--border-width) solid var(--color-control-border);
+  border-radius: var(--radius-control);
+  overflow-wrap: anywhere;
+}
+
+.panel {
+  --color-control-border: var(--palette-cinema-border);
+  --color-surface: var(--palette-space-panel-surface);
+  --color-focus: var(--palette-shelf-focus);
+  --color-error: var(--palette-warm-error);
+  --color-danger: var(--palette-warm-error);
+  --space-panel-light: var(--palette-space-panel-light);
+  --space-panel-shadow: var(--palette-space-panel-shadow);
+  --space-panel-texture: url("../../../../../images/estanteria/frente-roble.webp");
+  inset: calc(100% + 0.4rem) 0 auto auto;
+  width: min(23rem, 100vw - 2rem);
+  max-height: calc(100svh - 8rem);
+  background:
+    linear-gradient(
+      135deg,
+      var(--space-panel-light),
+      var(--space-panel-shadow)
+    ),
+    var(--space-panel-texture) center / cover,
+    var(--color-surface);
+  color: var(--color-warm-linen);
+}
+
+.panel label {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.panel select {
+  max-width: 100%;
+  min-height: 2rem;
+  border: var(--border-width) solid var(--color-control-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  color: inherit;
+  font: inherit;
+}
+
+.panel form {
+  margin-bottom: var(--space-medium);
+}
+
+.panel details {
+  margin-top: var(--space-medium);
+}
+
+.panel details > summary {
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--radius-control);
+  background: var(--color-warm-linen);
+  color: var(--color-warm-ink);
+  cursor: var(--cursor-interactive);
+  font-weight: var(--font-weight-semibold);
+}
+
+.panel:has(details[open]) {
+  width: min(32rem, 100vw - 2rem);
+}
+
+.management {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.management form {
+  min-width: 0;
+  padding: 0.7rem;
+  border: 1px solid var(--color-control-border);
+}
+
+.management form [data-field] {
+  margin-top: 0;
+}
+
+.panel h3 {
+  margin-block: 0.5rem;
+  font-family: var(--font-display);
+}
+
+.panel ul {
+  list-style: none;
+  padding: 0;
+}
+
+.panel li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-small);
+  padding-block: 0.4rem;
+  border-top: 1px solid var(--color-control-border);
+}
+
+.panel button.danger {
+  margin-top: 0.75rem;
+  background: transparent;
+  color: var(--color-danger);
+}
+
+@media (max-width: 42rem) {
+  .menu {
+    position: static;
+  }
+
+  .panel {
+    inset-inline: auto 0;
+  }
+}

@@ -1,0 +1,42 @@
+.poster {
+  display: grid;
+  position: relative;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: 0.35rem;
+  background: var(--cinema-wall);
+}
+
+.poster img {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+  object-fit: cover;
+}
+
+.placeholder {
+  display: grid;
+  align-content: center;
+  gap: 0.4rem;
+  padding: 0.7rem;
+  border: 1px solid var(--color-divider);
+  border-radius: inherit;
+  background: linear-gradient(150deg, var(--cinema-glow), var(--cinema-wall));
+  color: var(--color-warm-linen);
+  text-align: center;
+  font-family: var(--font-display);
+  overflow-wrap: anywhere;
+}
+
+.placeholder span {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  overflow: hidden;
+}
+
+.placeholder small {
+  color: var(--cinema-muted);
+}

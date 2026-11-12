@@ -1,0 +1,83 @@
+.receivingRoom {
+  --color-control-border: var(--color-warm-border);
+  --color-surface: var(--color-warm-surface);
+  --color-focus: var(--color-warm-focus);
+  --recibidor-wall: var(--palette-warm-wall);
+  --recibidor-halo: var(--palette-recibidor-halo);
+  --recibidor-light: var(--palette-recibidor-light);
+  --recibidor-linen: var(--color-warm-linen);
+  --recibidor-thread: var(--palette-recibidor-thread);
+  --recibidor-ink: var(--color-warm-ink);
+  --recibidor-action: var(--palette-recibidor-action);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 29rem);
+  align-items: center;
+  gap: clamp(1.5rem, 6vw, 6rem);
+  min-height: 100svh;
+  padding: clamp(1rem, 6vw, 5rem);
+  background: radial-gradient(
+    ellipse at 24% 38%,
+    var(--recibidor-halo),
+    var(--recibidor-wall) 62%
+  );
+}
+
+.welcome {
+  text-align: center;
+  color: var(--recibidor-linen);
+  font: italic 1.15rem var(--font-display);
+}
+
+.wordmark {
+  margin: 0.65rem 0;
+  font: 700 clamp(3rem, 8vw, 6rem) / 1 var(--font-display);
+}
+
+.moon {
+  display: inline-block;
+  width: clamp(4.5rem, 13vw, 8rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  box-shadow: inset 0.95rem -0.4rem 0 var(--recibidor-light);
+  filter: drop-shadow(0 0 1rem var(--recibidor-light));
+  transform: rotate(12deg);
+}
+
+.receivingRoom[data-registering="true"] {
+  padding-block: clamp(0.75rem, 2.5svh, 1.5rem);
+}
+
+@media (max-width: 42rem) {
+  .receivingRoom {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: center;
+    background: radial-gradient(
+      ellipse at 45% 12%,
+      var(--recibidor-halo),
+      var(--recibidor-wall) 55%
+    );
+  }
+
+  .welcome p:last-child {
+    margin-block: 0.5rem 0;
+  }
+
+  .receivingRoom[data-registering="true"] {
+    gap: 0.65rem;
+  }
+
+  [data-registering="true"] .moon {
+    width: 2.25rem;
+    vertical-align: middle;
+  }
+
+  [data-registering="true"] .wordmark {
+    display: inline-block;
+    margin: 0 0 0 0.6rem;
+    font-size: 2rem;
+  }
+
+  [data-registering="true"] .welcome p:last-child {
+    margin-top: 0.2rem;
+  }
+}
