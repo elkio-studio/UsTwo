@@ -1,0 +1,104 @@
+.journal {
+  width: min(100% - 2rem, 48rem);
+  margin-inline: auto;
+  padding-bottom: 4rem;
+}
+
+.journal h1 {
+  margin-block: clamp(1.25rem, 5vw, 2.5rem) 1.25rem;
+  font-family: var(--font-display);
+  font-size: var(--font-size-heading);
+  line-height: var(--line-height-heading);
+  overflow-wrap: anywhere;
+}
+
+.journal[data-theme="cinema"] {
+  width: min(100% - 2rem, 68rem);
+  min-height: 100svh;
+}
+
+.journal[data-theme="cinema"] h1 {
+  margin-block: 1.25rem 0.65rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-medium);
+  padding-block: var(--space-medium);
+  margin-bottom: 1.5rem;
+  border-bottom: var(--border-width) solid var(--color-divider);
+}
+
+.wordmark {
+  color: var(--color-brand);
+  font: bold 1.65rem var(--font-display);
+  text-decoration: none;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: var(--control-min-height);
+  padding: 0.4rem 0.75rem;
+  border: var(--border-width) solid var(--color-control-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  text-decoration: none;
+}
+
+.back:hover {
+  text-decoration: underline;
+}
+
+.journal[data-theme="shelf"] {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-height: 100svh;
+  padding: 0 1rem 2rem;
+}
+
+.journal[data-theme="shelf"] .header {
+  margin-inline: auto;
+  max-width: 76rem;
+  border-color: var(--palette-shelf-divider);
+}
+
+.journal[data-theme="shelf"] .wordmark {
+  color: inherit;
+}
+
+.journal[data-theme="shelf"] .actions>button {
+  border-color: var(--palette-shelf-control-border);
+  background: var(--shelf-wall);
+}
+
+.journal[data-theme="shelf"] h1 {
+  margin-block: 0 0.25rem;
+  text-align: center;
+  font-size: clamp(1.85rem, 4.5vw, 4rem);
+  text-shadow: 0 2px 8px var(--shelf-wall);
+}
+
+@media (min-width: 75rem) and (orientation: landscape) {
+  .journal[data-theme="shelf"] .header {
+    margin-bottom: 0.75rem;
+  }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-small);
+}
+
+@media (max-width: 42rem) {
+  .header {
+    position: relative;
+  }
+}

@@ -1,0 +1,20 @@
+.choices {
+  display: grid;
+  gap: var(--space-small);
+  padding: 0;
+  list-style: none;
+}
+
+.choices a {
+  display: block;
+  width: 100%;
+  min-height: var(--control-min-height);
+  padding: 0.45rem 0.75rem;
+  border: var(--border-width) solid var(--color-warm-border);
+  border-radius: var(--radius-control);
+  background: var(--color-warm-linen);
+  color: var(--color-warm-ink);
+  text-align: start;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}

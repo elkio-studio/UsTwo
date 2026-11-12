@@ -1,12 +1,12 @@
 // Página de créditos y atribución del catálogo de películas.
 
-import Journal from "../../components/Journal/Journal";
+import JournalLayout from "../../components/Journal/JournalLayout/JournalLayout";
 import "../../../css/global.css";
 import styles from "./Credits.module.css";
 
 export default function Credits() {
   return (
-    <Journal
+    <JournalLayout
       title="Créditos"
       back={{ href: "/", label: "Volver al espacio compartido" }}
     >
@@ -18,6 +18,6 @@ export default function Credits() {
       <p lang="en">
         This product uses the TMDB API but is not endorsed or certified by TMDB.
       </p>
-    </Journal>
+    </JournalLayout>
   );
 }
