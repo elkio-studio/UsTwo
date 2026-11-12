@@ -95,6 +95,19 @@ Inertia. La regla de exportación de componentes no aplica a este archivo.
 - Mantener foco visible, acceso por teclado, tacto, movimiento reducido
   y comportamiento en escritorio y móvil.
 
+## Pruebas al cambiar código
+
+- Al modificar código existente, revisa las pruebas que cubren el
+  comportamiento afectado y ejecútalas. Si el cambio mueve o renombra
+  archivos, comprueba también las rutas y los nombres que usan las pruebas.
+  Por ejemplo, las aserciones de Inertia deben seguir verificando que el JSX
+  existe en su ubicación actual.
+- Al añadir código nuevo, añade pruebas que cubran el comportamiento que
+  introduce. Incluye los casos de error o los límites cuando apliquen.
+- Antes de subir cambios de código, ejecuta las pruebas afectadas y la
+  suite local aplicable. Registra el resultado y las comprobaciones
+  pendientes en las evidencias de la especificación.
+
 ## Criterios de aceptación
 
 - **CA-01.** Los once pares del inventario y los componentes nuevos se ajustan a la convención de carpeta y
