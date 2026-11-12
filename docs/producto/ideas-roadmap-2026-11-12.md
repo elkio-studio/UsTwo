@@ -60,3 +60,39 @@
 
 ## Siguiente paso
 Validar épicas y versiones con Rafa y Ángel; después redactar historias con criterios verificables; finalmente dividir en tareas y crear Issues/Project. No implementar ni cambiar main a partir de este documento sin aprobación.
+
+## Actualización de decisiones — refinamiento v0.2 (12/11/2026)
+
+### Foco y horizonte
+- **Decisión aprobada:** trabajar exclusivamente en v0.2 hasta final de 2026, con horizonte de planificación 31/12/2026. No es una fecha de entrega garantizada ni un sprint comprometido.
+- **Decisión aprobada:** v0.2 debe incluir funcionando las tres colecciones nuevas: **Sitios y mapas**, **Libros y mangas**, **Enlaces, compras y regalos**. No basta con sus representaciones visuales.
+- **Decisión aprobada:** la v1.0 se abordará después del cambio de año, orientada a rediseño, interfaces, experiencia de usuario y cambios estructurales de cajones. No refinar ni crear Issues de v1.0/v2.0 todavía. Todas las ideas de las secciones anteriores permanecen archivadas como propuestas futuras, no descartadas.
+
+### Épicas candidatas para v0.2 (por validar en conjunto)
+1. EP-01 Sitios y mapas: investigación de proveedor, cajón, registro, mapa con marcadores persistentes y gestión de lugares.
+2. EP-02 Libros y mangas: investigación de catálogos, cajón, registro por catálogo/manual, consulta, gestión y **notas/comentarios y puntuaciones individuales por miembro, siguiendo Películas y Series**. Esta última capacidad está **aprobada**, no es opcional.
+3. EP-03 Enlaces, compras y regalos: investigación de extracción de datos, cajón, registro, consulta y gestión de enlaces; clasificación/privacidad pendientes de definición.
+4. EP-04 Interacción con cajones: arrastrar y soltar y mantener alternativa accesible.
+5. EP-05 Avisos y confirmaciones: invitaciones y eliminación sin alertas nativas.
+6. EP-06 Gestión de contenido y metadatos: reglas de edición para datos manuales y procedentes de APIs.
+- Búsqueda y filtros: idea registrada, asignación de versión pendiente; no asumir compromiso en v0.2.
+
+### EP-01 — decisiones confirmadas
+- Guardar **solo lugares visitados**; quedan fuera listas de pendientes en v0.2.
+- Datos iniciales: **nombre, ubicación, estado «Visitado» y nota opcional**.
+- Propuesta de UX: el estado puede asignarse internamente, sin selector, al ser único.
+- Historias candidatas: investigar proveedor; crear cajón; registrar lugar; mostrar mapa y chinchetas; consultar/editar/eliminar.
+- **Pendiente de decidir:** método de selección de ubicación (búsqueda por nombre/dirección, clic en mapa o ambos). No inferir aprobación.
+
+### EP-02 — decisiones confirmadas
+- Cada miembro podrá poner **su propia nota/comentario y puntuación** a libros y mangas, igual que en Películas y Series.
+- Pendiente definir si una entrada representa una obra, un volumen o un tomo; catálogo y API por investigar.
+
+### Ideas para v1.0 y v2.0 — conservar sin refinamiento
+- v1.0 candidata: cajones configurables con bloques reutilizables (películas, series, libros, mapas, texto, ubicaciones, imágenes), personalización de forma y aspecto; fondos y estanterías; biblioteca personal automática, intercambio de elementos entre espacios, navegación directa a estantería personal y cambio rápido entre compartidas.
+- Futuro/v2.0 candidata: avatares y colores de perfil; autoría visible de cada ítem; pendientes y niveles de interés por miembro para películas, series, libros y planes.
+- Búsqueda y filtros en colecciones numerosas: prioridad/versión pendiente.
+- Todas estas ideas son **propuestas**, no requisitos de la v0.2 ni compromisos aprobados.
+
+### Próximo paso
+Refinar solo las épicas de v0.2 con Rafa y Ángel, validar historias y criterios de aceptación y, después, crear Issues y planificarlas. Mantener este documento como banco de ideas hasta aprobación e integración de este PR.
