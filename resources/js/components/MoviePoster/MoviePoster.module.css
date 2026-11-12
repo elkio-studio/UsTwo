@@ -1,7 +1,0 @@
-.poster {
-  composes: ustwo-poster from global;
-}
-
-.placeholder {
-  composes: ustwo-poster-placeholder from global;
-}

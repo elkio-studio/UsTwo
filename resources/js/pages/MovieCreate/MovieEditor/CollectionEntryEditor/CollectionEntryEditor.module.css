@@ -1,0 +1,5 @@
+.editor {
+  margin-top: 1.5rem;
+  padding-top: var(--space-small);
+  border-top: var(--border-width) solid var(--color-divider);
+}

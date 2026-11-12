@@ -1,0 +1,51 @@
+.intro {
+  color: var(--cinema-muted);
+}
+
+.empty {
+  margin-block: 1.5rem;
+  padding: 1rem;
+  border: 1px dashed var(--color-divider);
+}
+
+.add {
+  display: inline-block;
+  background: var(--color-brand);
+  color: var(--color-warm-ink);
+  padding: 0.55rem 0.9rem;
+  border-radius: var(--radius-control);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+}
+
+.list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 9rem), 1fr));
+  align-items: start;
+  gap: clamp(0.65rem, 2.5vw, 1.4rem);
+  list-style: none;
+  padding: 0;
+  margin-block: 1.5rem;
+}
+
+@media (hover: hover) and (pointer: fine) and (min-width: 37rem) {
+  .list {
+    column-gap: 0;
+    padding-inline-end: 3.25rem;
+  }
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-medium);
+  margin-block: 1.5rem;
+}
+
+.pagination a {
+  padding: 0.45rem 0.75rem;
+  border: var(--border-width) solid var(--color-control-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+}

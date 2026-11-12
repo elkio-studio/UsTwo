@@ -202,14 +202,18 @@ PHPUnit usa SQLite en memoria para verificar el MVP sin tocar el fichero de
 datos local. Las pruebas de catálogo simulan las respuestas de TMDB. El build
 genera los assets locales de producción.
 
-Cada componente o página tiene su propia carpeta en `resources/js/components`
-o `resources/js/pages`. La carpeta final contiene solo `Nombre.jsx` y
-`Nombre.module.css`. Inertia identifica las páginas como `Nombre/Nombre`.
-Todos los estilos se definen en `resources/css/global.css`, incluidas las
-variables compartidas y las reglas de componentes y páginas. Los archivos
-`.module.css` solo enlazan las clases que usa cada componente con
-`composes: nombre-de-clase from global`.
-El CSS global se importa solo desde páginas principales. SSR está
+Las carpetas de agrupación contienen solo subcarpetas. Cada carpeta final
+contiene `Nombre.jsx` y, si la vista tiene estilos propios, `Nombre.module.css`. Por ejemplo, `Login`
+agrupa `LoginAccessForm` y `AccessForm`. Cuando varios consumidores usan un
+componente, este pasa al ámbito común más cercano. El punto de entrada
+relaciona los nombres de página de Inertia con sus archivos JSX.
+Declara las vistas con `export default function Nombre`,
+desestructura los props en la firma y usa un `return` explícito.
+
+Los módulos contienen CSS estándar y consumen los colores, tipografías y
+demás valores compartidos con `var(...)`. Las variables, estilos base y temas
+compartidos se definen en `resources/css/global.css`, importado solo por las
+páginas principales. SSR está
 desactivado en Laravel y Vite. `.env`, dependencias, sesiones, cachés, logs y
 assets compilados quedan fuera de Git; los dos archivos de bloqueo se conservan.
 
