@@ -53,6 +53,32 @@ class VisitedPlacesTest extends TestCase
         $this->assertDatabaseHas('places', ['place_list_id' => $empty->id, 'name' => '38, -5', 'status' => 'visited']);
     }
 
+    public function test_saved_places_and_optional_notes_are_read_from_the_current_space(): void
+    {
+        $local = $this->space->placeLists()->create(['name' => 'Viajes']);
+        $foreign = $this->other->placeLists()->create(['name' => 'Otra lista']);
+        $position = ['latitude' => 38.25, 'longitude' => -5.5, 'status' => 'visited'];
+        $local->places()->create($position + ['name' => 'Museo', 'note' => "Primera línea\n<b>Segunda línea</b>"]);
+        $local->places()->create(array_replace($position, ['name' => 'Parque', 'latitude' => 39.25]));
+        $foreign->places()->create($position + ['name' => 'Otro sitio']);
+        $otherUrl = '/espacios/'.$this->other->id.'/sitios';
+
+        $this->get($otherUrl)->assertNotFound();
+        $this->other->members()->attach($this->space->owner_id);
+        $this->get($this->url)->assertInertia(fn (Assert $page) => $page->has('lists.0.places', 2));
+        $this->get($otherUrl)->assertInertia(fn (Assert $page) => $page
+            ->has('lists', 1)->has('lists.0.places', 1)->where('lists.0.places.0.name', 'Otro sitio'));
+        $this->get($this->url)->assertInertia(fn (Assert $page) => $page
+            ->has('lists', 1)->has('lists.0.places', 2)
+            ->where('lists.0.places.0.name', 'Museo')
+            ->where('lists.0.places.0.note', "Primera línea\n<b>Segunda línea</b>")
+            ->where('lists.0.places.0.latitude', 38.25)
+            ->where('lists.0.places.0.longitude', -5.5)
+            ->where('lists.0.places.1.name', 'Parque')
+            ->where('lists.0.places.1.note', null)
+            ->where('lists.0.places.1.latitude', 39.25));
+    }
+
     public function test_invalid_coordinates_and_foreign_lists_cannot_create_places(): void
     {
         $foreign = $this->other->placeLists()->create(['name' => 'Privada']);

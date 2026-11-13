@@ -12,3 +12,17 @@
   color: var(--color-warm-ink);
   font-size: 1.125rem;
 }
+
+.marker:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.popup {
+  overflow-wrap: anywhere;
+}
+
+.popupNote {
+  margin-top: var(--space-small);
+  white-space: pre-wrap;
+}

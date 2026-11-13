@@ -68,8 +68,17 @@ export default function PlacesMap({ tilesKey, lists, point, onPick }) {
         points.push(position);
         const emoji = document.createElement("span");
         emoji.textContent = list.emoji || "📍";
-        const popup = document.createElement("span");
-        popup.textContent = place.name;
+        const popup = document.createElement("div");
+        popup.className = styles.popup;
+        const name = document.createElement("strong");
+        name.textContent = place.name;
+        popup.append(name);
+        if (place.note?.trim()) {
+          const note = document.createElement("div");
+          note.className = styles.popupNote;
+          note.textContent = place.note;
+          popup.append(note);
+        }
         const pin = marker(position, {
           title: place.name,
           icon: divIcon({
@@ -78,7 +87,7 @@ export default function PlacesMap({ tilesKey, lists, point, onPick }) {
             iconSize: [28, 28],
           }),
         })
-          .bindPopup(popup)
+          .bindPopup(popup, { maxHeight: 160 })
           .addTo(saved.current);
         pin.getElement()?.setAttribute("aria-label", place.name);
       }
