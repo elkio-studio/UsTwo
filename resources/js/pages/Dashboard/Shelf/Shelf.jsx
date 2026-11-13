@@ -3,16 +3,34 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, router, useForm } from "@inertiajs/react";
 import styles from "./Shelf.module.css";
-import placesGlobe from "../../../../images/estanteria/globo-sitios.png";
+import GlobeSurface from "../GlobeSurface/GlobeSurface";
+import placesGlobe from "../../../../images/estanteria/globo-sitios.webp";
+import woodenDrawer from "../../../../images/estanteria/cajon-madera.webp";
 
 const drawers = [
-  { label: "Películas", path: "peliculas", position: "movie_slot" },
-  { label: "Series", path: "series", position: "series_slot" },
-  { label: "Sitios", path: "sitios", position: "places_slot" },
+  {
+    label: "Películas",
+    path: "peliculas",
+    position: "movie_slot",
+    image: woodenDrawer,
+  },
+  {
+    label: "Series",
+    path: "series",
+    position: "series_slot",
+    image: woodenDrawer,
+  },
+  {
+    label: "Sitios",
+    path: "sitios",
+    position: "places_slot",
+    image: placesGlobe,
+  },
 ];
 
 export default function Shelf({ activeSpace }) {
   const [opening, setOpening] = useState(false);
+  const [globeHovered, setGlobeHovered] = useState(false);
   const navigation = useRef(null);
   const drawerDialog = useRef(null);
   const placement = useForm({ slot: null });
@@ -74,15 +92,35 @@ export default function Shelf({ activeSpace }) {
                         opening === `/espacios/${activeSpace.id}/${drawer.path}`
                       }
                       onClick={openDrawer}
+                      onMouseEnter={
+                        drawer.path === "sitios"
+                          ? () => setGlobeHovered(true)
+                          : undefined
+                      }
+                      onMouseLeave={
+                        drawer.path === "sitios"
+                          ? () => setGlobeHovered(false)
+                          : undefined
+                      }
                     >
-                      {drawer.path === "sitios" && (
-                        <img
-                          className={styles.globe}
-                          src={placesGlobe}
-                          alt=""
-                        />
-                      )}
-                      <span>{drawer.label}</span>
+                      <span
+                        className={
+                          drawer.path === "sitios"
+                            ? styles.globe
+                            : styles.drawerFront
+                        }
+                      >
+                        <img src={drawer.image} alt="" />
+                        {drawer.path === "sitios" && (
+                          <GlobeSurface
+                            spinning={globeHovered}
+                            palette="color"
+                          />
+                        )}
+                        <span className={styles.drawerLabel}>
+                          {drawer.label}
+                        </span>
+                      </span>
                     </Link>
                   ) : (
                     <button

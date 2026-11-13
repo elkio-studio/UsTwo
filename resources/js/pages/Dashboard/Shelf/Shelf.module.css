@@ -149,50 +149,38 @@
 .drawer {
   position: absolute;
   inset: 0;
-  display: grid;
-  align-content: center;
-  justify-items: center;
-  gap: clamp(0.3rem, 1.5vw, 1rem);
-  min-width: var(--control-min-height);
-  min-height: var(--control-min-height);
-  border: 1px solid var(--palette-wood-dark);
-  border-radius: 0.15rem;
-  background:
-    linear-gradient(
-      125deg,
-      var(--palette-drawer-grain-light),
-      var(--palette-drawer-grain-shade)
-    ),
-    url("../../../../images/estanteria/frente-roble.webp") center / cover,
-    var(--palette-drawer-wood);
-  box-shadow:
-    inset 0 1px var(--palette-drawer-edge-light),
-    0 2px 5px var(--palette-drawer-deep-shadow);
   text-decoration: none;
   transition:
     transform 220ms ease,
     box-shadow 220ms ease;
 }
 
-.drawer span,
-.globeDrawer span {
-  padding: 0.12rem clamp(0.2rem, 1vw, 0.65rem);
-  border-radius: 0.12rem;
-  background: var(--shelf-label);
+.drawerFront {
+  position: absolute;
+  inset: 0;
+  --label-y: 38%;
+  container-type: size;
+}
+
+.drawerLabel {
+  position: absolute;
+  inset: var(--label-y) auto auto 50%;
+  translate: -50% -50%;
   color: var(--shelf-ink);
-  font: var(--font-weight-semibold) clamp(0.72rem, 2vw, 1.35rem) / 1.3
+  font: var(--font-weight-semibold) min(6.5cqw, 14cqh, 1.35rem) / 1.2
     var(--font-display);
+  white-space: nowrap;
 }
 
 .globeDrawer {
+  container-type: size;
   position: absolute;
   inset: 0;
   display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-rows: minmax(0, 1fr);
   justify-items: center;
   align-items: end;
-  gap: 0.2rem;
-  padding: 0.25rem;
+  padding: 0.25rem 0.25rem 0;
   text-decoration: none;
 }
 
@@ -201,38 +189,21 @@
 }
 
 .globe {
+  position: relative;
+  width: min(78cqw, calc(100cqh * 390 / 592));
+  aspect-ratio: 390 / 592;
+  --label-y: 90.5%;
+}
+
+.drawerFront img,
+.globe img {
   display: block;
-  width: 78%;
+  width: 100%;
   height: 100%;
-  object-fit: contain;
-  object-position: center bottom;
-  transition: transform 260ms ease;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .globeDrawer:hover .globe,
-  .globeDrawer:focus-visible .globe {
-    transform: perspective(20rem) rotateY(-13deg);
-  }
-
-  .globeDrawer[data-opening="true"] .globe {
-    transform: scale(1.08);
-  }
-}
-
-.drawer::after {
-  content: "";
-  width: clamp(1.4rem, 5vw, 4rem);
-  height: clamp(0.45rem, 1.3vw, 0.95rem);
-  border: 1px solid var(--palette-wood-shadow);
-  border-radius: 65% 65% 25% 25%;
-  background: linear-gradient(
-    165deg,
-    var(--palette-drawer-handle-light),
-    var(--palette-wood-handle-shadow) 55%,
-    var(--palette-wood-light)
-  );
-  box-shadow: 0 2px 3px var(--palette-drawer-ink);
+.globe .drawerLabel {
+  font-size: min(6cqh, 1.35rem);
 }
 
 .drawer:hover {

@@ -1,0 +1,13 @@
+.surface {
+  position: absolute;
+  inset: 6.2% auto auto 6.7%;
+  width: 87%;
+  height: 56.5%;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ready {
+  opacity: 1;
+}
