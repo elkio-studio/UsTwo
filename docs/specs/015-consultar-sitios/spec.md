@@ -12,7 +12,7 @@ y US-01.3 ([spec 014](../014-guardar-sitio-visitado/spec.md)).
 
 Inicio: 13 de noviembre de 2026, 21:47 CET, al crear la rama de trabajo.
 Cierre local: 13 de noviembre de 2026, 22:04 CET. Tiempo transcurrido:
-17 minutos.
+17 minutos. Valor estimado para GitHub Projects: `0.25` h.
 Sprint previsto: Sprint 1. Capacidad de referencia: 20 h por sprint,
 4 h/día de lunes a viernes. Estimación de la historia pendiente de validación.
 
