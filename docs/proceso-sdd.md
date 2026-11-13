@@ -116,6 +116,15 @@ Los criterios se identifican como `CA-NN` y las tareas como `T-NN`. Cada tarea
 debe referenciar criterios y la verificación final debe aportar evidencia por
 criterio.
 
+### Migraciones locales
+
+Siempre que añadas una migración, ejecuta `php artisan migrate` contra la
+base de datos local de desarrollo antes de dar por verificada la funcionalidad.
+Comprueba con `php artisan migrate:status` que figura como aplicada. En UsTwo,
+verifica que la conexión apunta al archivo SQLite local antes de ejecutar el
+comando. Las migraciones ejecutadas por las pruebas en su propia base de datos
+no actualizan la base que usa la web local.
+
 ## Contrato de los revisores
 
 Los tres revisores responden en español con:
@@ -133,6 +142,20 @@ No escriben archivos ni sustituyen la aprobación del desarrollador.
 
 El cierre de una especificación ocurre tras completar su implementación y
 verificación final. Aprobar la especificación o el plan abre la fase siguiente.
+
+En el cierre, registra en la propia `spec.md` la fecha de inicio, la fecha
+de cierre y el tiempo transcurrido desde que se inició la especificación.
+Si solo se conocen las fechas, expresa la duración en días o indica que
+se cerró el mismo día.
+
+Al cerrar la spec, comunica a Ángel la hora de inicio, la hora de cierre
+y el valor en horas decimales para que lo introduzca en GitHub Projects.
+Calcula ese valor a partir del tiempo transcurrido en incrementos de
+`0.25` h (15 minutos). Tras contar los
+cuartos de hora completos, redondea hacia abajo si sobran entre 0 y
+5 minutos y al siguiente cuarto si sobran entre 6 y 14 minutos.
+Por ejemplo, 2 h 30 min se registran como `2.5` h, 1 h 5 min como
+`1` h y 1 h 6 min como `1.25` h. Marca los valores estimados como tales.
 
 1. Crear los commits finales y publicar la rama de la especificación en
    `origin`.
