@@ -30,6 +30,8 @@ Route::middleware('auth')->group(function () {
         Route::put('/activo', [SpaceController::class, 'select']);
         Route::put('/cajones/peliculas', [SpaceController::class, 'placeMovieDrawer']);
         Route::put('/cajones/series', [SpaceController::class, 'placeSeriesDrawer']);
+        Route::put('/cajones/sitios', [SpaceController::class, 'placePlacesDrawer']);
+        Route::get('/sitios', [SpaceController::class, 'showPlaces']);
         Route::delete('/pertenencia', [SpaceController::class, 'leave']);
         Route::patch('/', [SpaceController::class, 'rename']);
         Route::delete('/miembros/{member}', [SpaceController::class, 'removeMember'])->whereNumber('member');
