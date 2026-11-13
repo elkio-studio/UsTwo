@@ -1,0 +1,20 @@
+.listField {
+  display: grid;
+  gap: var(--space-small);
+}
+
+.listField select,
+.listField option {
+  background-color: var(--color-surface);
+  color: var(--color-warm-linen);
+}
+
+.listField select {
+  color-scheme: dark;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-control-border);
+  border-radius: var(--radius-control);
+  font: inherit;
+}

@@ -1,6 +1,6 @@
 // Búsqueda de sitios por nombre o dirección.
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import Field from "../../../components/Field/Field";
 
 export default function PlaceSearch({ url, onSelect }) {
@@ -9,6 +9,7 @@ export default function PlaceSearch({ url, onSelect }) {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const request = useRef(null);
+  const hintId = useId();
 
   useEffect(() => () => request.current?.abort(), []);
 
@@ -40,7 +41,7 @@ export default function PlaceSearch({ url, onSelect }) {
       setResults(data);
       if (!data.length)
         setMessage(
-          "Sin resultados. Puedes elegir un punto o introducir las coordenadas.",
+          "Sin resultados. Prueba con parte del nombre y la ciudad, o elige un punto en el mapa.",
         );
     } catch (error) {
       if (!controller.signal.aborted) {
@@ -61,9 +62,13 @@ export default function PlaceSearch({ url, onSelect }) {
           type="search"
           required
           maxLength={255}
+          aria-describedby={hintId}
           value={query}
           onChange={(event) => setQuery(event.target.value)}
         />
+        <p id={hintId}>
+          Añade la ciudad o el código postal para afinar la búsqueda.
+        </p>
         <button disabled={loading}>{loading ? "Buscando…" : "Buscar"}</button>
       </form>
       {message && <p role="status">{message}</p>}

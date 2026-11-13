@@ -2,6 +2,7 @@
 
 import { useId } from "react";
 import Field from "../../../components/Field/Field";
+import styles from "./PlaceForm.module.css";
 
 export default function PlaceForm({ form, lists, onSave }) {
   const { data, errors, setData } = form;
@@ -53,8 +54,8 @@ export default function PlaceForm({ form, lists, onSave }) {
         error={errors.note}
       />
       {lists.length ? (
-        <p>
-          <label htmlFor={listId}>Lista </label>
+        <p className={styles.listField}>
+          <label htmlFor={listId}>Lista</label>
           <select
             id={listId}
             required

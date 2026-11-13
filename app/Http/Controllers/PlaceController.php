@@ -29,7 +29,23 @@ class PlaceController extends Controller
     {
         $data = $request->validate(['q' => 'required|string|max:255']);
 
-        return response()->json($geoapify->geocode('search', ['text' => $data['q']]));
+        $parameters = ['text' => $data['q']];
+        $results = $geoapify->geocode('search', $parameters);
+
+        if (count($results) < 5) {
+            try {
+                $suggestions = $geoapify->geocode('autocomplete', $parameters);
+                $results = collect([...$results, ...$suggestions])
+                    ->uniqueStrict(fn (array $place) => [$place['address'], $place['latitude'], $place['longitude']])
+                    ->take(5)->values()->all();
+            } catch (ValidationException $exception) {
+                if ($results === []) {
+                    throw $exception;
+                }
+            }
+        }
+
+        return response()->json($results);
     }
 
     public function reverse(Request $request, Space $space, Geoapify $geoapify)

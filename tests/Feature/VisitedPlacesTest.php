@@ -97,10 +97,16 @@ class VisitedPlacesTest extends TestCase
         $result = ['name' => 'Museo', 'formatted' => 'Museo, Córdoba', 'lat' => 37.88, 'lon' => -4.77];
         Http::fake([
             'api.geoapify.com/v1/geocode/search*' => Http::sequence()
-                ->push(['results' => [$result]])->push(['results' => []])->pushStatus(429)->pushStatus(503),
+                ->push(['results' => [$result]])->push(['results' => []])->push(['results' => []])->pushStatus(429)->pushStatus(503),
+            'api.geoapify.com/v1/geocode/autocomplete*' => Http::sequence()
+                ->push(['results' => [$result, [...$result, 'name' => 'Museo Arqueológico', 'formatted' => 'Museo Arqueológico, Córdoba']]])
+                ->push(['results' => [$result]])->push(['results' => []]),
             'api.geoapify.com/v1/geocode/reverse*' => Http::response(['results' => [$result]]),
         ]);
-        $this->getJson($this->url.'/buscar?q=Museo')->assertOk()->assertJsonPath('0.name', 'Museo');
+        $this->getJson($this->url.'/buscar?q=Museo')->assertOk()
+            ->assertJsonCount(2)->assertJsonPath('0.name', 'Museo')
+            ->assertJsonPath('1.name', 'Museo Arqueológico');
+        $this->getJson($this->url.'/buscar?q=Muse')->assertOk()->assertJsonPath('0.name', 'Museo');
         $this->getJson($this->url.'/buscar?q=Calle+de+prueba')->assertOk()->assertExactJson([]);
         $this->getJson($this->url.'/buscar?q=Museo')->assertUnprocessable()->assertJsonValidationErrors('search');
         $this->getJson($this->url.'/buscar?q=Museo')->assertUnprocessable()->assertJsonValidationErrors('search');
