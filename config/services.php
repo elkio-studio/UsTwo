@@ -1,6 +1,11 @@
 <?php
 
 return [
+    'geoapify' => [
+        'search_key' => env('GEOAPIFY_SEARCH_KEY'),
+        'tiles_key' => env('GEOAPIFY_TILES_KEY'),
+    ],
+
     'tmdb' => [
         'token' => env('TMDB_TOKEN'),
     ],

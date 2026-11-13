@@ -16,7 +16,7 @@ const pages = {
     import("./pages/MovieDetail/CollectionEntryDetail/CollectionEntryDetail"),
   "Movies/Movies": () =>
     import("./pages/Movies/WatchedCollection/WatchedCollection"),
-  "Places/Places": () => import("./pages/Places/Places"),
+  "Places/Places": () => import("./pages/Places/PlacesView/PlacesView"),
 };
 
 router.on("navigate", ({ detail: { page, type } }) => {

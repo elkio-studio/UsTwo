@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\MovieController;
+use App\Http\Controllers\PlaceController;
 use App\Http\Controllers\SeriesController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\SpaceController;
@@ -31,7 +32,13 @@ Route::middleware('auth')->group(function () {
         Route::put('/cajones/peliculas', [SpaceController::class, 'placeMovieDrawer']);
         Route::put('/cajones/series', [SpaceController::class, 'placeSeriesDrawer']);
         Route::put('/cajones/sitios', [SpaceController::class, 'placePlacesDrawer']);
-        Route::get('/sitios', [SpaceController::class, 'showPlaces']);
+        Route::get('/sitios', [PlaceController::class, 'index'])->name('places.index');
+        Route::post('/sitios', [PlaceController::class, 'store']);
+        Route::post('/sitios/listas', [PlaceController::class, 'storeList']);
+        Route::middleware('throttle:20,1')->group(function () {
+            Route::get('/sitios/buscar', [PlaceController::class, 'search']);
+            Route::get('/sitios/inversa', [PlaceController::class, 'reverse']);
+        });
         Route::delete('/pertenencia', [SpaceController::class, 'leave']);
         Route::patch('/', [SpaceController::class, 'rename']);
         Route::delete('/miembros/{member}', [SpaceController::class, 'removeMember'])->whereNumber('member');

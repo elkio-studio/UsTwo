@@ -53,3 +53,16 @@ para el cajón. Estos detalles sirven de referencia para sus historias.
 Las pruebas se hicieron por separado. La integración en UsTwo deberá
 verificar el flujo unido, los errores del proveedor, el consumo real de
 créditos y el uso en móvil y con teclado.
+
+## Configuración de UsTwo
+
+Configura `GEOAPIFY_SEARCH_KEY` y `GEOAPIFY_TILES_KEY` en el `.env` local
+y como variables de entorno del servicio de Render. La primera clave se
+usa únicamente en Laravel. La segunda se envía al navegador para cargar
+las teselas y debe restringirse al origen local y al dominio desplegado
+que corresponda. Las dos claves quedan fuera de Git.
+
+La búsqueda se envía al pulsar «Buscar». Elegir un punto consulta la
+búsqueda inversa. Si el proveedor falla, el formulario permite introducir
+las coordenadas directamente. Comprueba el consumo del proyecto en el
+panel de Geoapify al verificar el flujo integrado.

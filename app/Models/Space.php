@@ -47,6 +47,11 @@ class Space extends Model
         return $this->hasMany(Series::class);
     }
 
+    public function placeLists(): HasMany
+    {
+        return $this->hasMany(PlaceList::class);
+    }
+
     public function invitations(): HasMany
     {
         return $this->hasMany(SpaceInvitation::class);

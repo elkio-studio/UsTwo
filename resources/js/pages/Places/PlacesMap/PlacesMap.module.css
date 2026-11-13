@@ -1,0 +1,14 @@
+.map {
+  height: clamp(18rem, 50vh, 32rem);
+  isolation: isolate;
+  border-radius: var(--radius-control);
+}
+
+.marker {
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-warm-linen);
+  color: var(--color-warm-ink);
+  font-size: 1.125rem;
+}

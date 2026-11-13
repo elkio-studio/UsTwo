@@ -102,11 +102,6 @@ class SpaceController extends Controller
         return $this->placeDrawer($request, $space, 'places_slot', 'movie_slot', 'series_slot');
     }
 
-    public function showPlaces(Space $space)
-    {
-        return Inertia::render('Places/Places', ['spaceSlug' => $space->slug]);
-    }
-
     private function placeDrawer(Request $request, Space $space, string $column, string ...$otherColumns)
     {
         $data = $request->validate(['slot' => 'required|integer|between:1,8']);
