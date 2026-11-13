@@ -24,6 +24,7 @@ abstract class TestCase extends BaseTestCase
                         'MovieCreate/MovieCreate' => 'MovieCreate/AddCollectionEntry/AddCollectionEntry',
                         'MovieDetail/MovieDetail' => 'MovieDetail/CollectionEntryDetail/CollectionEntryDetail',
                         'Movies/Movies' => 'Movies/WatchedCollection/WatchedCollection',
+                        'Places/Places' => 'Places/PlacesView/PlacesView',
                         default => $name,
                     });
                 }
