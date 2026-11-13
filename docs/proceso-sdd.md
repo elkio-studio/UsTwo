@@ -161,7 +161,10 @@ Por ejemplo, 2 h 30 min se registran como `2.5` h, 1 h 5 min como
    `origin`.
 2. Integrar la rama en `dev` y comprobar que el resultado está en
    `origin/dev`. `main` se reserva para despliegues.
-3. Una vez confirmada la integración, borrar la rama de la especificación
+3. Publicar los cambios de `docs/` de la especificación en
+   `origin/documentation` siguiendo el apartado «Ramas y copias de trabajo».
+4. Una vez confirmada la integración y publicada la documentación, borrar
+   la rama de la especificación
    en local y en `origin` si puede hacerse de forma segura y sin forzar.
    Si queda trabajo sin integrar o el borrado requiere pasos adicionales,
    conservar la rama e indicar el motivo.
@@ -177,3 +180,37 @@ Si el cierre depende de publicación o CI externo, la verificación local deja e
 pendiente en `MEMORY.md`. Una tarea posterior, tras observar el resultado real,
 actualiza la memoria y retira el pendiente.
 
+## Ramas y copias de trabajo
+
+- La carpeta original `UsTwo` se usa para desarrollar desde `dev`. Cada
+  rama de especificación sale de `dev` y vuelve a ella con el código, las
+  pruebas y la documentación de la historia. `main` se reserva para despliegues.
+- La copia de trabajo `UsTwo-docs` usa `documentation`, una rama con
+  historial independiente que contiene únicamente `docs/`. Su contenido
+  inicial se copió de `dev`. Rafa puede abrir esa carpeta para trabajar
+  con la documentación.
+- Las dos carpetas comparten el repositorio Git y se abren por separado.
+  El `.env`, la base SQLite local y las dependencias de desarrollo viven
+  en la carpeta original `UsTwo`.
+
+### Actualizar la rama de destino antes de integrar
+
+Antes de hacer cualquier merge local, sitúate en la rama de destino y
+ejecuta `git pull --ff-only`. Normalmente será `dev` o `documentation`.
+Si vas a integrar en `main`, actualiza también `main` antes del merge.
+Si el pull falla o hay divergencia, resuelve esa situación antes de
+continuar.
+
+### Compartir documentación de una especificación
+
+1. Actualiza `dev` e integra la rama de la spec con todos sus cambios.
+2. Identifica el diff de `docs/` entre el commit base y el commit final
+   de la spec antes de borrar su rama.
+3. En `UsTwo-docs`, ejecuta `git pull --ff-only` en `documentation` para
+   traer las últimas ediciones de Rafa. Aplica únicamente el diff de
+   `docs/`. Si ambos habéis editado el mismo archivo, revisad las dos
+   versiones e incorporad los cambios que correspondan.
+4. Comprueba que el diff de `documentation` solo afecta a `docs/`,
+   crea un commit en esa rama y publícalo en `origin/documentation`.
+   Toda spec cerrada debe tener su documentación publicada allí antes
+   de borrar su rama de trabajo.
