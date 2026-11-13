@@ -3,10 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, router, useForm } from "@inertiajs/react";
 import styles from "./Shelf.module.css";
+import placesGlobe from "../../../../images/estanteria/globo-sitios.png";
 
 const drawers = [
   { label: "Películas", path: "peliculas", position: "movie_slot" },
   { label: "Series", path: "series", position: "series_slot" },
+  { label: "Sitios", path: "sitios", position: "places_slot" },
 ];
 
 export default function Shelf({ activeSpace }) {
@@ -63,12 +65,23 @@ export default function Shelf({ activeSpace }) {
                   {drawer ? (
                     <Link
                       href={`/espacios/${activeSpace.id}/${drawer.path}`}
-                      className={styles.drawer}
+                      className={
+                        drawer.path === "sitios"
+                          ? styles.globeDrawer
+                          : styles.drawer
+                      }
                       data-opening={
                         opening === `/espacios/${activeSpace.id}/${drawer.path}`
                       }
                       onClick={openDrawer}
                     >
+                      {drawer.path === "sitios" && (
+                        <img
+                          className={styles.globe}
+                          src={placesGlobe}
+                          alt=""
+                        />
+                      )}
                       <span>{drawer.label}</span>
                     </Link>
                   ) : (

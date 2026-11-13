@@ -13,13 +13,22 @@
   display: grid;
   place-items: center;
   container-type: size;
-  background: radial-gradient(ellipse at 12% 32%, var(--palette-wood-deep-shadow), transparent 55%),
-    radial-gradient(ellipse at 86% 20%, var(--palette-wood-border), var(--shelf-wall) 68%);
+  background:
+    radial-gradient(
+      ellipse at 12% 32%,
+      var(--palette-wood-deep-shadow),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse at 86% 20%,
+      var(--palette-wood-border),
+      var(--shelf-wall) 68%
+    );
 }
 
 .scene {
   --scene-ratio: 16 / 9;
-  --scene-image: url('../../../../images/estanteria/escena-horizontal.webp');
+  --scene-image: url("../../../../images/estanteria/escena-horizontal.webp");
   --slot-x: 13.1%;
   --slot-y: 32.1%;
   --slots-width: 79.2%;
@@ -39,13 +48,26 @@
 }
 
 .scene::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   pointer-events: none;
   background: var(--scene-image) center / contain no-repeat;
-  mask-image: linear-gradient(to right, transparent, var(--palette-black) 3%, var(--palette-black) 97%, transparent),
-    linear-gradient(to bottom, transparent, var(--palette-black) 4%, var(--palette-black) 96%, transparent);
+  mask-image:
+    linear-gradient(
+      to right,
+      transparent,
+      var(--palette-black) 3%,
+      var(--palette-black) 97%,
+      transparent
+    ),
+    linear-gradient(
+      to bottom,
+      transparent,
+      var(--palette-black) 4%,
+      var(--palette-black) 96%,
+      transparent
+    );
   mask-composite: intersect;
 }
 
@@ -79,7 +101,7 @@
 }
 
 .addDrawer::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   background:
@@ -104,7 +126,7 @@
   width: min(25rem, calc(100% - 2rem));
   padding: 1.25rem;
   border: 1px solid var(--color-warm-border);
-  border-radius: .5rem;
+  border-radius: 0.5rem;
   background: var(--color-warm-linen);
   color: var(--color-warm-ink);
 }
@@ -130,32 +152,86 @@
   display: grid;
   align-content: center;
   justify-items: center;
-  gap: clamp(.3rem, 1.5vw, 1rem);
+  gap: clamp(0.3rem, 1.5vw, 1rem);
   min-width: var(--control-min-height);
   min-height: var(--control-min-height);
   border: 1px solid var(--palette-wood-dark);
-  border-radius: .15rem;
-  background: linear-gradient(125deg, var(--palette-drawer-grain-light), var(--palette-drawer-grain-shade)), url('../../../../images/estanteria/frente-roble.webp') center / cover, var(--palette-drawer-wood);
-  box-shadow: inset 0 1px var(--palette-drawer-edge-light), 0 2px 5px var(--palette-drawer-deep-shadow);
+  border-radius: 0.15rem;
+  background:
+    linear-gradient(
+      125deg,
+      var(--palette-drawer-grain-light),
+      var(--palette-drawer-grain-shade)
+    ),
+    url("../../../../images/estanteria/frente-roble.webp") center / cover,
+    var(--palette-drawer-wood);
+  box-shadow:
+    inset 0 1px var(--palette-drawer-edge-light),
+    0 2px 5px var(--palette-drawer-deep-shadow);
   text-decoration: none;
-  transition: transform 220ms ease, box-shadow 220ms ease;
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease;
 }
 
-.drawer span {
-  padding: .12rem clamp(.2rem, 1vw, .65rem);
-  border-radius: .12rem;
+.drawer span,
+.globeDrawer span {
+  padding: 0.12rem clamp(0.2rem, 1vw, 0.65rem);
+  border-radius: 0.12rem;
   background: var(--shelf-label);
   color: var(--shelf-ink);
-  font: var(--font-weight-semibold) clamp(.72rem, 2vw, 1.35rem) / 1.3 var(--font-display);
+  font: var(--font-weight-semibold) clamp(0.72rem, 2vw, 1.35rem) / 1.3
+    var(--font-display);
+}
+
+.globeDrawer {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  justify-items: center;
+  align-items: end;
+  gap: 0.2rem;
+  padding: 0.25rem;
+  text-decoration: none;
+}
+
+.globeDrawer:focus-visible {
+  outline-color: var(--shelf-focus);
+}
+
+.globe {
+  display: block;
+  width: 78%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  transition: transform 260ms ease;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .globeDrawer:hover .globe,
+  .globeDrawer:focus-visible .globe {
+    transform: perspective(20rem) rotateY(-13deg);
+  }
+
+  .globeDrawer[data-opening="true"] .globe {
+    transform: scale(1.08);
+  }
 }
 
 .drawer::after {
-  content: '';
+  content: "";
   width: clamp(1.4rem, 5vw, 4rem);
-  height: clamp(.45rem, 1.3vw, .95rem);
+  height: clamp(0.45rem, 1.3vw, 0.95rem);
   border: 1px solid var(--palette-wood-shadow);
   border-radius: 65% 65% 25% 25%;
-  background: linear-gradient(165deg, var(--palette-drawer-handle-light), var(--palette-wood-handle-shadow) 55%, var(--palette-wood-light));
+  background: linear-gradient(
+    165deg,
+    var(--palette-drawer-handle-light),
+    var(--palette-wood-handle-shadow) 55%,
+    var(--palette-wood-light)
+  );
   box-shadow: 0 2px 3px var(--palette-drawer-ink);
 }
 
@@ -167,9 +243,9 @@
   outline-color: var(--shelf-focus);
 }
 
-.drawer[data-opening='true'] {
+.drawer[data-opening="true"] {
   transform: translateY(22%) scale(1.04);
-  box-shadow: 0 .5rem .9rem var(--palette-drawer-deep-shadow);
+  box-shadow: 0 0.5rem 0.9rem var(--palette-drawer-deep-shadow);
 }
 
 .candle {
@@ -182,21 +258,26 @@
   mix-blend-mode: screen;
 }
 
-.candle+.candle {
+.candle + .candle {
   inset: var(--candle-two-y) auto auto var(--candle-two-x);
-  --candle-delay: -.73s;
+  --candle-delay: -0.73s;
 }
 
 .candle::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse, var(--palette-candle-halo-core), var(--palette-candle-halo-edge) 33%, transparent 70%);
+  background: radial-gradient(
+    ellipse,
+    var(--palette-candle-halo-core),
+    var(--palette-candle-halo-edge) 33%,
+    transparent 70%
+  );
   animation: ustwo-candle-glow 1.8s ease-in-out var(--candle-delay, 0s) infinite;
 }
 
 .candle::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 50% auto auto 50%;
   width: 4%;
@@ -204,40 +285,39 @@
   translate: -50% -50%;
   border-radius: 75% 25% 60% 40%;
   background: var(--palette-candle-flame);
-  box-shadow: 0 0 .35rem var(--palette-candle-flame-glow);
+  box-shadow: 0 0 0.35rem var(--palette-candle-flame-glow);
   transform-origin: center bottom;
-  animation: ustwo-candle-flame 1.45s ease-in-out var(--candle-delay, 0s) infinite;
+  animation: ustwo-candle-flame 1.45s ease-in-out var(--candle-delay, 0s)
+    infinite;
 }
 
 @keyframes ustwo-candle-glow {
-
   0%,
   100% {
-    opacity: .55;
-    transform: scale(.94);
+    opacity: 0.55;
+    transform: scale(0.94);
   }
 
   30% {
-    opacity: .76;
+    opacity: 0.76;
     transform: scale(1.04);
   }
 
   61% {
-    opacity: .59;
-    transform: scale(.97);
+    opacity: 0.59;
+    transform: scale(0.97);
   }
 
   79% {
-    opacity: .7;
+    opacity: 0.7;
     transform: scale(1.01);
   }
 }
 
 @keyframes ustwo-candle-flame {
-
   0%,
   100% {
-    transform: rotate(-4deg) scaleY(.94);
+    transform: rotate(-4deg) scaleY(0.94);
   }
 
   28% {
@@ -245,7 +325,7 @@
   }
 
   59% {
-    transform: rotate(-2deg) scaleY(.97);
+    transform: rotate(-2deg) scaleY(0.97);
   }
 
   78% {
@@ -256,7 +336,7 @@
 @media (orientation: portrait) {
   .scene {
     --scene-ratio: 3 / 4;
-    --scene-image: url('../../../../images/estanteria/escena-vertical.webp');
+    --scene-image: url("../../../../images/estanteria/escena-vertical.webp");
     --slot-x: 20.5%;
     --slot-y: 28%;
     --slots-width: 59.9%;
@@ -275,7 +355,7 @@
 @media (prefers-reduced-motion: reduce) {
   .candle::before {
     animation: none;
-    opacity: .55;
+    opacity: 0.55;
   }
 
   .candle::after {
