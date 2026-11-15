@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Place;
 use App\Models\Space;
 use App\Services\Geoapify;
 use Closure;
@@ -96,6 +97,34 @@ class PlaceController extends Controller
         return to_route('places.index', $space);
     }
 
+    public function update(Request $request, Space $space, string $placeId)
+    {
+        $this->writeForSpace($space, function () use ($request, $space, $placeId) {
+            $place = $this->placeInSpace($space, $placeId);
+            $place->update($request->validate([
+                ...$this->coordinates(),
+                'name' => 'required|string|max:255',
+                'note' => 'nullable|string|max:5000',
+            ]));
+        });
+
+        return to_route('places.index', $space);
+    }
+
+    public function destroy(Space $space, string $placeId)
+    {
+        $this->writeForSpace($space, function () use ($space, $placeId) {
+            $this->placeInSpace($space, $placeId)->delete();
+        }, 'No se pudo eliminar el sitio. Inténtalo de nuevo.');
+
+        return to_route('places.index', $space);
+    }
+
+    private function placeInSpace(Space $space, string $placeId): Place
+    {
+        return Place::whereIn('place_list_id', $space->placeLists()->select('id'))->findOrFail($placeId);
+    }
+
     public function storeList(Request $request, Space $space)
     {
         $data = $request->validate(['name' => 'required|string|max:255', 'emoji' => 'nullable|string|max:32']);
@@ -119,7 +148,7 @@ class PlaceController extends Controller
         ];
     }
 
-    private function writeForSpace(Space $space, Closure $write): void
+    private function writeForSpace(Space $space, Closure $write, string $error = 'No se pudo guardar. Inténtalo de nuevo.'): void
     {
         try {
             DB::transaction(function () use ($space, $write) {
@@ -133,7 +162,7 @@ class PlaceController extends Controller
                 $write();
             }, 3);
         } catch (QueryException) {
-            throw ValidationException::withMessages(['save' => 'No se pudo guardar. Inténtalo de nuevo.']);
+            throw ValidationException::withMessages(['save' => $error]);
         }
     }
 }

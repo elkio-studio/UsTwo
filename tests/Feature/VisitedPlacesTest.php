@@ -79,6 +79,62 @@ class VisitedPlacesTest extends TestCase
             ->where('lists.0.places.1.latitude', 39.25));
     }
 
+    public function test_a_member_can_correct_and_remove_a_saved_place(): void
+    {
+        $list = $this->space->placeLists()->create(['name' => 'Viajes']);
+        $place = $list->places()->create([
+            'name' => 'Museo', 'latitude' => 38, 'longitude' => -5,
+            'note' => 'Volver', 'status' => 'visited',
+        ]);
+        $url = $this->url.'/'.$place->id;
+        $this->patch($url, ['name' => '', 'latitude' => '1e999', 'longitude' => 181, 'note' => 'Conservar'])
+            ->assertSessionHasErrors(['name', 'latitude', 'longitude'])->assertSessionHasInput('note', 'Conservar');
+        $this->assertDatabaseHas('places', ['id' => $place->id, 'name' => 'Museo', 'note' => 'Volver']);
+
+        $this->patch($url, ['name' => 'Museo nuevo', 'latitude' => 39, 'longitude' => -6, 'note' => '',
+            'status' => 'pending', 'place_list_id' => 999])->assertRedirect($this->url);
+        $this->get($this->url)->assertInertia(fn (Assert $page) => $page
+            ->where('lists.0.places.0.name', 'Museo nuevo')->where('lists.0.places.0.latitude', 39)
+            ->where('lists.0.places.0.longitude', -6)->where('lists.0.places.0.note', null)
+            ->where('lists.0.places.0.status', 'visited'));
+
+        $this->delete($url)->assertRedirect($this->url);
+        $this->assertModelMissing($place);
+        $this->assertModelExists($list);
+        $this->get($this->url)->assertInertia(fn (Assert $page) => $page->has('lists.0.places', 0));
+    }
+
+    public function test_place_mutations_reject_cross_space_ids_and_accounts_without_membership(): void
+    {
+        $place = $this->other->placeLists()->create(['name' => 'Otra lista'])->places()->create([
+            'name' => 'Otro sitio', 'latitude' => 38, 'longitude' => -5, 'status' => 'visited',
+        ]);
+        $ownRoute = $this->url.'/'.$place->id;
+        $otherRoute = '/espacios/'.$this->other->id.'/sitios/'.$place->id;
+        foreach ([$ownRoute, $otherRoute] as $url) {
+            $this->patch($url, [])->assertNotFound();
+            $this->delete($url)->assertNotFound();
+        }
+        $this->actingAsGuest();
+        $this->patch($otherRoute, [])->assertRedirect('/acceso');
+        $this->delete($otherRoute)->assertRedirect('/acceso');
+        $this->assertDatabaseHas('places', ['id' => $place->id, 'name' => 'Otro sitio']);
+    }
+
+    public function test_failed_delete_keeps_the_place_and_reports_the_error(): void
+    {
+        $place = $this->space->placeLists()->create(['name' => 'Viajes'])->places()->create([
+            'name' => 'Museo', 'latitude' => 38, 'longitude' => -5, 'status' => 'visited',
+        ]);
+        Place::deleting(function () {
+            throw new QueryException('test', 'delete from places', [], new \RuntimeException('Borrado fallido'));
+        });
+
+        $this->delete($this->url.'/'.$place->id)
+            ->assertSessionHasErrors(['save' => 'No se pudo eliminar el sitio. Inténtalo de nuevo.']);
+        $this->assertModelExists($place);
+    }
+
     public function test_invalid_coordinates_and_foreign_lists_cannot_create_places(): void
     {
         $foreign = $this->other->placeLists()->create(['name' => 'Privada']);

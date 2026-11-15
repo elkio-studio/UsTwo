@@ -34,6 +34,8 @@ Route::middleware('auth')->group(function () {
         Route::put('/cajones/sitios', [SpaceController::class, 'placePlacesDrawer']);
         Route::get('/sitios', [PlaceController::class, 'index'])->name('places.index');
         Route::post('/sitios', [PlaceController::class, 'store']);
+        Route::patch('/sitios/{placeId}', [PlaceController::class, 'update'])->whereNumber('placeId');
+        Route::delete('/sitios/{placeId}', [PlaceController::class, 'destroy'])->whereNumber('placeId');
         Route::post('/sitios/listas', [PlaceController::class, 'storeList']);
         Route::middleware('throttle:20,1')->group(function () {
             Route::get('/sitios/buscar', [PlaceController::class, 'search']);

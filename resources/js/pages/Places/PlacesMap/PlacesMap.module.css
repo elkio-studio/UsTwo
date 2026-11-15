@@ -26,3 +26,14 @@
   margin-top: var(--space-small);
   white-space: pre-wrap;
 }
+
+.popupActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-small);
+  margin-top: var(--space-small);
+}
+
+.popupActions button {
+  color: var(--color-warm-linen);
+}

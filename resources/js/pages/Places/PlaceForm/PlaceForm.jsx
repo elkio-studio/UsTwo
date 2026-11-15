@@ -4,7 +4,7 @@ import { useId } from "react";
 import Field from "../../../components/Field/Field";
 import styles from "./PlaceForm.module.css";
 
-export default function PlaceForm({ form, lists, onSave }) {
+export default function PlaceForm({ form, lists, onSave, editing, onCancel, nameRef }) {
   const { data, errors, setData } = form;
   const listId = useId();
   const update = (key) => (event) => setData(key, event.target.value);
@@ -14,10 +14,11 @@ export default function PlaceForm({ form, lists, onSave }) {
 
   return (
     <form onSubmit={onSave}>
-      <h2>Guardar sitio visitado</h2>
+      <h2>{editing ? "Editar sitio" : "Guardar sitio visitado"}</h2>
       <Field
         label="Nombre del sitio"
-        required={data.mode !== "map"}
+        ref={nameRef}
+        required={editing || data.mode !== "map"}
         maxLength={255}
         value={data.name}
         onChange={update("name")}
@@ -53,7 +54,7 @@ export default function PlaceForm({ form, lists, onSave }) {
         onChange={update("note")}
         error={errors.note}
       />
-      {lists.length ? (
+      {editing ? null : lists.length ? (
         <p className={styles.listField}>
           <label htmlFor={listId}>Lista</label>
           <select
@@ -100,6 +101,11 @@ export default function PlaceForm({ form, lists, onSave }) {
       )}
       {errors.save && <p role="alert">{errors.save}</p>}
       <button disabled={form.processing}>Guardar sitio</button>
+      {editing && (
+        <button type="button" disabled={form.processing} onClick={onCancel}>
+          Cancelar edición
+        </button>
+      )}
     </form>
   );
 }

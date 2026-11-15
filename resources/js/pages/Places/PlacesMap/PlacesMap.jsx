@@ -12,12 +12,14 @@ import {
 import "leaflet/dist/leaflet.css";
 import styles from "./PlacesMap.module.css";
 
-export default function PlacesMap({ tilesKey, lists, point, onPick }) {
+export default function PlacesMap({ tilesKey, lists, point, onPick, onEdit, onDelete }) {
   const container = useRef(null);
   const mapRef = useRef(null);
   const saved = useRef(null);
   const pending = useRef(null);
   const fitted = useRef(false);
+  const actions = useRef({ onEdit, onDelete });
+  actions.current = { onEdit, onDelete };
   const [tileError, setTileError] = useState(false);
 
   useEffect(() => {
@@ -73,12 +75,27 @@ export default function PlacesMap({ tilesKey, lists, point, onPick }) {
         const name = document.createElement("strong");
         name.textContent = place.name;
         popup.append(name);
+        const coordinates = document.createElement("div");
+        coordinates.textContent = `Latitud ${place.latitude}, longitud ${place.longitude}`;
+        popup.append(coordinates);
         if (place.note?.trim()) {
           const note = document.createElement("div");
           note.className = styles.popupNote;
           note.textContent = place.note;
           popup.append(note);
         }
+        const controls = document.createElement("div");
+        controls.className = styles.popupActions;
+        const edit = document.createElement("button");
+        edit.type = "button";
+        edit.textContent = "Editar sitio";
+        edit.addEventListener("click", () => actions.current.onEdit(place));
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.textContent = "Eliminar sitio";
+        remove.addEventListener("click", () => actions.current.onDelete(place));
+        controls.append(edit, remove);
+        popup.append(controls);
         const pin = marker(position, {
           title: place.name,
           icon: divIcon({
@@ -89,6 +106,7 @@ export default function PlacesMap({ tilesKey, lists, point, onPick }) {
         })
           .bindPopup(popup, { maxHeight: 160 })
           .addTo(saved.current);
+        pin.on("popupopen", () => edit.focus({ preventScroll: true }));
         pin.getElement()?.setAttribute("aria-label", place.name);
       }
     }

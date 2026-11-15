@@ -23,28 +23,38 @@ export default function PlacesView({ spaceSlug, spaceId, lists, tilesKey }) {
     list_emoji: "",
   });
   const [reverseMessage, setReverseMessage] = useState("");
+  const [editing, setEditing] = useState(null);
+  const deletion = useForm({});
+  const nameField = useRef(null);
   const reverse = useRef(null);
   const suggestedName = useRef(null);
   const current = useRef(form.data);
   current.current = form.data;
 
   useEffect(() => () => reverse.current?.abort(), []);
+  useEffect(() => {
+    if (editing !== null) nameField.current?.focus();
+  }, [editing]);
 
   function chooseResult(result) {
     reverse.current?.abort();
     setReverseMessage("");
-    suggestedName.current = result.name;
+    if (!editing) suggestedName.current = result.name;
     form.setData({
       ...current.current,
       latitude: result.latitude,
       longitude: result.longitude,
       mode: "search",
-      name: result.name,
+      name: editing ? current.current.name : result.name,
     });
   }
 
   async function choosePoint(latitude, longitude) {
     reverse.current?.abort();
+    if (editing) {
+      form.setData({ ...current.current, latitude, longitude, mode: "map" });
+      return;
+    }
     const controller = new AbortController();
     reverse.current = controller;
     setReverseMessage("");
@@ -97,18 +107,52 @@ export default function PlacesView({ spaceSlug, spaceId, lists, tilesKey }) {
     }
   }
 
-  function save(event) {
-    event.preventDefault();
+  function clearForm() {
     reverse.current?.abort();
+    suggestedName.current = null;
+    setReverseMessage("");
+    setEditing(null);
+    form.reset();
     form.clearErrors();
-    form.post(url, {
+  }
+
+  function editPlace(place) {
+    if (form.processing || deletion.processing) return;
+    clearForm();
+    setEditing(place.id);
+    form.setData({
+      ...current.current,
+      name: place.name,
+      latitude: place.latitude,
+      longitude: place.longitude,
+      note: place.note ?? "",
+      mode: "manual",
+    });
+  }
+
+  function removePlace(place) {
+    if (form.processing || deletion.processing) return;
+    if (!window.confirm(`¿Eliminar el sitio «${place.name}»?`)) return;
+    deletion.clearErrors();
+    deletion.delete(`${url}/${place.id}`, {
       preserveScroll: true,
       onSuccess: () => {
-        suggestedName.current = null;
-        form.reset();
-        setReverseMessage("");
+        if (editing === place.id) clearForm();
       },
     });
+  }
+
+  function save(event) {
+    event.preventDefault();
+    if (deletion.processing) return;
+    reverse.current?.abort();
+    form.clearErrors();
+    const options = {
+      preserveScroll: true,
+      onSuccess: clearForm,
+    };
+    if (editing) form.patch(`${url}/${editing}`, options);
+    else form.post(url, options);
   }
 
   const { latitude, longitude, mode } = form.data;
@@ -135,11 +179,21 @@ export default function PlacesView({ spaceSlug, spaceId, lists, tilesKey }) {
           lists={lists}
           point={point}
           onPick={choosePoint}
+          onEdit={editPlace}
+          onDelete={removePlace}
         />
         <div>
           <PlaceSearch url={url + "/buscar"} onSelect={chooseResult} />
           {reverseMessage && <p role="status">{reverseMessage}</p>}
-          <PlaceForm form={form} lists={lists} onSave={save} />
+          {deletion.errors.save && <p role="alert">{deletion.errors.save}</p>}
+          <PlaceForm
+            form={form}
+            lists={lists}
+            onSave={save}
+            editing={editing !== null}
+            onCancel={clearForm}
+            nameRef={nameField}
+          />
         </div>
       </div>
       {lists.length > 0 && (
