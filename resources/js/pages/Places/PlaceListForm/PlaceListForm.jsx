@@ -1,19 +1,23 @@
-// Formulario para crear listas adicionales de Sitios.
+// Formulario de alta y edición de listas de Sitios.
 
 import { useForm } from "@inertiajs/react";
 import Field from "../../../components/Field/Field";
 
-export default function PlaceListForm({ url }) {
-  const form = useForm({ name: "", emoji: "" });
+export default function PlaceListForm({ url, list, onCancel, onSaved }) {
+  const form = useForm({ name: list?.name ?? "", emoji: list?.emoji ?? "" });
 
   return (
     <form
       onSubmit={(event) => {
         event.preventDefault();
-        form.post(url, { preserveScroll: true, onSuccess: () => form.reset() });
+        if (list) {
+          form.patch(url, { preserveScroll: true, onSuccess: onSaved });
+        } else {
+          form.post(url, { preserveScroll: true, onSuccess: onSaved });
+        }
       }}
     >
-      <h2>Crear lista</h2>
+      <h2>{list ? "Editar lista" : "Crear lista"}</h2>
       <Field
         label="Nombre de la lista"
         required
@@ -30,7 +34,8 @@ export default function PlaceListForm({ url }) {
         error={form.errors.emoji}
       />
       {form.errors.save && <p role="alert">{form.errors.save}</p>}
-      <button disabled={form.processing}>Crear lista</button>
+      <button disabled={form.processing}>{list ? "Guardar lista" : "Crear lista"}</button>
+      {onCancel && <button type="button" disabled={form.processing} onClick={onCancel}>Cancelar</button>}
     </form>
   );
 }

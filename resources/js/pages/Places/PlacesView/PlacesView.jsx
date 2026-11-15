@@ -1,10 +1,10 @@
 // Vista de Sitios de una estantería.
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "@inertiajs/react";
 import JournalLayout from "../../../components/Journal/JournalLayout/JournalLayout";
 import PlaceForm from "../PlaceForm/PlaceForm";
-import PlaceListForm from "../PlaceListForm/PlaceListForm";
+import PlaceLists from "../PlaceLists/PlaceLists";
 import PlaceSearch from "../PlaceSearch/PlaceSearch";
 import PlacesMap from "../PlacesMap/PlacesMap";
 import "../../../../css/global.css";
@@ -24,19 +24,53 @@ export default function PlacesView({ spaceSlug, spaceId, lists, tilesKey }) {
   });
   const [reverseMessage, setReverseMessage] = useState("");
   const [editing, setEditing] = useState(null);
+  const [panelOpen, setPanelOpen] = useState(
+    () => typeof window === "undefined" || window.matchMedia("(min-width: 52rem)").matches,
+  );
+  const panelToggle = useRef(null);
+  const toggleStart = useRef(null);
+  const [selectedId, setSelectedId] = useState(null);
+  const [destination, setDestination] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const selected = lists.flatMap((list) => list.places).find((place) => place.id === selectedId);
   const deletion = useForm({});
   const nameField = useRef(null);
+  const placeHeading = useRef(null);
+  const cancelDeleteButton = useRef(null);
   const reverse = useRef(null);
   const suggestedName = useRef(null);
   const current = useRef(form.data);
   current.current = form.data;
 
   useEffect(() => () => reverse.current?.abort(), []);
+  useLayoutEffect(() => {
+    const from = toggleStart.current;
+    toggleStart.current = null;
+    if (!from || window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+      return;
+
+    const button = panelToggle.current;
+    const to = button.getBoundingClientRect();
+    button.animate(
+      [
+        { transform: `translate(${from.left - to.left}px, ${from.top - to.top}px)` },
+        { transform: "translate(0, 0)" },
+      ],
+      { duration: 180, easing: "ease-out" },
+    );
+  }, [panelOpen]);
   useEffect(() => {
+    if (!panelOpen) return;
     if (editing !== null) nameField.current?.focus();
-  }, [editing]);
+    else if (selectedId !== null) placeHeading.current?.focus();
+  }, [editing, panelOpen, selectedId]);
+  useEffect(() => {
+    if (confirmDelete && panelOpen) cancelDeleteButton.current?.focus();
+  }, [confirmDelete, panelOpen]);
 
   function chooseResult(result) {
+    setSelectedId(null);
+    setConfirmDelete(false);
     reverse.current?.abort();
     setReverseMessage("");
     if (!editing) suggestedName.current = result.name;
@@ -50,6 +84,9 @@ export default function PlacesView({ spaceSlug, spaceId, lists, tilesKey }) {
   }
 
   async function choosePoint(latitude, longitude) {
+    setPanelOpen(true);
+    setSelectedId(null);
+    setConfirmDelete(false);
     reverse.current?.abort();
     if (editing) {
       form.setData({ ...current.current, latitude, longitude, mode: "map" });
@@ -119,6 +156,7 @@ export default function PlacesView({ spaceSlug, spaceId, lists, tilesKey }) {
   function editPlace(place) {
     if (form.processing || deletion.processing) return;
     clearForm();
+    setSelectedId(null);
     setEditing(place.id);
     form.setData({
       ...current.current,
@@ -130,14 +168,23 @@ export default function PlacesView({ spaceSlug, spaceId, lists, tilesKey }) {
     });
   }
 
+  function selectPlace(place) {
+    if (form.processing || deletion.processing) return;
+    clearForm();
+    deletion.clearErrors();
+    setSelectedId(place.id);
+    setConfirmDelete(false);
+    setPanelOpen(true);
+  }
+
   function removePlace(place) {
     if (form.processing || deletion.processing) return;
-    if (!window.confirm(`¿Eliminar el sitio «${place.name}»?`)) return;
     deletion.clearErrors();
     deletion.delete(`${url}/${place.id}`, {
       preserveScroll: true,
       onSuccess: () => {
-        if (editing === place.id) clearForm();
+        setConfirmDelete(false);
+        setSelectedId(null);
       },
     });
   }
@@ -170,52 +217,82 @@ export default function PlacesView({ spaceSlug, spaceId, lists, tilesKey }) {
   return (
     <JournalLayout
       theme="cinema"
+      className={styles.page}
       title="Sitios"
       back={{ href: "/" + spaceSlug, label: "Volver a la estantería" }}
     >
-      <div className={styles.layout}>
+      <button
+        type="button"
+        aria-expanded={panelOpen}
+        aria-controls="places-panel"
+        ref={panelToggle}
+        className={styles.toggle}
+        onClick={(event) => {
+          toggleStart.current = event.currentTarget.getBoundingClientRect();
+          setPanelOpen(!panelOpen);
+        }}
+      >
+        {panelOpen ? "Plegar panel" : "Abrir panel"}
+      </button>
+      <div className={styles.layout} data-panel-open={panelOpen}>
         <PlacesMap
           tilesKey={tilesKey}
           lists={lists}
           point={point}
           onPick={choosePoint}
-          onEdit={editPlace}
-          onDelete={removePlace}
+          onSelect={selectPlace}
+          destination={destination}
         />
-        <div>
+        <aside id="places-panel" className={styles.panel} inert={!panelOpen} aria-label="Gestionar sitios y listas">
           <PlaceSearch url={url + "/buscar"} onSelect={chooseResult} />
           {reverseMessage && <p role="status">{reverseMessage}</p>}
           {deletion.errors.save && <p role="alert">{deletion.errors.save}</p>}
-          <PlaceForm
-            form={form}
-            lists={lists}
-            onSave={save}
-            editing={editing !== null}
-            onCancel={clearForm}
-            nameRef={nameField}
-          />
-        </div>
+          {selected && (
+            <section className={styles.details}>
+              <h2 tabIndex={-1} ref={placeHeading}>{selected.name}</h2>
+              <p className={styles.coordinates}>
+                <span>Latitud {selected.latitude}</span>
+                <span aria-hidden="true">|</span>
+                <span>Longitud {selected.longitude}</span>
+              </p>
+              {selected.note && <p className={styles.note}>{selected.note}</p>}
+              {confirmDelete ? (
+                <>
+                  <p role="status">¿Eliminar definitivamente este sitio?</p>
+                  <button type="button" disabled={deletion.processing} onClick={() => removePlace(selected)}>Confirmar borrado</button>
+                  <button type="button" ref={cancelDeleteButton} disabled={deletion.processing} onClick={() => {
+                    setConfirmDelete(false);
+                    placeHeading.current?.focus();
+                  }}>Cancelar</button>
+                </>
+              ) : (
+                <div className={styles.siteActions}>
+                  <button type="button" onClick={() => editPlace(selected)}>Editar sitio</button>
+                  <button type="button" onClick={() => setConfirmDelete(true)}>Eliminar sitio</button>
+                  <button type="button" onClick={() => setSelectedId(null)}>Añadir sitio</button>
+                </div>
+              )}
+            </section>
+          )}
+          <div hidden={!!selected}>
+            <PlaceForm
+              form={form}
+              lists={lists}
+              onSave={save}
+              editing={editing !== null}
+              onCancel={clearForm}
+              nameRef={nameField}
+            />
+          </div>
+          {lists.length > 0 && (
+            <PlaceLists lists={lists} url={url + "/listas"} onSelect={(place) => {
+              if (form.processing || deletion.processing) return;
+              selectPlace(place);
+              setDestination({ latitude: place.latitude, longitude: place.longitude });
+            }} />
+          )}
+        </aside>
       </div>
-      {lists.length > 0 && (
-        <section>
-          <h2>Listas de esta estantería</h2>
-          <ul>
-            {lists.map((list) => (
-              <li key={list.id}>
-                {list.emoji || "📍"} {list.name}
-                <ul>
-                  {list.places.map((place) => (
-                    <li key={place.id}>
-                      {place.name} · Visitado{place.note && <p>{place.note}</p>}
-                    </li>
-                  ))}
-                </ul>
-              </li>
-            ))}
-          </ul>
-          <PlaceListForm url={url + "/listas"} />
-        </section>
-      )}
     </JournalLayout>
   );
 }

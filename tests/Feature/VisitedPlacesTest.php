@@ -121,6 +121,56 @@ class VisitedPlacesTest extends TestCase
         $this->assertDatabaseHas('places', ['id' => $place->id, 'name' => 'Otro sitio']);
     }
 
+    public function test_a_member_can_edit_and_delete_lists_with_the_confirmed_count(): void
+    {
+        $member = User::create([
+            'name' => 'Guest', 'username' => 'guest', 'username_key' => 'guest',
+            'email' => 'guest@example.test', 'password' => 'test-password',
+        ]);
+        $this->space->members()->attach($member);
+        $this->actingAs($member);
+        $list = $this->space->placeLists()->create(['name' => 'Viajes']);
+        $empty = $this->space->placeLists()->create(['name' => 'Vacía']);
+        $place = $list->places()->create([
+            'name' => 'Museo', 'latitude' => 38, 'longitude' => -5, 'status' => 'visited',
+        ]);
+        $url = $this->url.'/listas/'.$list->id;
+        $this->patch($url, ['name' => '', 'emoji' => str_repeat('x', 33)])
+            ->assertSessionHasErrors(['name', 'emoji']);
+        $this->patch($url, ['name' => 'Museos', 'emoji' => '🏛️'])->assertRedirect($this->url);
+        $this->get($this->url)->assertInertia(fn (Assert $page) => $page
+            ->where('lists.0.name', 'Museos')->where('lists.0.emoji', '🏛️')
+            ->where('lists.0.places.0.id', $place->id));
+
+        $this->delete($url)->assertSessionHasErrors('confirmed_count');
+        $this->delete($url, ['confirmed_count' => 0])->assertSessionHasErrors('confirmed_count');
+        $this->assertModelExists($list);
+        $this->assertModelExists($place);
+        $this->delete($this->url.'/listas/'.$empty->id, ['confirmed_count' => 0])->assertRedirect($this->url);
+        $this->assertModelMissing($empty);
+
+        $kept = $this->space->placeLists()->create(['name' => 'Se conserva']);
+        $this->delete($url, ['confirmed_count' => 1])->assertRedirect($this->url);
+        $this->assertModelMissing($list);
+        $this->assertModelMissing($place);
+        $this->assertModelExists($kept);
+    }
+
+    public function test_list_mutations_reject_cross_space_ids_and_accounts_without_membership(): void
+    {
+        $foreign = $this->other->placeLists()->create(['name' => 'Privada']);
+        $ownRoute = $this->url.'/listas/'.$foreign->id;
+        $otherRoute = '/espacios/'.$this->other->id.'/sitios/listas/'.$foreign->id;
+        foreach ([$ownRoute, $otherRoute] as $url) {
+            $this->patch($url, ['name' => 'Intrusa'])->assertNotFound();
+            $this->delete($url, ['confirmed_count' => 0])->assertNotFound();
+        }
+        $this->actingAsGuest();
+        $this->patch($otherRoute, [])->assertRedirect('/acceso');
+        $this->delete($otherRoute)->assertRedirect('/acceso');
+        $this->assertDatabaseHas('place_lists', ['id' => $foreign->id, 'name' => 'Privada']);
+    }
+
     public function test_failed_delete_keeps_the_place_and_reports_the_error(): void
     {
         $place = $this->space->placeLists()->create(['name' => 'Viajes'])->places()->create([

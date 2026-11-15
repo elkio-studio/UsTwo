@@ -127,7 +127,7 @@ class PlaceController extends Controller
 
     public function storeList(Request $request, Space $space)
     {
-        $data = $request->validate(['name' => 'required|string|max:255', 'emoji' => 'nullable|string|max:32']);
+        $data = $request->validate($this->listRules());
 
         $this->writeForSpace($space, function () use ($space, $data) {
             if (! $space->placeLists()->exists()) {
@@ -138,6 +138,38 @@ class PlaceController extends Controller
         });
 
         return to_route('places.index', $space);
+    }
+
+    public function updateList(Request $request, Space $space, string $listId)
+    {
+        $this->writeForSpace($space, function () use ($request, $space, $listId) {
+            $list = $space->placeLists()->findOrFail($listId);
+            $list->update($request->validate($this->listRules()));
+        });
+
+        return to_route('places.index', $space);
+    }
+
+    public function destroyList(Request $request, Space $space, string $listId)
+    {
+        $this->writeForSpace($space, function () use ($request, $space, $listId) {
+            $list = $space->placeLists()->findOrFail($listId);
+            $data = $request->validate(['confirmed_count' => 'required|integer|min:0']);
+            if ($list->places()->count() !== (int) $data['confirmed_count']) {
+                throw ValidationException::withMessages([
+                    'confirmed_count' => 'La lista ha cambiado. Revisa sus sitios antes de volver a confirmar.',
+                ]);
+            }
+
+            $list->delete();
+        }, 'No se pudo eliminar la lista. Inténtalo de nuevo.');
+
+        return to_route('places.index', $space);
+    }
+
+    private function listRules(): array
+    {
+        return ['name' => 'required|string|max:255', 'emoji' => 'nullable|string|max:32'];
     }
 
     private function coordinates(): array

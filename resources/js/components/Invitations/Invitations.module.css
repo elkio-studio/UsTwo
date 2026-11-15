@@ -29,7 +29,7 @@
   position: absolute;
   z-index: 2;
   width: min(20rem, 100vw - 2rem);
-  max-height: min(28rem, 65svh);
+  max-height: min(28rem, max(0px, 50dvh - 3rem));
   overflow: auto;
   padding: var(--space-medium);
   border: var(--border-width) solid var(--color-control-border);
@@ -40,7 +40,12 @@
 .tray {
   position: fixed;
   z-index: 3;
-  inset: auto auto 1rem 1rem;
+  inset: calc(1rem + var(--invitation-height) * max(0px, 100dvh - 5rem)) auto auto 1rem;
+}
+
+.tray[data-side="right"] {
+  left: auto;
+  right: 1rem;
 }
 
 .trigger {
@@ -50,6 +55,13 @@
   min-width: 3rem;
   min-height: 3rem;
   border-radius: 999px;
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+}
+
+.trigger:active {
+  cursor: grabbing;
 }
 
 .badge {
@@ -80,6 +92,16 @@
 
 .panel {
   inset: auto auto calc(100% + .5rem) 0;
+}
+
+.tray[data-side="right"] .panel {
+  left: auto;
+  right: 0;
+}
+
+.tray[data-panel-direction="down"] .panel {
+  top: calc(100% + .5rem);
+  bottom: auto;
 }
 
 .panel ul {

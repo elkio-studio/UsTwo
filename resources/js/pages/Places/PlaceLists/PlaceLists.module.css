@@ -1,0 +1,51 @@
+.lists {
+  display: grid;
+  margin-block-start: var(--space-medium);
+  gap: var(--space-small);
+  overflow-wrap: anywhere;
+}
+
+.list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: var(--space-small);
+  border-bottom: 1px solid var(--color-divider);
+  padding-block: var(--space-small);
+}
+
+.heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-small);
+}
+
+.heading h2 {
+  margin-block: 0;
+}
+
+.place,
+.more {
+  background: transparent;
+  border-color: transparent;
+}
+
+.place {
+  text-align: left;
+  text-decoration: none;
+}
+
+.menu {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--space-small);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-small);
+}

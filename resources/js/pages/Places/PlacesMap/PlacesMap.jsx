@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   divIcon,
+  control,
   latLngBounds,
   layerGroup,
   map,
@@ -12,20 +13,21 @@ import {
 import "leaflet/dist/leaflet.css";
 import styles from "./PlacesMap.module.css";
 
-export default function PlacesMap({ tilesKey, lists, point, onPick, onEdit, onDelete }) {
+export default function PlacesMap({ tilesKey, lists, point, onPick, onSelect, destination }) {
   const container = useRef(null);
   const mapRef = useRef(null);
   const saved = useRef(null);
   const pending = useRef(null);
   const fitted = useRef(false);
-  const actions = useRef({ onEdit, onDelete });
-  actions.current = { onEdit, onDelete };
+  const actions = useRef(onSelect);
+  actions.current = onSelect;
   const [tileError, setTileError] = useState(false);
 
   useEffect(() => {
     if (!tilesKey) return;
 
-    const instance = map(container.current).setView([40.4, -3.7], 5);
+    const instance = map(container.current, { zoomControl: false }).setView([40.4, -3.7], 5);
+    control.zoom({ position: "topright" }).addTo(instance);
     const tiles = tileLayer(
       "https://maps.geoapify.com/v1/tile/osm-carto/{z}/{x}/{y}.png?apiKey=" +
         encodeURIComponent(tilesKey),
@@ -42,7 +44,13 @@ export default function PlacesMap({ tilesKey, lists, point, onPick, onEdit, onDe
     pending.current = layerGroup().addTo(instance);
     fitted.current = false;
 
+    const resize = new ResizeObserver(() =>
+      instance.invalidateSize({ pan: true, debounceMoveend: true }),
+    );
+    resize.observe(container.current);
+
     return () => {
+      resize.disconnect();
       instance.remove();
       mapRef.current = null;
     };
@@ -70,32 +78,6 @@ export default function PlacesMap({ tilesKey, lists, point, onPick, onEdit, onDe
         points.push(position);
         const emoji = document.createElement("span");
         emoji.textContent = list.emoji || "📍";
-        const popup = document.createElement("div");
-        popup.className = styles.popup;
-        const name = document.createElement("strong");
-        name.textContent = place.name;
-        popup.append(name);
-        const coordinates = document.createElement("div");
-        coordinates.textContent = `Latitud ${place.latitude}, longitud ${place.longitude}`;
-        popup.append(coordinates);
-        if (place.note?.trim()) {
-          const note = document.createElement("div");
-          note.className = styles.popupNote;
-          note.textContent = place.note;
-          popup.append(note);
-        }
-        const controls = document.createElement("div");
-        controls.className = styles.popupActions;
-        const edit = document.createElement("button");
-        edit.type = "button";
-        edit.textContent = "Editar sitio";
-        edit.addEventListener("click", () => actions.current.onEdit(place));
-        const remove = document.createElement("button");
-        remove.type = "button";
-        remove.textContent = "Eliminar sitio";
-        remove.addEventListener("click", () => actions.current.onDelete(place));
-        controls.append(edit, remove);
-        popup.append(controls);
         const pin = marker(position, {
           title: place.name,
           icon: divIcon({
@@ -103,11 +85,16 @@ export default function PlacesMap({ tilesKey, lists, point, onPick, onEdit, onDe
             className: styles.marker,
             iconSize: [28, 28],
           }),
-        })
-          .bindPopup(popup, { maxHeight: 160 })
-          .addTo(saved.current);
-        pin.on("popupopen", () => edit.focus({ preventScroll: true }));
-        pin.getElement()?.setAttribute("aria-label", place.name);
+        }).addTo(saved.current);
+        pin.on("click", () => actions.current(place));
+        const element = pin.getElement();
+        element.setAttribute("aria-label", place.name);
+        element.addEventListener("keydown", (event) => {
+          if (event.key === " " || event.key === "Enter") {
+            event.preventDefault();
+            actions.current(place);
+          }
+        });
       }
     }
     if (!fitted.current && points.length) {
@@ -125,6 +112,8 @@ export default function PlacesMap({ tilesKey, lists, point, onPick, onEdit, onDe
     pending.current.clearLayers();
     if (!point) return;
     marker([point.latitude, point.longitude], {
+      keyboard: false,
+      interactive: false,
       icon: divIcon({
         html: "＋",
         className: styles.marker,
@@ -140,11 +129,21 @@ export default function PlacesMap({ tilesKey, lists, point, onPick, onEdit, onDe
     }
   }, [tilesKey, point]);
 
+  useEffect(() => {
+    const instance = mapRef.current;
+    if (instance && destination) {
+      instance.setView(
+        [destination.latitude, destination.longitude],
+        Math.max(instance.getZoom(), 16),
+      );
+    }
+  }, [tilesKey, destination]);
+
   return (
-    <section aria-label="Mapa de sitios">
+    <section className={styles.region} aria-label="Mapa de sitios">
       {tilesKey && <div ref={container} className={styles.map} />}
       {(!tilesKey || tileError) && (
-        <p role="status">
+        <p className={styles.notice} role="status">
           El mapa base no está disponible. Puedes introducir las coordenadas.
         </p>
       )}

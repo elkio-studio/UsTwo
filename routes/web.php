@@ -37,6 +37,8 @@ Route::middleware('auth')->group(function () {
         Route::patch('/sitios/{placeId}', [PlaceController::class, 'update'])->whereNumber('placeId');
         Route::delete('/sitios/{placeId}', [PlaceController::class, 'destroy'])->whereNumber('placeId');
         Route::post('/sitios/listas', [PlaceController::class, 'storeList']);
+        Route::patch('/sitios/listas/{listId}', [PlaceController::class, 'updateList'])->whereNumber('listId');
+        Route::delete('/sitios/listas/{listId}', [PlaceController::class, 'destroyList'])->whereNumber('listId');
         Route::middleware('throttle:20,1')->group(function () {
             Route::get('/sitios/buscar', [PlaceController::class, 'search']);
             Route::get('/sitios/inversa', [PlaceController::class, 'reverse']);
