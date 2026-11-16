@@ -7,6 +7,7 @@ use App\Http\Controllers\SeriesController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\SpaceController;
 use App\Http\Middleware\RequireSpaceMembership;
+use App\Models\Space;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -32,6 +33,10 @@ Route::middleware('auth')->group(function () {
         Route::put('/cajones/peliculas', [SpaceController::class, 'placeMovieDrawer']);
         Route::put('/cajones/series', [SpaceController::class, 'placeSeriesDrawer']);
         Route::put('/cajones/sitios', [SpaceController::class, 'placePlacesDrawer']);
+        Route::put('/cajones/lecturas', [SpaceController::class, 'placeReadingDrawer']);
+        Route::get('/lecturas', fn (Space $space) => Inertia::render('Readings/Readings', [
+            'spaceSlug' => $space->slug,
+        ]))->name('readings.index');
         Route::get('/sitios', [PlaceController::class, 'index'])->name('places.index');
         Route::post('/sitios', [PlaceController::class, 'store']);
         Route::patch('/sitios/{placeId}', [PlaceController::class, 'update'])->whereNumber('placeId');

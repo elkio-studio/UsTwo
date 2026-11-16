@@ -17,6 +17,7 @@ const pages = {
   "Movies/Movies": () =>
     import("./pages/Movies/WatchedCollection/WatchedCollection"),
   "Places/Places": () => import("./pages/Places/PlacesView/PlacesView"),
+  "Readings/Readings": () => import("./pages/Readings/Readings"),
 };
 
 router.on("navigate", ({ detail: { page, type } }) => {

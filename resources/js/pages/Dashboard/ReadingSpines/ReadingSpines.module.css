@@ -1,0 +1,75 @@
+.shelf {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 1%;
+  padding: 0 3% 3%;
+  perspective: 24rem;
+  text-decoration: none;
+  container-type: inline-size;
+}
+
+.shelf:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: -2px;
+}
+
+.book {
+  display: grid;
+  place-items: center;
+  flex: 1 1 0;
+  min-width: 0;
+  height: 79%;
+  padding: 4% 0;
+  border: 1px solid var(--palette-drawer-edge-light);
+  border-radius: var(--radius-control);
+  background:
+    linear-gradient(90deg, var(--palette-drawer-grain-light), transparent 24%, var(--palette-drawer-grain-shade)),
+    var(--book-color, var(--palette-book-ochre));
+  box-shadow: 0.15rem 0.1rem 0.25rem var(--palette-drawer-deep-shadow);
+  color: var(--palette-shelf-text);
+  font: 600 clamp(0.4rem, 5cqi, 1.1rem) / 1 var(--font-display);
+  writing-mode: vertical-rl;
+  white-space: nowrap;
+  overflow: hidden;
+  transform-origin: bottom center;
+}
+
+.book:nth-child(2) {
+  height: 88%;
+  --book-color: var(--palette-book-green);
+}
+
+.book:nth-child(3) {
+  flex-grow: 1.18;
+  height: 83%;
+  --book-color: var(--palette-book-red);
+}
+
+.book:nth-child(4) {
+  height: 91%;
+  --book-color: var(--palette-book-blue);
+}
+
+.book:nth-child(5) {
+  height: 76%;
+  --book-color: var(--palette-book-linen);
+  color: var(--palette-shelf-ink);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .book:nth-child(3) {
+    transition: transform 180ms ease-out;
+  }
+
+  .shelf:focus-visible .book:nth-child(3) {
+    transform: rotateX(-24deg);
+  }
+
+  @media (hover: hover) {
+    .shelf:hover .book:nth-child(3) {
+      transform: rotateX(-24deg);
+    }
+  }
+}

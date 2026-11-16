@@ -33,7 +33,7 @@ class SpaceController extends Controller
 
         return Inertia::render('Dashboard/Dashboard', [
             'spaces' => $spaces->map->only(['id', 'name', 'slug']),
-            'activeSpace' => $active?->only(['id', 'name', 'slug', 'movie_slot', 'series_slot', 'places_slot']),
+            'activeSpace' => $active?->only(['id', 'name', 'slug', 'movie_slot', 'series_slot', 'places_slot', 'reading_slot']),
             'isOwner' => (bool) $isOwner,
             'editing' => $isOwner && $request->boolean('editar'),
             'members' => $isOwner ? $active->members()->whereKeyNot($active->owner_id)->orderBy('users.id')
@@ -89,17 +89,22 @@ class SpaceController extends Controller
 
     public function placeMovieDrawer(Request $request, Space $space)
     {
-        return $this->placeDrawer($request, $space, 'movie_slot', 'series_slot', 'places_slot');
+        return $this->placeDrawer($request, $space, 'movie_slot', 'series_slot', 'places_slot', 'reading_slot');
     }
 
     public function placeSeriesDrawer(Request $request, Space $space)
     {
-        return $this->placeDrawer($request, $space, 'series_slot', 'movie_slot', 'places_slot');
+        return $this->placeDrawer($request, $space, 'series_slot', 'movie_slot', 'places_slot', 'reading_slot');
     }
 
     public function placePlacesDrawer(Request $request, Space $space)
     {
-        return $this->placeDrawer($request, $space, 'places_slot', 'movie_slot', 'series_slot');
+        return $this->placeDrawer($request, $space, 'places_slot', 'movie_slot', 'series_slot', 'reading_slot');
+    }
+
+    public function placeReadingDrawer(Request $request, Space $space)
+    {
+        return $this->placeDrawer($request, $space, 'reading_slot', 'movie_slot', 'series_slot', 'places_slot');
     }
 
     private function placeDrawer(Request $request, Space $space, string $column, string ...$otherColumns)
