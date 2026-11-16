@@ -4,15 +4,52 @@ namespace Tests\Feature;
 
 use App\Database\Seeders\ProductionUsersSeeder;
 use App\Models\User;
+use App\Providers\AppServiceProvider;
+use Illuminate\Database\Console\Migrations\FreshCommand;
+use Illuminate\Database\Console\Migrations\RefreshCommand;
+use Illuminate\Database\Console\Migrations\ResetCommand;
+use Illuminate\Database\Console\Migrations\RollbackCommand;
+use Illuminate\Database\Console\WipeCommand;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Env;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use ReflectionClass;
 use Tests\TestCase;
 
 class DeploymentTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_destructive_database_commands_are_prohibited_in_production(): void
+    {
+        $commands = [
+            FreshCommand::class,
+            RefreshCommand::class,
+            ResetCommand::class,
+            RollbackCommand::class,
+            WipeCommand::class,
+        ];
+        $environment = $this->app->environment();
+        $provider = new AppServiceProvider($this->app);
+
+        try {
+            $this->app->instance('env', 'local');
+            $provider->boot();
+            foreach ($commands as $command) {
+                $this->assertFalse((new ReflectionClass($command))->getStaticPropertyValue('prohibitedFromRunning'), $command);
+            }
+
+            $this->app->instance('env', 'production');
+            $provider->boot();
+            foreach ($commands as $command) {
+                $this->assertTrue((new ReflectionClass($command))->getStaticPropertyValue('prohibitedFromRunning'), $command);
+            }
+        } finally {
+            $this->app->instance('env', $environment);
+            $provider->boot();
+        }
+    }
 
     public function test_production_seeder_uses_the_shared_password_for_both_accounts(): void
     {
