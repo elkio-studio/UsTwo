@@ -7,7 +7,7 @@ status: completed
 # 019 — Añadir y abrir el cajón de Lecturas
 
 Historia propuesta para v0.2 de la [épica EP-02, issue #24](https://github.com/elkio-studio/UsTwo/issues/24).
-Referencia: [investigación de Lecturas](../../investigaciones/lecturas.md).
+Referencia: [investigación de Lecturas](../../../investigaciones/lecturas.md).
 
 Inicio: 16 de noviembre de 2026, 18:28 CET.
 Cierre local: 16 de noviembre de 2026, 19:56 CET.

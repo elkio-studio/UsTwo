@@ -1,6 +1,6 @@
 # Investigación de mapas para UsTwo
 
-Resultado de la [spec 012](../specs/012-cajon-sitios/spec.md), vinculada a la
+Resultado de la [spec 012](../specs/ep-01-sitios-y-mapas/012-cajon-sitios/spec.md), vinculada a la
 [épica EP-01](https://github.com/elkio-studio/UsTwo/issues/23).
 
 ## Comparativa

@@ -1,6 +1,6 @@
 # Investigación de APIs para Lecturas
 
-Pruebas del 16 de noviembre de 2026 para la [spec 018](../specs/018-investigacion-apis-lecturas/spec.md).
+Pruebas del 16 de noviembre de 2026 para la [spec 018](../specs/ep-02-libros-y-mangas/018-investigacion-apis-lecturas/spec.md).
 Consultas aisladas sin credenciales ni contratación. Las respuestas son
 una muestra del catálogo de ese día. Un HTTP 200 con contenido de imagen
 verifica su entrega, y el permiso para mostrarla se evalúa por separado.

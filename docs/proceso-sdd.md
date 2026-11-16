@@ -21,7 +21,7 @@ Si la clasificación no está clara, se trata como relevante hasta aclararla.
 ## Flujo completo
 
 1. `$ustwo-git-flow` prepara o adopta una tarea Git con autorización.
-2. `$ustwo-spec` crea `docs/specs/NNN-slug/spec.md` con `status: draft`.
+2. `$ustwo-spec` crea `docs/specs/ep-NN-tema/NNN-slug/spec.md` con `status: draft`.
 3. `spec_reviewer` emite `PASS` o `BLOCKED`.
 4. El desarrollador aprueba expresamente la especificación.
 5. `$ustwo-plan` crea `plan.md` y `tasks.md`.
@@ -106,7 +106,15 @@ Las autorizaciones son independientes:
 
 ## Artefactos y estados
 
-Cada cambio relevante vive en `docs/specs/NNN-slug/`:
+Agrupa las specs por épica dentro de `docs/specs/`. La numeración de tres
+dígitos es global. Antes de asignar el siguiente número, revisa todos los
+grupos y las specs en curso en la copia de desarrollo.
+
+- [EP-00 · Base del proyecto](specs/ep-00-base-proyecto/) reúne las specs 001–011.
+- [EP-01 · Sitios y mapas](specs/ep-01-sitios-y-mapas/) reúne las specs 012–017.
+- [EP-02 · Libros y mangas](specs/ep-02-libros-y-mangas/) reúne las specs 018–019.
+
+Cada cambio relevante vive en `docs/specs/ep-NN-tema/NNN-slug/`:
 
 - `spec.md`: `draft`, `approved`, `completed` o `superseded`.
 - `plan.md`: `draft` o `approved`.

@@ -8,7 +8,7 @@ status: completed
 
 Historia de la [épica EP-01](https://github.com/elkio-studio/UsTwo/issues/23).
 Continúa la [spec 013](../013-cajon-sitios/spec.md) y se apoya en el
-[informe de investigación de mapas](../../investigaciones/mapas.md).
+[informe de investigación de mapas](../../../investigaciones/mapas.md).
 
 La especificación comenzó el 13 de noviembre de 2026 a las 16:11, según
 la creación de la rama de trabajo.

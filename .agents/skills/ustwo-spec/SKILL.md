@@ -26,8 +26,8 @@ formular propuestas y criterios visuales, sin implementar ni aprobarlos.
    las completes por inferencia; solicita la decisión necesaria y continúa solo
    con las partes independientes.
 3. Obtén el siguiente identificador de tres dígitos inspeccionando
-   `docs/specs/`. No renumeres ni reutilices identificadores existentes.
-4. Crea `docs/specs/NNN-slug/spec.md` a partir de
+   todos los grupos de `docs/specs/`. La numeración es global. No renumeres ni reutilices identificadores existentes.
+4. Crea `docs/specs/ep-NN-tema/NNN-slug/spec.md` dentro de su épica a partir de
    [assets/spec-template.md](assets/spec-template.md). Usa un slug ASCII en
    kebab-case y `status: draft`.
 5. Define problema, objetivo, alcance incluido y excluido, actores, flujos,

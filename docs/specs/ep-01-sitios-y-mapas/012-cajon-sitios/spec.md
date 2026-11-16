@@ -14,7 +14,7 @@ Rafa organiza las historias y las prioridades de producto.
 
 Determinar una solución gratuita y sostenible para mostrar un mapa 2D,
 buscar por nombre o dirección y elegir coordenadas al pulsar el mapa.
-El entregable es el [informe de investigación de mapas](../../investigaciones/mapas.md).
+El entregable es el [informe de investigación de mapas](../../../investigaciones/mapas.md).
 
 ## Alcance
 

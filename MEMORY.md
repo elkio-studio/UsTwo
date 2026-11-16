@@ -19,7 +19,7 @@ del desarrollador constan en las tareas de la spec.
   en móvil y escritorio. La evidencia está en las tareas de la especificación.
 - La base del stack está aprobada: Laravel + Inertia + React (JavaScript/JSX),
   CSS puro y CSS Modules; véase DT-001.
-- `docs/specs/001-stack-tecnologico/spec.md` está aprobada tras revisión `PASS`
+- `docs/specs/ep-00-base-proyecto/001-stack-tecnologico/spec.md` está aprobada tras revisión `PASS`
   y confirmación humana. No existe plan ni autorización de implementación.
 - React 19, Inertia 3 y Vite 8 confirmados, con aplicación en la raíz.
   Sesiones y caché locales en archivos (DT-005), datos del MVP en SQLite

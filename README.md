@@ -324,7 +324,7 @@ desde el equipo autorizado. Retira la configuración temporal al terminar.
 Los cambios relevantes siguen el proceso SDD descrito en
 [`docs/proceso-sdd.md`](docs/proceso-sdd.md). Las decisiones técnicas aprobadas
 se conservan en [`docs/decisiones-tecnicas.md`](docs/decisiones-tecnicas.md) y
-los artefactos de cada cambio en `docs/specs/`.
+los artefactos de cada cambio en [las especificaciones agrupadas por épica](docs/specs/).
 
 Las skills locales `ui-ux-pro-max`, `frontend-design` e `impeccable` apoyan la
 definición visual, la construcción de interfaces y su revisión dentro de ese

@@ -103,7 +103,7 @@ Los títulos y puntuaciones de ejemplo son ilustrativos.
 - Películas es la única colección del MVP. Se mantienen sus flujos y
   reglas según la [especificación 005](../005-mvp-ustwo/spec.md).
 - Los estilos se centralizan en `global.css`, según la convención del
-  [README](../../../README.md).
+  [README](../../../../README.md).
 - El desarrollador aprobó la especificación, incluidas la paleta, la
   tipografía y la composición, el 2026-11-09.
 

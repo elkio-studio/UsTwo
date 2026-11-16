@@ -35,7 +35,7 @@ presentar alternativas, pero no elegir ni implementar una de ellas.
   autenticación, librerías adicionales ni despliegue; tampoco autoriza
   instalaciones o implementación. La estructura concreta de páginas se
   precisará en el plan correspondiente.
-- Especificación: [001-stack-tecnologico/spec.md](specs/001-stack-tecnologico/spec.md).
+- Especificación: [001-stack-tecnologico/spec.md](specs/ep-00-base-proyecto/001-stack-tecnologico/spec.md).
 
 ### DT-002 — Herramientas y configuración mínima
 
@@ -52,7 +52,7 @@ presentar alternativas, pero no elegir ni implementar una de ellas.
   de compatibilidad; no autoriza instalar herramientas, actualizar el entorno,
   generar código, implementar autenticación ni elegir persistencia.
 - Relación: complementa DT-001 y
-  [001-stack-tecnologico/spec.md](specs/001-stack-tecnologico/spec.md).
+  [001-stack-tecnologico/spec.md](specs/ep-00-base-proyecto/001-stack-tecnologico/spec.md).
   No cambia el alcance documental de la especificación aprobada.
 
 ### DT-003 — Laravel 13 y actualización de PHP
@@ -69,7 +69,7 @@ presentar alternativas, pero no elegir ni implementar una de ellas.
 - Relación: complementa DT-001 y DT-002; no amplía el alcance documental de
   la especificación 001 ni autoriza implementar la aplicación.
 - Fuente: [requisitos de Laravel 13](https://laravel.com/framework/docs/13.x/releases).
-- Preparación del entorno: [002-entorno-php/spec.md](specs/002-entorno-php/spec.md),
+- Preparación del entorno: [002-entorno-php/spec.md](specs/ep-00-base-proyecto/002-entorno-php/spec.md),
   completada con revisión final `PASS`; plan aprobado y evidencias en sus tareas.
 
 ### DT-004 — Composer independiente para PHP 8.5
@@ -87,7 +87,7 @@ presentar alternativas, pero no elegir ni implementar una de ellas.
   por ruta explícita, conservando la instalación global existente.
 - Límites: no modificar Composer global, XAMPP, PHP ni PATH persistente; no
   instalar la aplicación o sus dependencias ni ocultar avisos.
-- Especificación: [003-composer-local/spec.md](specs/003-composer-local/spec.md).
+- Especificación: [003-composer-local/spec.md](specs/ep-00-base-proyecto/003-composer-local/spec.md).
 - Fuente: [descarga oficial de Composer](https://getcomposer.org/download/).
 
 ### DT-005 — Base mínima para instalar la aplicación
@@ -111,7 +111,7 @@ presentar alternativas, pero no elegir ni implementar una de ellas.
 - Límites: parches y comprobaciones de compatibilidad se concretan en el plan.
   La configuración local temporal
   no decide persistencia, sesiones o arquitectura de producción.
-- Especificación: [004-instalacion-stack/spec.md](specs/004-instalacion-stack/spec.md).
+- Especificación: [004-instalacion-stack/spec.md](specs/ep-00-base-proyecto/004-instalacion-stack/spec.md).
 
 ### DT-006 — Render y GitHub Actions para el despliegue
 
@@ -127,8 +127,8 @@ presentar alternativas, pero no elegir ni implementar una de ellas.
   `dev` o `main`. Tras CI en `main`, GitHub Actions migra con una credencial
   separada y solicita el despliegue del mismo commit. El seeder inicial se
   ejecuta desde un equipo autorizado.
-- Despliegue: [007-despliegue-render/spec.md](specs/007-despliegue-render/spec.md).
-- Especificación: [005-mvp-ustwo/spec.md](specs/005-mvp-ustwo/spec.md).
+- Despliegue: [007-despliegue-render/spec.md](specs/ep-00-base-proyecto/007-despliegue-render/spec.md).
+- Especificación: [005-mvp-ustwo/spec.md](specs/ep-00-base-proyecto/005-mvp-ustwo/spec.md).
 
 Cuando se apruebe una decisión relevante, se añadirá aquí de forma concisa con:
 

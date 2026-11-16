@@ -7,7 +7,7 @@ status: completed
 # 013 — Añadir y abrir el cajón de Sitios
 
 Historia de la [épica EP-01](https://github.com/elkio-studio/UsTwo/issues/23).
-Referencia técnica: [investigación de mapas](../../investigaciones/mapas.md).
+Referencia técnica: [investigación de mapas](../../../investigaciones/mapas.md).
 
 ## Objetivo y alcance
 
