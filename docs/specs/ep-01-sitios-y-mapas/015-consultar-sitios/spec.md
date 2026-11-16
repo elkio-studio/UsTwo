@@ -7,7 +7,7 @@ status: completed
 # 015 — Consultar los sitios guardados en el mapa
 
 Historia US-01.4 de la [épica EP-01](https://github.com/elkio-studio/UsTwo/issues/23).
-Depende de US-01.1 ([investigación de mapas](../../investigaciones/mapas.md))
+Depende de US-01.1 ([investigación de mapas](../../../investigaciones/mapas.md))
 y US-01.3 ([spec 014](../014-guardar-sitio-visitado/spec.md)).
 
 Inicio: 13 de noviembre de 2026, 21:47 CET, al crear la rama de trabajo.

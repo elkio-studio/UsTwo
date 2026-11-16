@@ -118,5 +118,5 @@ Acordar qué problema resuelve UsTwo, para quién, qué capacidades son impresci
 
 - `ideas-ustwo-v1.md` (documento de ideas 1.0 del proyecto).
 - `README.md`, `MEMORY.md`, `docs/decisiones-tecnicas.md`.
-- `docs/specs/005-mvp-ustwo/spec.md`, `008-nuestra-estanteria/spec.md`, `009-el-recibidor/spec.md`, `010-cajon-series/spec.md`.
+- [MVP](../specs/ep-00-base-proyecto/005-mvp-ustwo/spec.md), [Nuestra estantería](../specs/ep-00-base-proyecto/008-nuestra-estanteria/spec.md), [El recibidor](../specs/ep-00-base-proyecto/009-el-recibidor/spec.md) y [Cajón de Series](../specs/ep-00-base-proyecto/010-cajon-series/spec.md).
 - Repositorio `elkio-studio/UsTwo` y GitHub Project #1, consultados el 12/11/2026.

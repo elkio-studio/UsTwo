@@ -9,7 +9,7 @@ status: approved
 
 Ampliar el selector y las reglas de colocación existentes con el tipo
 Sitios. La vista de destino muestra el título y el regreso a la
-estantería. El [informe de mapas](../../investigaciones/mapas.md) queda como
+estantería. El [informe de mapas](../../../investigaciones/mapas.md) queda como
 referencia para las historias que incorporen el mapa y el contenido.
 
 ## Fases de implementación

@@ -9,7 +9,7 @@ status: approved
 
 Ampliar la vista «Sitios» y las rutas protegidas de la spec 013. Mantener
 el enlace de vuelta y la interfaz de la estantería. Usar Leaflet y
-Geoapify Free según el [informe de mapas](../../investigaciones/mapas.md).
+Geoapify Free según el [informe de mapas](../../../investigaciones/mapas.md).
 
 ## Fases de implementación
 

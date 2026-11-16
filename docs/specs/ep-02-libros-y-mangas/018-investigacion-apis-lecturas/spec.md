@@ -17,7 +17,7 @@ de lunes a viernes, 20 h por sprint. Esfuerzo pendiente de validación.
 ## Objetivo y entregable
 
 Determinar cómo encontrar fichas de libros, manga y cómic con fuentes
-gratuitas. El [informe de investigación](../../investigaciones/lecturas.md)
+gratuitas. El [informe de investigación](../../../investigaciones/lecturas.md)
 recoge la comparativa, las pruebas y la recomendación.
 Ángel revisa la especificación y la recomendación.
 
