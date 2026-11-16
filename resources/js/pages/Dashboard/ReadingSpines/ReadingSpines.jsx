@@ -3,22 +3,17 @@
 import { Link } from "@inertiajs/react";
 import styles from "./ReadingSpines.module.css";
 
-const titles = [
-  "El atlas de la niebla",
-  "Cartas al invierno",
-  "El jardín cerrado",
-  "La última librería",
-  "Islas de papel",
-];
-
-export default function ReadingSpines({ href }) {
+export default function ReadingSpines({ href, variant }) {
   return (
-    <Link href={href} className={styles.shelf} aria-label="Lecturas">
-      {titles.map((title) => (
-        <span key={title} className={styles.book} aria-hidden="true">
-          {title}
+    <Link href={href} className={styles.shelf}>
+      <span className={styles.label}>Lecturas</span>
+      <span className={styles.row} data-variant={variant} aria-hidden="true">
+        <span className={styles.book}>
+          <span className={styles.leftCover} />
+          <span className={styles.rightCover} />
+          <span className={styles.pageEdge} />
         </span>
-      ))}
+      </span>
     </Link>
   );
 }

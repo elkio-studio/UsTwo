@@ -33,7 +33,7 @@
   --color-danger: var(--palette-warm-error);
   --space-panel-light: var(--palette-space-panel-light);
   --space-panel-shadow: var(--palette-space-panel-shadow);
-  --space-panel-texture: url("../../../../../images/estanteria/frente-roble.webp");
+  --space-panel-texture: url("../../../../../images/estanteria/cajon/frente-roble.webp");
   inset: calc(100% + 0.4rem) 0 auto auto;
   width: min(23rem, 100vw - 2rem);
   max-height: calc(100svh - 8rem);

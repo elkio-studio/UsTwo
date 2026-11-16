@@ -1,8 +1,8 @@
 // Superficie de la Tierra que gira dentro del aro del cajón de Sitios.
 
 import { useEffect, useRef } from "react";
-import sepiaTexture from "../../../../images/estanteria/textura-tierra.webp";
-import colorTexture from "../../../../images/estanteria/textura-tierra-color.webp";
+import sepiaTexture from "../../../../images/estanteria/sitios/textura-tierra.webp";
+import colorTexture from "../../../../images/estanteria/sitios/textura-tierra-color.webp";
 import styles from "./GlobeSurface.module.css";
 
 const size = 192;

@@ -28,7 +28,7 @@
 
 .scene {
   --scene-ratio: 16 / 9;
-  --scene-image: url("../../../../images/estanteria/escena-horizontal.webp");
+  --scene-image: url("../../../../images/estanteria/cajon/escena-horizontal.webp");
   --slot-x: 13.1%;
   --slot-y: 32.1%;
   --slots-width: 79.2%;
@@ -307,7 +307,7 @@
 @media (orientation: portrait) {
   .scene {
     --scene-ratio: 3 / 4;
-    --scene-image: url("../../../../images/estanteria/escena-vertical.webp");
+    --scene-image: url("../../../../images/estanteria/cajon/escena-vertical.webp");
     --slot-x: 20.5%;
     --slot-y: 28%;
     --slots-width: 59.9%;

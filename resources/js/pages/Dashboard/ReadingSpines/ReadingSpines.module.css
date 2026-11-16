@@ -1,13 +1,30 @@
 .shelf {
   position: absolute;
   inset: 0;
-  display: flex;
-  align-items: flex-end;
-  gap: 1%;
-  padding: 0 3% 3%;
-  perspective: 24rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: end;
+  justify-items: center;
+  container-type: size;
   text-decoration: none;
-  container-type: inline-size;
+}
+
+.label {
+  position: absolute;
+  inset-block-start: 14%;
+  inset-inline-start: 50%;
+  translate: -50% -50%;
+  padding: 0.35em 0.65em;
+  border-radius: 0.25em;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--shelf-label) 62%, var(--palette-wood-dark)),
+    color-mix(in srgb, var(--shelf-label) 86%, var(--palette-wood-dark))
+  );
+  color: var(--shelf-ink);
+  font: var(--font-weight-semibold) min(6.5cqw, 11cqh, 1.35rem) / 1.2
+    var(--font-display);
+  white-space: nowrap;
 }
 
 .shelf:focus-visible {
@@ -15,61 +32,160 @@
   outline-offset: -2px;
 }
 
+.row {
+  /* Corte en la separación transparente anterior al último lomo. */
+  --last-book-fraction: 0.198;
+  --last-book-origin: 35% 96.5%;
+  --book-edge: 73%;
+  --book-start: 2%;
+  --book-top: 10.5%;
+  --book-bottom: 3.5%;
+  --baseline-offset: 2cqh;
+  --last-book-width: calc(100% * var(--last-book-fraction));
+  --spines: url("../../../../images/estanteria/lectura/lomos-lecturas.webp");
+  position: relative;
+  bottom: calc(-1 * var(--baseline-offset));
+  --row-width: min(101cqw, 190cqh);
+  --book-depth: calc(var(--row-width) * var(--last-book-fraction) * 0.85);
+  width: var(--row-width);
+  aspect-ratio: 2;
+  perspective: clamp(7rem, 100cqw, 24rem);
+  perspective-origin: 87% 50%;
+}
+
+.row[data-variant="moderno"] {
+  --last-book-fraction: 0.178;
+  --last-book-origin: 38% 99%;
+  --baseline-offset: 0px;
+  --book-edge: 66.5%;
+  --book-start: 10%;
+  --book-top: 2%;
+  --book-bottom: 1%;
+  --spines: url("../../../../images/estanteria/lectura/lomos-lecturas-modernos.webp");
+}
+
+.row::before,
 .book {
-  display: grid;
-  place-items: center;
-  flex: 1 1 0;
-  min-width: 0;
-  height: 79%;
-  padding: 4% 0;
-  border: 1px solid var(--palette-drawer-edge-light);
-  border-radius: var(--radius-control);
-  background:
-    linear-gradient(90deg, var(--palette-drawer-grain-light), transparent 24%, var(--palette-drawer-grain-shade)),
-    var(--book-color, var(--palette-book-ochre));
-  box-shadow: 0.15rem 0.1rem 0.25rem var(--palette-drawer-deep-shadow);
-  color: var(--palette-shelf-text);
-  font: 600 clamp(0.4rem, 5cqi, 1.1rem) / 1 var(--font-display);
-  writing-mode: vertical-rl;
-  white-space: nowrap;
-  overflow: hidden;
+  position: absolute;
+  inset: 0;
+  background-image: var(--spines);
+  background-repeat: no-repeat;
+}
+
+.row::before {
+  content: "";
+  background-size: 100% 100%;
+  clip-path: inset(0 var(--last-book-width) 0 0);
+}
+
+.book {
+  inset-inline-start: auto;
+  width: var(--last-book-width);
+  background-position: right center;
+  background-size: calc(100% / var(--last-book-fraction)) 100%;
+  transform-origin: var(--last-book-origin);
+  transform-style: preserve-3d;
+}
+
+.leftCover,
+.rightCover,
+.pageEdge,
+.book::before,
+.book::after {
+  position: absolute;
+  box-sizing: border-box;
+  pointer-events: none;
+  backface-visibility: hidden;
+}
+
+.leftCover,
+.rightCover,
+.pageEdge {
+  inset-block: var(--book-top) var(--book-bottom);
+  width: var(--book-depth);
+}
+
+.leftCover,
+.rightCover {
+  background: linear-gradient(
+    145deg,
+    var(--palette-wood-dark),
+    var(--palette-drawer-deep-shadow)
+  );
+  border: 1px solid var(--palette-drawer-deep-shadow);
+}
+
+.leftCover {
+  inset-inline-end: calc(100% - var(--book-start));
+  transform: rotateY(-90deg);
+  transform-origin: right center;
+}
+
+.rightCover {
+  inset-inline-start: var(--book-edge);
+  transform: rotateY(90deg);
+  transform-origin: left center;
+}
+
+.pageEdge,
+.book::before,
+.book::after {
+  inset-inline: var(--book-start) calc(100% - var(--book-edge));
+  width: auto;
+  background: var(--palette-wood-dark);
+  border: 1px solid var(--palette-drawer-deep-shadow);
+}
+
+.pageEdge {
+  transform: translateZ(calc(-1 * var(--book-depth))) rotateY(180deg);
+}
+
+.book::before,
+.book::after {
+  content: "";
+  height: var(--book-depth);
+}
+
+.book::before {
+  bottom: var(--book-bottom);
+  transform: rotateX(90deg);
   transform-origin: bottom center;
 }
 
-.book:nth-child(2) {
-  height: 88%;
-  --book-color: var(--palette-book-green);
+.book::after {
+  top: calc(var(--book-top) - var(--book-depth));
+  border-block-end-color: var(--palette-drawer-edge-light);
+  border-inline: 2px solid var(--palette-wood-dark);
+  background:
+    linear-gradient(to top, var(--palette-drawer-grain-shade), transparent 30%),
+    repeating-linear-gradient(
+      to right,
+      transparent 0 1px,
+      var(--palette-drawer-grain-shade) 1px 2px
+    ),
+    var(--color-warm-linen);
+  transform: rotateX(90deg);
+  transform-origin: bottom center;
 }
 
-.book:nth-child(3) {
-  flex-grow: 1.18;
-  height: 83%;
-  --book-color: var(--palette-book-red);
-}
-
-.book:nth-child(4) {
-  height: 91%;
-  --book-color: var(--palette-book-blue);
-}
-
-.book:nth-child(5) {
-  height: 76%;
-  --book-color: var(--palette-book-linen);
-  color: var(--palette-shelf-ink);
+@media (orientation: landscape) and (min-width: 52rem) {
+  .row {
+    inset-inline-start: -2cqw;
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .book:nth-child(3) {
+  .book {
     transition: transform 180ms ease-out;
   }
 
-  .shelf:focus-visible .book:nth-child(3) {
-    transform: rotateX(-24deg);
+  .shelf:focus-visible .book {
+    transform: rotateX(-27deg);
   }
 
   @media (hover: hover) {
-    .shelf:hover .book:nth-child(3) {
-      transform: rotateX(-24deg);
+    .shelf:hover .book {
+      transform: rotateX(-27deg);
     }
   }
 }

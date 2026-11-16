@@ -5,8 +5,8 @@ import { Link, router, useForm } from "@inertiajs/react";
 import styles from "./Shelf.module.css";
 import GlobeSurface from "../GlobeSurface/GlobeSurface";
 import ReadingSpines from "../ReadingSpines/ReadingSpines";
-import placesGlobe from "../../../../images/estanteria/globo-sitios.webp";
-import woodenDrawer from "../../../../images/estanteria/cajon-madera.webp";
+import placesGlobe from "../../../../images/estanteria/sitios/globo-sitios.webp";
+import woodenDrawer from "../../../../images/estanteria/cajon/cajon-madera.webp";
 
 const drawers = [
   {
@@ -87,7 +87,10 @@ export default function Shelf({ activeSpace }) {
               return (
                 <div className={styles.slot} key={slot}>
                   {drawer?.path === "lecturas" ? (
-                    <ReadingSpines href={`/espacios/${activeSpace.id}/lecturas`} />
+                    <ReadingSpines
+                      href={`/espacios/${activeSpace.id}/lecturas`}
+                      variant="clasico"
+                    />
                   ) : drawer ? (
                     <Link
                       href={`/espacios/${activeSpace.id}/${drawer.path}`}
