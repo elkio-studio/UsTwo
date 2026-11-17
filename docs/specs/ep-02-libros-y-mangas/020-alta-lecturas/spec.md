@@ -24,9 +24,10 @@ Un miembro puede añadir una lectura desde la pestaña correspondiente
 del cajón y consultarla en esa misma estantería tras recargar.
 
 Cada pestaña muestra las portadas con la cuadrícula y las tarjetas de
-Películas y Series. «Añadir» abre una página propia. Al guardar o
-seleccionar una lectura guardada se abre su ficha, con la portada,
-los datos y la sinopsis en el diseño compartido. Volver a Lecturas
+Películas y Series. «Añadir» abre una página propia. Al guardar se
+regresa al listado con la pestaña de la lectura activa. Seleccionar una
+lectura guardada abre su ficha, con la portada, los datos y la sinopsis
+en el diseño compartido. Volver a Lecturas
 abre la pestaña de origen. Las secciones de puntuación, notas,
 edición y borrado son visuales y no permiten guardar cambios.
 
@@ -76,7 +77,9 @@ La relación con los números originales queda fuera de esta historia.
 - El título es obligatorio tanto en el alta manual como desde catálogo.
 - Si el catálogo proporciona descripción, autoría, fecha de publicación
   o portada utilizable, la ficha incorpora esos datos. Los valores
-  ausentes pueden quedar vacíos y el alta manual admite solo el título.
+  ausentes quedan vacíos y no impiden guardar desde catálogo. Se podrán
+  completar más adelante cuando se implemente la edición de fichas.
+  Para el alta manual basta con el título.
 - Cuando falta una portada utilizable o la imagen falla al cargar, se
   muestra una portada de reemplazo con el título en diagonal, en negro
   sobre fondo gris claro. La portada de reemplazo es visual y no se
