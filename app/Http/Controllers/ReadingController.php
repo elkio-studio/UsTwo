@@ -129,7 +129,7 @@ class ReadingController extends Controller
         }
 
         try {
-            $entry = $entries->create($reading);
+            $entries->create($reading);
         } catch (UniqueConstraintViolationException) {
             $this->duplicate();
         } catch (QueryException $error) {
@@ -138,7 +138,7 @@ class ReadingController extends Controller
             throw ValidationException::withMessages(['save' => 'No se pudo guardar la lectura. Inténtalo de nuevo.']);
         }
 
-        return to_route('readings.show', [$space, $entry->id]);
+        return to_route('readings.index', ['space' => $space, 'category' => $reading['category']]);
     }
 
     private function selectedReading(Request $request, Space $space, string $category, string $selection): array

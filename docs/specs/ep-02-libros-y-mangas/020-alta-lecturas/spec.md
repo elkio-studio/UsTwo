@@ -24,9 +24,10 @@ Un miembro puede añadir una lectura desde la pestaña correspondiente
 del cajón y consultarla en esa misma estantería tras recargar.
 
 Cada pestaña muestra las portadas con la cuadrícula y las tarjetas de
-Películas y Series. «Añadir» abre una página propia. Al guardar o
-seleccionar una lectura guardada se abre su ficha, con la portada,
-los datos y la sinopsis en el diseño compartido. Volver a Lecturas
+Películas y Series. «Añadir» abre una página propia. Al guardar se
+regresa al listado con la pestaña de la lectura activa. Seleccionar una
+lectura guardada abre su ficha, con la portada, los datos y la sinopsis
+en el diseño compartido. Volver a Lecturas
 abre la pestaña de origen. Las secciones de puntuación, notas,
 edición y borrado son visuales y no permiten guardar cambios.
 

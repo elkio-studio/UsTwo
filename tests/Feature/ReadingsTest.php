@@ -55,12 +55,14 @@ class ReadingsTest extends TestCase
         $this->from($url)->post($url, ['category' => 'books', 'title' => ' '])->assertSessionHasErrors('title');
 
         foreach (['books' => 'Harry Potter', 'manga' => 'Naruto', 'comics' => 'Batman #4'] as $category => $title) {
-            $this->post($url, compact('category', 'title'))->assertRedirectContains($url.'/');
+            $this->followingRedirects()->post($url, compact('category', 'title'))
+                ->assertInertia(fn (Assert $page) => $page->component('Readings/Readings')
+                    ->where('activeCategory', $category)->where('readings.0.title', $title));
         }
         $duplicateTitle = ['category' => 'books', 'title' => 'HARRY   POTTER'];
         $this->from($url)->post($url, $duplicateTitle)->assertSessionHasErrors('confirm_title');
         $this->assertDatabaseCount('readings', 3);
-        $this->post($url, $duplicateTitle + ['confirm_title' => true])->assertRedirectContains($url.'/');
+        $this->post($url, $duplicateTitle + ['confirm_title' => true])->assertRedirect($url.'?category=books');
         $this->get($url)->assertInertia(fn (Assert $page) => $page->component('Readings/Readings')
             ->has('readings', 4)
             ->where('readings.1.category', 'comics')->where('readings.1.title', 'Batman #4')
@@ -99,7 +101,7 @@ class ReadingsTest extends TestCase
 
         $this->getJson($url.'/catalogo?category=books&q=Harry')->assertOk()->assertJsonPath('items.0.id', 'OL1W');
         $book = $this->preview($url, 'books', 'OL1W')->assertJsonPath('reading.description', 'Una descripción.');
-        $this->post($url, ['category' => 'books', 'selection' => $book->json('selection')])->assertRedirectContains($url.'/');
+        $this->post($url, ['category' => 'books', 'selection' => $book->json('selection')])->assertRedirect($url.'?category=books');
         $this->assertDatabaseHas('readings', [
             'provider' => 'open_library', 'record_type' => 'work', 'external_id' => 'OL1W',
             'author' => 'J. K. Rowling', 'publication_date' => '1997',
@@ -108,7 +110,7 @@ class ReadingsTest extends TestCase
 
         $this->getJson($url.'/catalogo?category=manga&q=Naruto')->assertOk()->assertJsonPath('items.0.id', '284');
         $manga = $this->preview($url, 'manga', '284')->assertJsonPath('reading.cover_url', null);
-        $this->post($url, ['category' => 'manga', 'selection' => $manga->json('selection')])->assertRedirectContains($url.'/');
+        $this->post($url, ['category' => 'manga', 'selection' => $manga->json('selection')])->assertRedirect($url.'?category=manga');
         $this->assertDatabaseHas('readings', [
             'provider' => 'manga_updates', 'record_type' => 'series', 'external_id' => '284',
             'title' => 'Naruto', 'author' => 'Masashi Kishimoto',
@@ -147,15 +149,15 @@ class ReadingsTest extends TestCase
         Http::assertSent(fn ($request) => str_contains(urldecode($request->url()), 'filter=volume:91273,issue_number:4'));
         $selection = $this->preview($url, 'comics', '542596')->assertJsonPath('reading.cover_url', 'https://example.com/batman.jpg')->json('selection');
         $input = ['category' => 'comics', 'selection' => $selection];
-        $this->post($url, $input)->assertRedirectContains($url.'/');
+        $this->post($url, $input)->assertRedirect($url.'?category=comics');
         $this->from($url)->post($url, $input + ['confirm_title' => true])->assertSessionHasErrors('selection');
         $this->from($other)->post($other, $input)->assertSessionHasErrors('selection');
         $input['selection'] = $this->preview($other, 'comics', '542596')->json('selection');
-        $this->post($other, $input)->assertRedirectContains($other.'/');
+        $this->post($other, $input)->assertRedirect($other.'?category=comics');
         $this->assertDatabaseCount('readings', 2);
 
         $collection = $this->preview($url, 'comics', '200')->json('selection');
-        $this->post($url, ['category' => 'comics', 'selection' => $collection])->assertRedirectContains($url.'/');
+        $this->post($url, ['category' => 'comics', 'selection' => $collection])->assertRedirect($url.'?category=comics');
         $this->assertDatabaseCount('readings', 3);
         $this->assertDatabaseHas('readings', ['provider' => 'comic_vine', 'record_type' => 'issue', 'external_id' => '200']);
     }
@@ -173,7 +175,7 @@ class ReadingsTest extends TestCase
         $this->getJson($url.'/catalogo?category=books&q=Nada')->assertOk()
             ->assertExactJson(['items' => [], 'hasMore' => false]);
         $this->getJson($url.'/catalogo?category=manga&q=Naruto')->assertUnprocessable()->assertJsonValidationErrors('catalog');
-        $this->post($url, ['category' => 'manga', 'title' => 'Naruto'])->assertRedirectContains($url.'/');
+        $this->post($url, ['category' => 'manga', 'title' => 'Naruto'])->assertRedirect($url.'?category=manga');
     }
 
     public function test_save_failure_returns_a_form_error_and_keeps_input(): void
