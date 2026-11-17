@@ -1,0 +1,24 @@
+.cover {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  background: var(--color-reading-cover);
+  color: var(--palette-black);
+  border-radius: var(--radius-control);
+}
+
+.cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.cover span {
+  padding: var(--space-small);
+  font-family: var(--font-display);
+  text-align: center;
+  overflow-wrap: anywhere;
+  transform: rotate(-28deg);
+}

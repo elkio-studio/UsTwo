@@ -3,11 +3,11 @@
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\MovieController;
 use App\Http\Controllers\PlaceController;
+use App\Http\Controllers\ReadingController;
 use App\Http\Controllers\SeriesController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\SpaceController;
 use App\Http\Middleware\RequireSpaceMembership;
-use App\Models\Space;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -34,9 +34,15 @@ Route::middleware('auth')->group(function () {
         Route::put('/cajones/series', [SpaceController::class, 'placeSeriesDrawer']);
         Route::put('/cajones/sitios', [SpaceController::class, 'placePlacesDrawer']);
         Route::put('/cajones/lecturas', [SpaceController::class, 'placeReadingDrawer']);
-        Route::get('/lecturas', fn (Space $space) => Inertia::render('Readings/Readings', [
-            'spaceSlug' => $space->slug,
-        ]))->name('readings.index');
+        Route::get('/lecturas', [ReadingController::class, 'index'])->name('readings.index');
+        Route::get('/lecturas/nueva/{category}', [ReadingController::class, 'create'])
+            ->whereIn('category', \App\Models\Reading::CATEGORIES)->name('readings.create');
+        Route::get('/lecturas/{readingId}', [ReadingController::class, 'show'])->whereNumber('readingId')->name('readings.show');
+        Route::post('/lecturas', [ReadingController::class, 'store']);
+        Route::middleware('throttle:20,1')->group(function () {
+            Route::get('/lecturas/catalogo', [ReadingController::class, 'search']);
+            Route::get('/lecturas/catalogo/ficha', [ReadingController::class, 'preview']);
+        });
         Route::get('/sitios', [PlaceController::class, 'index'])->name('places.index');
         Route::post('/sitios', [PlaceController::class, 'store']);
         Route::patch('/sitios/{placeId}', [PlaceController::class, 'update'])->whereNumber('placeId');

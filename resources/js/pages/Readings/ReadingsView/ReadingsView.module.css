@@ -1,0 +1,27 @@
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-small);
+}
+
+.tabs [aria-selected="true"] {
+  background: var(--color-link);
+  color: var(--color-warm-ink);
+}
+
+.add {
+  display: inline-block;
+  margin-block: var(--space-medium);
+  background: var(--color-brand);
+  color: var(--color-warm-ink);
+  padding: 0.55rem 0.9rem;
+  border-radius: var(--radius-control);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+}
+
+.empty {
+  margin-block: 1.5rem;
+  padding: 1rem;
+  border: var(--border-width) dashed var(--color-divider);
+}
