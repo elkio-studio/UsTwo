@@ -77,7 +77,9 @@ La relación con los números originales queda fuera de esta historia.
 - El título es obligatorio tanto en el alta manual como desde catálogo.
 - Si el catálogo proporciona descripción, autoría, fecha de publicación
   o portada utilizable, la ficha incorpora esos datos. Los valores
-  ausentes pueden quedar vacíos y el alta manual admite solo el título.
+  ausentes quedan vacíos y no impiden guardar desde catálogo. Se podrán
+  completar más adelante cuando se implemente la edición de fichas.
+  Para el alta manual basta con el título.
 - Cuando falta una portada utilizable o la imagen falla al cargar, se
   muestra una portada de reemplazo con el título en diagonal, en negro
   sobre fondo gris claro. La portada de reemplazo es visual y no se
