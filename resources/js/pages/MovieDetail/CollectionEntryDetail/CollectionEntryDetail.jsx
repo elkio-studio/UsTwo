@@ -2,8 +2,8 @@
 
 import collectionUrl from "../../../utils/collectionUrl";
 import MovieInformation from "../MovieInformation/MovieInformation";
-import MovieReviews from "../MovieReviews/MovieReviews";
-import RatingForm from "../RatingForm/RatingForm";
+import CollectionReviews from "../../../components/CollectionReviews/CollectionReviews";
+import CollectionRatingForm from "../../../components/CollectionRatingForm/CollectionRatingForm";
 import MovieMetadataForm from "../MovieMetadataForm/MovieMetadataForm";
 import DeleteMovie from "../DeleteMovie/DeleteMovie";
 import JournalLayout from "../../../components/Journal/JournalLayout/JournalLayout";
@@ -29,12 +29,12 @@ export default function CollectionEntryDetail({
       back={{ href: moviesUrl, label: "Volver a " + item + "s vistas" }}
     >
       <MovieInformation movie={movie} series={series} />
-      <MovieReviews
+      <CollectionReviews
         people={people}
         ratings={movie.ratings}
         className={styles.section}
       />
-      <RatingForm ownRating={ownRating} url={url} className={styles.section} />
+      <CollectionRatingForm ownRating={ownRating} url={url} className={styles.section} />
       <MovieMetadataForm movie={movie} url={url} className={styles.section} />
       <DeleteMovie item={item} url={url} className={styles.section} />
     </JournalLayout>

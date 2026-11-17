@@ -1,18 +1,16 @@
 // Portada, datos y sinopsis de la ficha.
 
 import CollectionPoster from "../../../components/CollectionPoster/CollectionPoster";
-import styles from "./MovieInformation.module.css";
+import CollectionInformation from "../../../components/CollectionInformation/CollectionInformation";
 
 export default function MovieInformation({ movie, series }) {
   return (
-    <div className={styles.feature}>
-      <CollectionPoster
+    <CollectionInformation synopsis={movie.overview} poster={<CollectionPoster
         path={movie.poster_path}
         title={movie.title}
         size="w500"
         eager
-      />
-      <dl>
+      />}>
         <dt>Fecha de visionado</dt>
         <dd>
           <time dateTime={movie.watched_on}>
@@ -37,13 +35,6 @@ export default function MovieInformation({ movie, series }) {
             "Añadida a mano"
           )}
         </dd>
-      </dl>
-      {movie.overview && (
-        <section className={styles.overview}>
-          <h2>Sinopsis</h2>
-          <p>{movie.overview}</p>
-        </section>
-      )}
-    </div>
+    </CollectionInformation>
   );
 }
