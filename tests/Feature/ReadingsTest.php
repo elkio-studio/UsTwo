@@ -7,6 +7,7 @@ use App\Models\Space;
 use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
@@ -34,6 +35,19 @@ class ReadingsTest extends TestCase
     private function preview(string $url, string $category, string $id)
     {
         return $this->getJson($url.'/catalogo/ficha?'.http_build_query(compact('category', 'id')))->assertOk();
+    }
+
+    private function savedReading(User $member, array $fields = []): array
+    {
+        $url = $this->shelf('Casa', $member);
+        $space = $member->spaces()->firstOrFail();
+        $reading = $space->readings()->create($fields + [
+            'title' => 'Ficha original',
+            'title_key' => 'ficha original',
+            'category' => 'manga',
+        ]);
+
+        return [$reading, $url, $url.'/'.$reading->id];
     }
 
     public function test_readings_manual_creation_is_independent_of_catalogs_and_titles_warn(): void
@@ -191,5 +205,111 @@ class ReadingsTest extends TestCase
             ->assertSessionHasErrors('save')
             ->assertSessionHasInput('title', 'Un libro');
         $this->assertDatabaseCount('readings', 0);
+    }
+
+    public function test_a_member_can_edit_a_manual_reading_and_invalid_fields_leave_it_intact(): void
+    {
+        $member = $this->account();
+        [$reading, $url, $entry] = $this->savedReading($member);
+        $this->withoutVite();
+        $this->actingAs($member)->from($entry)->patch($entry, [
+            'title' => ' ', 'description' => 'Cambio que no debe guardarse',
+        ])->assertSessionHasErrors('title');
+        $this->assertDatabaseHas('readings', ['id' => $reading->id, 'title' => 'Ficha original', 'description' => null]);
+
+        $this->patch($entry, [
+            'title' => 'Nueva   ficha', 'author' => 'Una autora',
+            'publication_date' => '2020-09-14', 'description' => 'Sinopsis nueva',
+        ])->assertRedirect($entry);
+        $this->get($entry)->assertInertia(fn (Assert $page) => $page
+            ->where('reading.title', 'Nueva   ficha')->where('reading.author', 'Una autora')
+            ->where('reading.publication_date', '2020-09-14')->where('reading.description', 'Sinopsis nueva'));
+        $this->get($url.'?category=manga', [
+            'X-Inertia' => 'true',
+            'X-Inertia-Version' => \Inertia\Inertia::getVersion(),
+            'X-Inertia-Partial-Component' => 'Readings/Readings',
+            'X-Inertia-Partial-Data' => 'readings,people',
+        ])->assertOk()->assertJsonPath('props.readings.0.title', 'Nueva   ficha');
+        $this->from($url)->post($url, ['category' => 'books', 'title' => 'NUEVA FICHA'])
+            ->assertSessionHasErrors('confirm_title');
+    }
+
+    public function test_catalog_readings_accept_only_empty_metadata_and_reject_mixed_changes(): void
+    {
+        $member = $this->account();
+        [$reading, , $entry] = $this->savedReading($member, [
+            'author' => 'Autoría importada', 'provider' => 'manga_updates', 'external_id' => '27', 'record_type' => 'series',
+        ]);
+        $this->actingAs($member)->from($entry)->patch($entry, [
+            'author' => 'Otro autor', 'description' => 'Sinopsis no guardada',
+        ])->assertSessionHasErrors('save');
+        $this->patch($entry, ['external_id' => '28'])->assertSessionHasErrors('save');
+        $this->patch($entry, ['title' => 'Título distinto'])->assertSessionHasErrors('save');
+        $this->assertDatabaseHas('readings', [
+            'id' => $reading->id, 'author' => 'Autoría importada', 'description' => null, 'external_id' => '27',
+        ]);
+        $this->patch($entry, ['description' => 'Sinopsis añadida', 'publication_date' => '2021-04-21'])
+            ->assertRedirect($entry);
+        $this->patch($entry, ['description' => 'Segunda sinopsis'])->assertSessionHasErrors('save');
+        $this->assertDatabaseHas('readings', [
+            'id' => $reading->id, 'description' => 'Sinopsis añadida', 'publication_date' => '2021-04-21',
+            'provider' => 'manga_updates', 'record_type' => 'series', 'external_id' => '27',
+        ]);
+    }
+
+    public function test_filling_catalog_fields_rejects_a_conflicting_write_without_partial_changes(): void
+    {
+        $member = $this->account();
+        [$reading, , $entry] = $this->savedReading($member, ['provider' => 'manga_updates']);
+        $interleaved = false;
+        DB::connection()->beforeExecuting(function ($sql) use (&$interleaved, $reading): void {
+            if (! $interleaved && str_starts_with($sql, 'update "readings"')) {
+                $interleaved = true;
+                Reading::whereKey($reading->id)->update(['author' => 'Otra persona']);
+            }
+        });
+
+        $this->actingAs($member)->from($entry)->patch($entry, [
+            'author' => 'Mi autor', 'description' => 'Sinopsis no guardada',
+        ])->assertSessionHasErrors('save');
+        $this->assertTrue($interleaved);
+        $this->assertDatabaseHas('readings', ['id' => $reading->id, 'author' => 'Otra persona', 'description' => null]);
+    }
+
+    public function test_deletion_requires_confirmation_and_both_mutations_are_shelf_scoped(): void
+    {
+        $member = $this->account();
+        [$reading, $url, $entry] = $this->savedReading($member, ['category' => 'comics']);
+        $other = $this->shelf('Otra', $member).'/'.$reading->id;
+        $this->patch($entry, ['title' => 'Otro'])->assertRedirect('/acceso');
+        $this->delete($entry, ['confirmed' => true])->assertRedirect('/acceso');
+        $this->actingAs($this->account('ale'))->patch($entry, ['title' => 'Otro'])->assertNotFound();
+        $this->delete($entry, ['confirmed' => true])->assertNotFound();
+        $this->actingAs($member)->patch($other, ['title' => 'Otro'])->assertNotFound();
+        $this->delete($other, ['confirmed' => true])->assertNotFound();
+        $this->from($entry)->delete($entry, ['confirmed' => false])->assertSessionHasErrors('confirmed');
+        $this->assertDatabaseHas('readings', ['id' => $reading->id, 'title' => 'Ficha original']);
+
+        $this->withoutVite();
+        $this->delete($entry, ['confirmed' => true])->assertRedirect($url.'?category=comics');
+        $this->get($url.'?category=comics')->assertInertia(fn (Assert $page) => $page
+            ->where('activeCategory', 'comics')->has('readings', 0));
+        $this->get($entry)->assertNotFound();
+    }
+
+    public function test_database_errors_preserve_the_reading_and_return_form_errors(): void
+    {
+        $member = $this->account();
+        [$reading, , $entry] = $this->savedReading($member);
+        DB::connection()->beforeExecuting(function ($sql): void {
+            if (str_starts_with($sql, 'update "readings"') || str_starts_with($sql, 'delete from "readings"')) {
+                throw new QueryException('test', $sql, [], new \RuntimeException('Test failure'));
+            }
+        });
+
+        $this->actingAs($member)->from($entry)->patch($entry, ['title' => 'Cambio'])
+            ->assertRedirect($entry)->assertSessionHasErrors('save')->assertSessionHasInput('title', 'Cambio');
+        $this->delete($entry, ['confirmed' => true])->assertRedirect($entry)->assertSessionHasErrors('delete');
+        $this->assertDatabaseHas('readings', ['id' => $reading->id, 'title' => 'Ficha original']);
     }
 }

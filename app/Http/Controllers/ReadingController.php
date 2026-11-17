@@ -20,6 +20,8 @@ use Inertia\Response;
 
 class ReadingController extends Controller
 {
+    private const EDITABLE_METADATA = ['author', 'publication_date', 'description'];
+
     public function index(Request $request, Space $space): Response
     {
         return Inertia::render('Readings/Readings', [
@@ -123,7 +125,7 @@ class ReadingController extends Controller
             $this->duplicate();
         }
 
-        $reading['title_key'] = mb_strtolower(preg_replace('/\s+/u', ' ', trim($reading['title'])));
+        $reading['title_key'] = $this->titleKey($reading['title']);
         if (! $request->boolean('confirm_title') && (clone $entries)->where('title_key', $reading['title_key'])->exists()) {
             throw ValidationException::withMessages(['confirm_title' => 'Ya hay una lectura con ese título. Puedes guardarla igualmente.']);
         }
@@ -139,6 +141,83 @@ class ReadingController extends Controller
         }
 
         return to_route('readings.index', ['space' => $space, 'category' => $reading['category']]);
+    }
+
+    public function update(Request $request, Space $space, string $readingId): RedirectResponse
+    {
+        $reading = $space->readings()->findOrFail($readingId);
+        $catalog = $reading->provider !== null;
+        $allowed = $catalog ? self::EDITABLE_METADATA : ['title', ...self::EDITABLE_METADATA];
+        $protected = array_diff(array_keys($request->except(['_token', '_method'])), $allowed);
+
+        foreach ($allowed as $field) {
+            if ($catalog && $reading->{$field} !== null && $request->exists($field)) {
+                $protected[] = $field;
+            }
+        }
+        if ($protected !== []) {
+            throw ValidationException::withMessages(['save' => 'La solicitud contiene datos que no se pueden modificar.']);
+        }
+
+        $changes = $request->validate([
+            'title' => ['sometimes', 'required', 'string', 'max:255'],
+            'author' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'publication_date' => ['sometimes', 'nullable', 'date_format:Y-m-d'],
+            'description' => ['sometimes', 'nullable', 'string', 'max:20000'],
+        ]);
+
+        if (isset($changes['title'])) {
+            $changes['title_key'] = $this->titleKey($changes['title']);
+        }
+        if ($catalog) {
+            $changes = array_filter($changes, fn ($value) => $value !== null);
+        }
+
+        if ($changes !== []) {
+            $target = $space->readings()->whereKey($readingId);
+            if ($catalog) {
+                foreach (array_keys($changes) as $field) {
+                    $target->whereNull($field);
+                }
+            }
+
+            try {
+                $updated = $target->update($changes);
+            } catch (QueryException $error) {
+                report($error);
+
+                throw ValidationException::withMessages(['save' => 'No se pudo guardar la lectura. Inténtalo de nuevo.']);
+            }
+
+            if ($updated === 0) {
+                abort_unless($space->readings()->whereKey($readingId)->exists(), 404);
+                throw ValidationException::withMessages(['save' => 'La ficha ha cambiado. Recárgala antes de guardar.']);
+            }
+        }
+
+        return to_route('readings.show', [$space, $readingId]);
+    }
+
+    public function destroy(Request $request, Space $space, string $readingId): RedirectResponse
+    {
+        $reading = $space->readings()->findOrFail($readingId);
+        $request->validate(['confirmed' => ['required', 'accepted']]);
+
+        try {
+            $deleted = $space->readings()->whereKey($readingId)->delete();
+        } catch (QueryException $error) {
+            report($error);
+
+            throw ValidationException::withMessages(['delete' => 'No se pudo borrar la lectura. Inténtalo de nuevo.']);
+        }
+        abort_if($deleted === 0, 404);
+
+        return to_route('readings.index', ['space' => $space, 'category' => $reading->category]);
+    }
+
+    private function titleKey(string $title): string
+    {
+        return mb_strtolower(preg_replace('/\s+/u', ' ', trim($title)));
     }
 
     private function selectedReading(Request $request, Space $space, string $category, string $selection): array

@@ -38,6 +38,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/lecturas/nueva/{category}', [ReadingController::class, 'create'])
             ->whereIn('category', \App\Models\Reading::CATEGORIES)->name('readings.create');
         Route::get('/lecturas/{readingId}', [ReadingController::class, 'show'])->whereNumber('readingId')->name('readings.show');
+        Route::patch('/lecturas/{readingId}', [ReadingController::class, 'update'])->whereNumber('readingId');
+        Route::delete('/lecturas/{readingId}', [ReadingController::class, 'destroy'])->whereNumber('readingId');
         Route::post('/lecturas', [ReadingController::class, 'store']);
         Route::middleware('throttle:20,1')->group(function () {
             Route::get('/lecturas/catalogo', [ReadingController::class, 'search']);

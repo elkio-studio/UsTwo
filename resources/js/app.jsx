@@ -23,8 +23,13 @@ const pages = {
 };
 
 router.on("navigate", ({ detail: { page, type } }) => {
-  if (type === "history" && page.component === "Movies/Movies") {
+  if (type !== "history") return;
+
+  if (page.component === "Movies/Movies") {
     router.reload({ only: ["movies", "people", "pagination"] });
+  }
+  if (page.component === "Readings/Readings") {
+    router.reload({ only: ["readings", "people"] });
   }
 });
 

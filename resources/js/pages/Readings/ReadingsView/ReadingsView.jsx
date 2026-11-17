@@ -1,7 +1,7 @@
 // Vista inicial del cajón de Lecturas con sus tres pestañas.
 
-import { useId, useRef, useState } from "react";
-import { Link } from "@inertiajs/react";
+import { useId, useRef } from "react";
+import { Link, useRemember } from "@inertiajs/react";
 import JournalLayout from "../../../components/Journal/JournalLayout/JournalLayout";
 import CollectionGrid from "../../../components/CollectionGrid/CollectionGrid";
 import CollectionCard from "../../../components/CollectionCard/CollectionCard";
@@ -16,7 +16,10 @@ const tabs = [
 ];
 
 export default function ReadingsView({ spaceId, spaceSlug, readings, people, activeCategory }) {
-  const [active, setActive] = useState(() => Math.max(0, tabs.findIndex((tab) => tab.category === activeCategory)));
+  const [active, setActive] = useRemember(
+    Math.max(0, tabs.findIndex((tab) => tab.category === activeCategory)),
+    `Readings:${spaceId}`,
+  );
   const url = `/espacios/${spaceId}/lecturas`;
   const id = useId();
   const buttons = useRef([]);
