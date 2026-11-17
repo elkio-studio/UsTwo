@@ -3,6 +3,7 @@
 import collectionUrl from "../../../utils/collectionUrl";
 import { Link } from "@inertiajs/react";
 import MovieCard from "../MovieCard/MovieCard";
+import CollectionGrid from "../../../components/CollectionGrid/CollectionGrid";
 import JournalLayout from "../../../components/Journal/JournalLayout/JournalLayout";
 import "../../../../css/global.css";
 import styles from "./WatchedCollection.module.css";
@@ -36,11 +37,11 @@ export default function WatchedCollection({
           Todavía no hay {collection} en esta colección.
         </p>
       ) : (
-        <ul className={styles.list}>
+        <CollectionGrid>
           {movies.map((movie) => (
             <MovieCard key={movie.id} {...{ movie, people, url }} />
           ))}
-        </ul>
+        </CollectionGrid>
       )}
       {pagination.last > 1 && (
         <nav
