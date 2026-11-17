@@ -1,6 +1,10 @@
 <?php
 
 return [
+
+    'comic_vine' => [
+        'key' => env('COMIC_VINE_API_KEY'),
+    ],
     'geoapify' => [
         'search_key' => env('GEOAPIFY_SEARCH_KEY'),
         'tiles_key' => env('GEOAPIFY_TILES_KEY'),
