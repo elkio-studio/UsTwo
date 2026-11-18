@@ -257,6 +257,30 @@ class ReadingsTest extends TestCase
         ]);
     }
 
+    public function test_a_reading_without_external_id_keeps_its_catalog_origin_and_edit_rules(): void
+    {
+        $this->withoutVite();
+        $member = $this->account();
+        [$reading, , $entry] = $this->savedReading($member, [
+            'provider' => 'open_library', 'record_type' => 'work', 'author' => 'Autoría importada',
+        ]);
+
+        $this->actingAs($member)->get($entry)->assertInertia(fn (Assert $page) => $page
+            ->component('Readings/Detail')
+            ->where('reading.provider', 'open_library')->where('reading.external_id', null));
+        $this->from($entry)->patch($entry, ['author' => 'Cambio', 'description' => 'No se guarda'])
+            ->assertSessionHasErrors('save');
+        $this->assertDatabaseHas('readings', ['id' => $reading->id, 'author' => 'Autoría importada', 'description' => null]);
+        $this->patch($entry, ['description' => 'Sinopsis añadida'])->assertRedirect($entry);
+        $this->assertDatabaseHas('readings', [
+            'id' => $reading->id, 'provider' => 'open_library', 'record_type' => 'work',
+            'external_id' => null, 'description' => 'Sinopsis añadida',
+        ]);
+        $other = $this->shelf('Otra', $member).'/'.$reading->id;
+        $this->get($other)->assertNotFound();
+        $this->patch($other, ['description' => 'Otro cambio'])->assertNotFound();
+    }
+
     public function test_filling_catalog_fields_rejects_a_conflicting_write_without_partial_changes(): void
     {
         $member = $this->account();

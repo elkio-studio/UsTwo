@@ -2,8 +2,28 @@ import CollectionInformation from "../../../components/CollectionInformation/Col
 import readingDescription from "../../../utils/readingDescription";
 import ReadingCover from "../ReadingCover/ReadingCover";
 
+const sources = {
+  comic_vine: {
+    label: "Comic Vine",
+    linkLabel: "Ver en Comic Vine",
+    url: (id) => `https://comicvine.gamespot.com/issue/4000-${id}/`,
+  },
+  manga_updates: {
+    label: "MangaUpdates",
+    linkLabel: "MangaUpdates",
+    url: () => "https://www.mangaupdates.com/",
+  },
+  open_library: {
+    label: "Open Library",
+    linkLabel: "Ver en Open Library",
+    url: (id) => `https://openlibrary.org/works/${id}`,
+  },
+};
+
 export default function ReadingInformation({ reading }) {
   const { title, author, publication_date, cover_url, provider, external_id } = reading;
+  const source = Object.hasOwn(sources, provider) ? sources[provider] : null;
+  const id = external_id?.trim();
 
   return (
     <CollectionInformation
@@ -16,10 +36,11 @@ export default function ReadingInformation({ reading }) {
       )}
       <dt>Ficha</dt>
       <dd>
-        {provider === "comic_vine" && <a href={`https://comicvine.gamespot.com/issue/4000-${external_id}/`}>Ver en Comic Vine</a>}
-        {provider === "manga_updates" && <a href="https://www.mangaupdates.com/">MangaUpdates</a>}
-        {provider === "open_library" && <a href={`https://openlibrary.org/works/${external_id}`}>Ver en Open Library</a>}
-        {!provider && "Añadida a mano"}
+        {source && id ? (
+          <a href={source.url(id)}>{source.linkLabel}</a>
+        ) : (
+          source?.label ?? provider ?? "Añadida a mano"
+        )}
       </dd>
     </CollectionInformation>
   );
