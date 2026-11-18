@@ -24,12 +24,17 @@ class ReadingController extends Controller
 
     public function index(Request $request, Space $space): Response
     {
+        $people = $this->people($space);
+
         return Inertia::render('Readings/Readings', [
             'spaceId' => $space->id,
             'spaceSlug' => $space->slug,
             'activeCategory' => $request->query('category'),
-            'people' => $this->people($space),
-            'readings' => $space->readings()->latest('id')->get(['id', 'category', 'title', 'cover_url']),
+            'people' => $people,
+            'readings' => $space->readings()->with([
+                'ratings' => fn ($ratings) => $ratings->whereIn('user_id', array_column($people, 'id'))
+                    ->select('reading_id', 'user_id', 'score'),
+            ])->latest('id')->get(['id', 'category', 'title', 'cover_url']),
         ]);
     }
 
@@ -41,18 +46,48 @@ class ReadingController extends Controller
         ]);
     }
 
-    public function show(Space $space, string $readingId): Response
+    public function show(Request $request, Space $space, string $readingId): Response
     {
         $reading = $space->readings()->findOrFail($readingId, [
             'id', 'category', 'title', 'description', 'author',
             'publication_date', 'cover_url', 'provider', 'external_id',
         ]);
+        $people = $this->people($space);
+        $reading->load([
+            'ratings' => fn ($ratings) => $ratings->whereIn('user_id', array_column($people, 'id'))
+                ->select('reading_id', 'user_id', 'score', 'note'),
+        ]);
 
         return Inertia::render('Readings/Detail', [
             'reading' => $reading,
             'spaceId' => $space->id,
-            'people' => $this->people($space),
+            'people' => $people,
+            'viewerId' => $request->user()->id,
         ]);
+    }
+
+    public function rating(Request $request, Space $space, string $readingId): RedirectResponse
+    {
+        $reading = $space->readings()->findOrFail($readingId);
+        $data = $request->validate([
+            'score' => 'present|nullable|integer|between:0,100',
+            'note' => 'present|nullable|string|max:5000',
+            'user_id' => 'prohibited',
+        ]);
+
+        try {
+            $reading->ratings()->upsert(
+                [['user_id' => $request->user()->id] + $data],
+                ['reading_id', 'user_id'],
+                ['score', 'note'],
+            );
+        } catch (QueryException $error) {
+            report($error);
+
+            throw ValidationException::withMessages(['save' => 'No se pudo guardar la valoración. Inténtalo de nuevo.']);
+        }
+
+        return to_route('readings.index', ['space' => $space, 'category' => $reading->category]);
     }
 
     private function people(Space $space): array

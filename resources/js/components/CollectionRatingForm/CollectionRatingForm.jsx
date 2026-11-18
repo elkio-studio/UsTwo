@@ -15,7 +15,7 @@ export default function CollectionRatingForm({ ownRating, url, className, readOn
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          if (!readOnly) rating.put(url + "/valoracion", { preserveScroll: true });
+          if (!readOnly) rating.put(url + "/valoracion", { preserveScroll: "errors" });
         }}
       >
         <Field

@@ -183,7 +183,7 @@ abstract class CollectionController extends Controller
             ['score', 'note'],
         );
 
-        return to_route(static::ROUTE.'.show', [$space, $movie]);
+        return to_route(static::ROUTE.'.index', $space);
     }
 
     public function destroy(Request $request, Space $space, int $entry)

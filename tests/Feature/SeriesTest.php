@@ -79,7 +79,7 @@ class SeriesTest extends TestCase
         $this->patch($detail, ['title' => 'Editada'])->assertRedirect($detail);
         $this->put($detail.'/valoracion', ['score' => 101, 'note' => null])->assertSessionHasErrors('score');
         $this->put($detail.'/valoracion', ['score' => 90, 'note' => null, 'user_id' => $this->owner->id])->assertSessionHasErrors('user_id');
-        $this->put($detail.'/valoracion', ['score' => 90, 'note' => null])->assertRedirect($detail);
+        $this->put($detail.'/valoracion', ['score' => 90, 'note' => null])->assertRedirect($this->url);
         $this->assertDatabaseHas('series_ratings', ['series_id' => $series->id, 'user_id' => $this->guest->id, 'score' => 90]);
 
         foreach (range(1, 12) as $number) {

@@ -108,8 +108,8 @@ class MvpTest extends TestCase
         foreach ([-1, 101, 2.5] as $invalid) {
             $this->put($url.'/valoracion', ['score' => $invalid, 'note' => null])->assertSessionHasErrors('score');
         }
-        $this->put($url.'/valoracion', ['score' => 0, 'note' => 'Nota A'])->assertRedirect($url);
-        $this->actingAs($this->alejandra)->put($url.'/valoracion', ['score' => 100, 'note' => 'Nota B'])->assertRedirect($url);
+        $this->put($url.'/valoracion', ['score' => 0, 'note' => 'Nota A'])->assertRedirect($this->moviesUrl);
+        $this->actingAs($this->alejandra)->put($url.'/valoracion', ['score' => 100, 'note' => 'Nota B'])->assertRedirect($this->moviesUrl);
         $this->put($url.'/valoracion', ['score' => 50, 'note' => null, 'user_id' => $this->angel->id])->assertSessionHasErrors('user_id');
         $this->patch($url, ['title' => 'Alien: el octavo pasajero'])->assertRedirect($url);
         $this->actingAs($this->angel)->patch($url, ['watched_on' => '2024-01-02'])->assertRedirect($url);

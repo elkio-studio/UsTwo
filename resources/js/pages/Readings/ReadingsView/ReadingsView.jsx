@@ -87,6 +87,7 @@ export default function ReadingsView({ spaceId, spaceSlug, readings, people, act
                     href={`${url}/${reading.id}`}
                     poster={<ReadingCover title={reading.title} url={reading.cover_url} />}
                     people={people}
+                    ratings={reading.ratings}
                   />
                 ))}
               </CollectionGrid>

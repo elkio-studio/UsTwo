@@ -7,9 +7,10 @@ import ReadingInformation from "../ReadingInformation/ReadingInformation";
 import "../../../../css/global.css";
 import styles from "./ReadingDetail.module.css";
 
-export default function ReadingDetail({ reading, people, spaceId }) {
+export default function ReadingDetail({ reading, people, spaceId, viewerId }) {
   const collectionUrl = `/espacios/${spaceId}/lecturas`;
   const url = `${collectionUrl}/${reading.id}`;
+  const ownRating = reading.ratings?.find((rating) => rating.user_id === viewerId);
 
   return (
     <JournalLayout
@@ -21,8 +22,8 @@ export default function ReadingDetail({ reading, people, spaceId }) {
       }}
     >
       <ReadingInformation reading={reading} />
-      <CollectionReviews people={people} className={styles.section} />
-      <CollectionRatingForm readOnly className={styles.section} />
+      <CollectionReviews people={people} ratings={reading.ratings} className={styles.section} />
+      <CollectionRatingForm ownRating={ownRating} url={url} className={styles.section} />
       <ReadingMetadataForm reading={reading} url={url} className={styles.section} />
       <DeleteReading url={url} className={styles.section} />
     </JournalLayout>

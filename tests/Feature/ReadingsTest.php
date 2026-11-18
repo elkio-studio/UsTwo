@@ -312,4 +312,91 @@ class ReadingsTest extends TestCase
         $this->delete($entry, ['confirmed' => true])->assertRedirect($entry)->assertSessionHasErrors('delete');
         $this->assertDatabaseHas('readings', ['id' => $reading->id, 'title' => 'Ficha original']);
     }
+
+    public function test_reading_ratings_are_personal_and_visible_to_current_members(): void
+    {
+        $this->withoutVite();
+        $owner = $this->account();
+        [$reading, $url, $entry] = $this->savedReading($owner);
+        $member = $this->account('ale');
+        $space = $owner->spaces()->firstOrFail();
+        $space->members()->attach($member);
+        $other = $space->readings()->create(['category' => 'manga', 'title' => 'Otra', 'title_key' => 'otra']);
+        $ratingUrl = $entry.'/valoracion';
+
+        $this->actingAs($owner)->put($ratingUrl, ['score' => 100, 'note' => 'Primera'])->assertRedirect($url.'?category=manga');
+        $this->actingAs($member)->put($ratingUrl, ['score' => 0, 'note' => 'Nota de Ale'])->assertRedirect($url.'?category=manga');
+        $this->actingAs($owner)->put($ratingUrl, ['score' => 86, 'note' => 'Nota actualizada'])->assertRedirect($url.'?category=manga');
+        $this->assertDatabaseCount('reading_ratings', 2);
+        $this->assertDatabaseMissing('reading_ratings', ['reading_id' => $other->id]);
+
+        foreach ([$owner, $member] as $viewer) {
+            $this->actingAs($viewer)->get($entry)->assertInertia(fn (Assert $page) => $page
+                ->where('viewerId', $viewer->id)->has('reading.ratings', 2)
+                ->where('reading.ratings', fn ($ratings) => $ratings->keyBy('user_id')[$owner->id]['note'] === 'Nota actualizada'
+                    && $ratings->keyBy('user_id')[$member->id]['note'] === 'Nota de Ale'));
+        }
+        $this->get($url.'?category=manga', [
+            'X-Inertia' => 'true',
+            'X-Inertia-Version' => \Inertia\Inertia::getVersion(),
+            'X-Inertia-Partial-Component' => 'Readings/Readings',
+            'X-Inertia-Partial-Data' => 'readings,people',
+        ])->assertOk()->assertJsonPath('props.readings.0.ratings', [])
+            ->assertJsonFragment(['reading_id' => $reading->id, 'user_id' => $member->id, 'score' => 0])
+            ->assertJsonMissingPath('props.readings.1.ratings.0.note');
+
+        $space->members()->detach($member);
+        $this->get($entry)->assertNotFound();
+        $this->actingAs($owner)->get($entry)->assertInertia(fn (Assert $page) => $page
+            ->has('reading.ratings', 1)->where('reading.ratings.0.user_id', $owner->id));
+        $this->get($url)->assertInertia(fn (Assert $page) => $page
+            ->has('readings.1.ratings', 1)->where('readings.1.ratings.0.user_id', $owner->id));
+        $this->delete($entry, ['confirmed' => true])->assertRedirect($url.'?category=manga');
+        $this->assertDatabaseCount('reading_ratings', 0);
+    }
+
+    public function test_reading_rating_validation_and_permissions_keep_existing_values(): void
+    {
+        $owner = $this->account();
+        [$reading, $url, $entry] = $this->savedReading($owner, ['category' => 'books']);
+        $stranger = $this->account('ale');
+        $ratingUrl = $entry.'/valoracion';
+        $other = $this->shelf('Otra', $owner).'/'.$reading->id.'/valoracion';
+        $input = ['score' => 42, 'note' => str_repeat('a', 5000)];
+
+        $this->put($ratingUrl, $input)->assertRedirect('/acceso');
+        $this->actingAs($stranger)->put($ratingUrl, $input)->assertNotFound();
+        $this->actingAs($owner)->put($other, $input)->assertNotFound();
+        $this->from($entry)->put($ratingUrl, $input)->assertRedirect($url.'?category=books');
+        $this->put($ratingUrl, $input + ['user_id' => $stranger->id])->assertSessionHasErrors('user_id');
+        foreach ([-1, 101, 4.5] as $score) {
+            $this->put($ratingUrl, ['score' => $score, 'note' => null])->assertSessionHasErrors('score');
+        }
+        $this->put($ratingUrl, ['score' => null, 'note' => str_repeat('a', 5001)])->assertSessionHasErrors('note');
+        $this->assertDatabaseHas('reading_ratings', ['reading_id' => $reading->id, 'user_id' => $owner->id] + $input);
+        $this->put($ratingUrl, ['score' => null, 'note' => null])->assertRedirect($url.'?category=books');
+        $this->assertDatabaseHas('reading_ratings', ['reading_id' => $reading->id, 'user_id' => $owner->id, 'score' => null, 'note' => null]);
+
+        $comic = $owner->spaces()->whereKey($reading->space_id)->firstOrFail()->readings()
+            ->create(['category' => 'comics', 'title' => 'Cómic de prueba', 'title_key' => 'cómic de prueba']);
+        $this->put($url.'/'.$comic->id.'/valoracion', ['score' => 75, 'note' => null])
+            ->assertRedirect($url.'?category=comics');
+    }
+
+    public function test_reading_rating_write_failure_keeps_the_previous_rating_and_input(): void
+    {
+        $owner = $this->account();
+        [$reading, , $entry] = $this->savedReading($owner);
+        $reading->ratings()->create(['user_id' => $owner->id, 'score' => 65, 'note' => 'Anterior']);
+        DB::connection()->beforeExecuting(function ($sql): void {
+            if (str_starts_with($sql, 'insert into "reading_ratings"')) {
+                throw new QueryException('test', $sql, [], new \RuntimeException('Test failure'));
+            }
+        });
+
+        $this->actingAs($owner)->from($entry)
+            ->put($entry.'/valoracion', ['score' => 80, 'note' => 'Borrador'])
+            ->assertRedirect($entry)->assertSessionHasErrors('save')->assertSessionHasInput('note', 'Borrador');
+        $this->assertDatabaseHas('reading_ratings', ['reading_id' => $reading->id, 'score' => 65, 'note' => 'Anterior']);
+    }
 }

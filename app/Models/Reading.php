@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Reading extends Model
 {
@@ -12,4 +13,9 @@ class Reading extends Model
         'category', 'title', 'title_key', 'description', 'author', 'publication_date',
         'cover_url', 'provider', 'record_type', 'external_id',
     ];
+
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(ReadingRating::class);
+    }
 }
