@@ -7,6 +7,7 @@ use App\Models\Space;
 use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
@@ -67,6 +68,64 @@ class MvpTest extends TestCase
         $this->actingAs($this->angel)->get($alien)->assertInertia(fn (Assert $page) => $page
             ->where('movie.watched_on', '2025-01-02'));
         $this->assertDatabaseCount('movies', 2);
+    }
+
+    public function test_manual_movie_and_series_metadata_is_validated_scoped_and_preserves_ratings(): void
+    {
+        foreach (['movies', 'series'] as $collection) {
+            $entry = $this->space->{$collection}()->create(['title' => 'Original', 'watched_on' => '2024-01-01']);
+            $entry->ratings()->create(['user_id' => $this->angel->id, 'score' => 80, 'note' => 'Conservar']);
+            $url = '/espacios/'.$this->space->id.'/'.($collection === 'movies' ? 'peliculas' : 'series').'/'.$entry->id;
+            $this->actingAs($this->alejandra)->from($url);
+            $this->patch($url, ['title' => 'Corregida', 'overview' => str_repeat('a', 20000)])
+                ->assertRedirect($url);
+            $this->assertSame('Corregida', $entry->fresh()->title);
+            $this->assertSame(20000, strlen($entry->fresh()->overview));
+            $this->assertSame('2024-01-01', $entry->fresh()->watched_on);
+            foreach ([['title' => ' '], ['overview' => str_repeat('a', 20001)], ['release_year' => 999], ['watched_on' => 'invalid']] as $invalid) {
+                $this->patch($url, $invalid + ['overview' => 'No guardar'])->assertSessionHasErrors(array_key_first($invalid));
+                $this->assertSame(20000, strlen($entry->fresh()->overview));
+            }
+            $this->patch($url, ['overview' => '', 'release_year' => null])->assertRedirect($url);
+            $this->assertNull($entry->fresh()->overview);
+            $this->assertNull($entry->fresh()->tmdb_id);
+            $this->assertSame('Conservar', $entry->ratings()->sole()->note);
+
+            $other = Space::create(['name' => 'Otra '.$collection, 'owner_id' => $this->angel->id]);
+            $other->members()->attach($this->angel->id);
+            $this->patch('/espacios/'.$other->id.'/'.($collection === 'movies' ? 'peliculas' : 'series').'/'.$entry->id, ['title' => 'Ajena'])->assertNotFound();
+            $other->members()->attach($this->alejandra->id);
+            $this->patch('/espacios/'.$other->id.'/'.($collection === 'movies' ? 'peliculas' : 'series').'/'.$entry->id, ['title' => 'Ajena'])->assertNotFound();
+            $this->assertSame('Corregida', $entry->fresh()->title);
+
+            $entry->update(['tmdb_id' => 999, 'overview' => 'Importada']);
+            $this->patch($url, ['title' => 'No guardar', 'overview' => 'Manual'])->assertSessionHasErrors('overview');
+            $this->assertSame('Corregida', $entry->fresh()->title);
+            $this->assertSame('Importada', $entry->fresh()->overview);
+        }
+    }
+
+    public function test_metadata_storage_failure_preserves_the_record_and_submitted_input(): void
+    {
+        foreach (['movies', 'series'] as $collection) {
+            $entry = $this->space->{$collection}()->create(['title' => 'Original', 'watched_on' => '2024-01-01']);
+            $url = '/espacios/'.$this->space->id.'/'.($collection === 'movies' ? 'peliculas' : 'series').'/'.$entry->id;
+            $connection = DB::connection();
+            $fail = true;
+            $connection->beforeExecuting(function ($sql) use ($collection, &$fail) {
+                if ($fail && str_starts_with($sql, 'update "'.$collection.'"')) {
+                    throw new QueryException('sqlite', $sql, [], new \Exception('Fallo simulado'));
+                }
+            });
+            try {
+                $this->actingAs($this->angel)->from($url)->patch($url, ['title' => 'Intento', 'overview' => 'Conservar en formulario'])
+                    ->assertRedirect($url)->assertSessionHasErrors('save')->assertSessionHasInput('overview', 'Conservar en formulario');
+                $this->assertSame('Original', $entry->fresh()->title);
+                $this->assertNull($entry->fresh()->overview);
+            } finally {
+                $fail = false;
+            }
+        }
     }
 
     public function test_manual_candidates_require_confirmation_and_allow_distinct_films(): void

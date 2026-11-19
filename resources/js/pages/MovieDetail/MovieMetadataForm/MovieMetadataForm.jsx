@@ -9,6 +9,7 @@ export default function MovieMetadataForm({ movie, url, className }) {
     title: movie.title,
     release_year: movie.release_year ?? "",
     watched_on: movie.watched_on,
+    ...(movie.tmdb_id === null ? { overview: movie.overview ?? "" } : {}),
   });
   const [savedCommon, setSavedCommon] = useState(common.data);
 
@@ -58,6 +59,16 @@ export default function MovieMetadataForm({ movie, url, className }) {
           onChange={(event) => common.setData("watched_on", event.target.value)}
           error={common.errors.watched_on}
         />
+        {movie.tmdb_id === null && (
+          <Field
+            label="Sinopsis (opcional)"
+            multiline
+            maxLength={20000}
+            value={common.data.overview}
+            onChange={(event) => common.setData("overview", event.target.value)}
+            error={common.errors.overview}
+          />
+        )}
         {common.errors.save && <p role="alert">{common.errors.save}</p>}
         <button disabled={common.processing}>Guardar datos comunes</button>
       </form>

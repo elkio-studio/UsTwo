@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Space;
 use App\Services\Tmdb;
+use Illuminate\Database\QueryException;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -148,8 +149,13 @@ abstract class CollectionController extends Controller
     {
         $movie = $this->entries($space)->findOrFail($entry);
 
+        if ($movie->tmdb_id !== null && $request->exists('overview')) {
+            throw ValidationException::withMessages(['overview' => 'La sinopsis del catálogo no se puede modificar.']);
+        }
+
         $data = $request->validate([
             'title' => 'sometimes|required|string|max:255',
+            'overview' => 'sometimes|nullable|string|max:20000',
             'release_year' => 'sometimes|nullable|integer|between:1000,9999',
             'watched_on' => 'sometimes|required|date_format:Y-m-d|before_or_equal:today',
         ]);
@@ -162,7 +168,13 @@ abstract class CollectionController extends Controller
             throw ValidationException::withMessages(['release_year' => 'Indica el año de estreno para distinguir títulos iguales.']);
         }
 
-        $movie->update($data);
+        try {
+            $movie->update($data);
+        } catch (QueryException $error) {
+            report($error);
+
+            throw ValidationException::withMessages(['save' => 'No se pudieron guardar los cambios. Inténtalo de nuevo.']);
+        }
 
         return to_route(static::ROUTE.'.show', [$space, $movie]);
     }

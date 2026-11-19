@@ -234,6 +234,32 @@ class ReadingsTest extends TestCase
             ->assertSessionHasErrors('confirm_title');
     }
 
+    public function test_manual_metadata_can_be_corrected_and_cleared_in_every_reading_category(): void
+    {
+        $this->withoutVite();
+        foreach (['books', 'manga', 'comics'] as $category) {
+            $member = $this->account($category);
+            [$reading, $url, $entry] = $this->savedReading($member, ['category' => $category]);
+            $reading->ratings()->create(['user_id' => $member->id, 'score' => 70, 'note' => 'Personal']);
+            $this->actingAs($member)->from($entry)->patch($entry, [
+                'author' => 'Autora', 'publication_date' => '2020-01-02', 'description' => str_repeat('a', 20000),
+            ])->assertRedirect($entry);
+            $this->assertSame(20000, strlen($reading->fresh()->description));
+            $this->patch($entry, ['author' => 'No guardar', 'description' => str_repeat('a', 20001)])
+                ->assertSessionHasErrors('description');
+            $this->assertSame('Autora', $reading->fresh()->author);
+            $this->patch($entry, ['author' => '', 'publication_date' => '', 'description' => ''])->assertRedirect($entry);
+            $this->assertNull($reading->fresh()->author);
+            $this->assertNull($reading->fresh()->publication_date);
+            $this->assertNull($reading->fresh()->description);
+            $this->assertSame('Ficha original', $reading->fresh()->title);
+            $this->assertNull($reading->fresh()->provider);
+            $this->assertSame('Personal', $reading->ratings()->sole()->note);
+            $this->get($url.'?category='.$category)->assertInertia(fn (Assert $page) => $page
+                ->where('activeCategory', $category)->where('readings.0.id', $reading->id));
+        }
+    }
+
     public function test_catalog_readings_accept_only_empty_metadata_and_reject_mixed_changes(): void
     {
         $member = $this->account();
