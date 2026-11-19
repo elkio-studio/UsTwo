@@ -20,8 +20,6 @@ use Inertia\Response;
 
 class ReadingController extends Controller
 {
-    private const EDITABLE_METADATA = ['author', 'publication_date', 'description'];
-
     public function index(Request $request, Space $space): Response
     {
         $people = $this->people($space);
@@ -51,6 +49,7 @@ class ReadingController extends Controller
         $reading = $space->readings()->findOrFail($readingId, [
             'id', 'category', 'title', 'description', 'author',
             'publication_date', 'cover_url', 'provider', 'external_id',
+            'catalog_fields', 'metadata_version',
         ]);
         $people = $this->people($space);
         $reading->load([
@@ -60,6 +59,7 @@ class ReadingController extends Controller
 
         return Inertia::render('Readings/Detail', [
             'reading' => $reading,
+            'editableMetadata' => $reading->editableMetadata(),
             'spaceId' => $space->id,
             'people' => $people,
             'viewerId' => $request->user()->id,
@@ -166,7 +166,11 @@ class ReadingController extends Controller
         }
 
         try {
-            $entries->create($reading);
+            $entry = $entries->make($reading);
+            $entry->forceFill([
+                'catalog_fields' => $entry->provider !== null ? Reading::presentCatalogFields($reading) : [],
+                'metadata_version' => 0,
+            ])->save();
         } catch (UniqueConstraintViolationException) {
             $this->duplicate();
         } catch (QueryException $error) {
@@ -181,43 +185,37 @@ class ReadingController extends Controller
     public function update(Request $request, Space $space, string $readingId): RedirectResponse
     {
         $reading = $space->readings()->findOrFail($readingId);
-        $catalog = $reading->provider !== null;
-        $allowed = $catalog ? self::EDITABLE_METADATA : ['title', ...self::EDITABLE_METADATA];
-        $protected = array_diff(array_keys($request->except(['_token', '_method'])), $allowed);
-
-        foreach ($allowed as $field) {
-            if ($catalog && $reading->{$field} !== null && $request->exists($field)) {
-                $protected[] = $field;
-            }
-        }
+        $allowed = $reading->editableMetadata();
+        $protected = array_diff(array_keys($request->except(['_token', '_method', 'metadata_version'])), $allowed);
         if ($protected !== []) {
             throw ValidationException::withMessages(['save' => 'La solicitud contiene datos que no se pueden modificar.']);
         }
 
         $changes = $request->validate([
+            'metadata_version' => ['required', 'integer', 'min:0'],
             'title' => ['sometimes', 'required', 'string', 'max:255'],
             'author' => ['sometimes', 'nullable', 'string', 'max:255'],
             'publication_date' => ['sometimes', 'nullable', 'date_format:Y-m-d'],
             'description' => ['sometimes', 'nullable', 'string', 'max:20000'],
         ]);
+        $version = (int) $changes['metadata_version'];
+        unset($changes['metadata_version']);
+        if ($version !== $reading->metadata_version) {
+            throw ValidationException::withMessages(['save' => 'La ficha ha cambiado. Recárgala antes de guardar.']);
+        }
+        $changes = array_filter($changes, fn ($value, $field) => (string) $reading->{$field} !== (string) $value, ARRAY_FILTER_USE_BOTH);
 
         if (isset($changes['title'])) {
             $changes['title_key'] = $this->titleKey($changes['title']);
         }
-        if ($catalog) {
-            $changes = array_filter($changes, fn ($value) => $value !== null);
-        }
-
         if ($changes !== []) {
-            $target = $space->readings()->whereKey($readingId);
-            if ($catalog) {
-                foreach (array_keys($changes) as $field) {
-                    $target->whereNull($field);
-                }
-            }
+            $target = $space->readings()->whereKey($readingId)->where('metadata_version', $version);
 
             try {
-                $updated = $target->update($changes);
+                $updated = $target->update($changes + [
+                    'metadata_version' => $version + 1,
+                    'catalog_fields' => json_encode($reading->importedMetadata(), JSON_THROW_ON_ERROR),
+                ]);
             } catch (QueryException $error) {
                 report($error);
 

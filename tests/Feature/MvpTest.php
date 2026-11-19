@@ -64,7 +64,7 @@ class MvpTest extends TestCase
         $this->get($this->moviesUrl)->assertInertia(fn (Assert $page) => $page
             ->where('movies.0.title', 'Arrival')->where('movies.1.title', 'Alien')->missing('movies.1.watched_on'));
         $alien = route('movies.show', [$this->space, Movie::where('title', 'Alien')->firstOrFail()]);
-        $this->patch($alien, ['watched_on' => '2025-01-02'])->assertRedirect($alien);
+        $this->patchMetadata($alien, ['watched_on' => '2025-01-02'])->assertRedirect($alien);
         $this->actingAs($this->angel)->get($alien)->assertInertia(fn (Assert $page) => $page
             ->where('movie.watched_on', '2025-01-02'));
         $this->assertDatabaseCount('movies', 2);
@@ -77,29 +77,29 @@ class MvpTest extends TestCase
             $entry->ratings()->create(['user_id' => $this->angel->id, 'score' => 80, 'note' => 'Conservar']);
             $url = '/espacios/'.$this->space->id.'/'.($collection === 'movies' ? 'peliculas' : 'series').'/'.$entry->id;
             $this->actingAs($this->alejandra)->from($url);
-            $this->patch($url, ['title' => 'Corregida', 'overview' => str_repeat('a', 20000)])
+            $this->patchMetadata($url, ['title' => 'Corregida', 'overview' => str_repeat('a', 20000)])
                 ->assertRedirect($url);
             $this->assertSame('Corregida', $entry->fresh()->title);
             $this->assertSame(20000, strlen($entry->fresh()->overview));
             $this->assertSame('2024-01-01', $entry->fresh()->watched_on);
             foreach ([['title' => ' '], ['overview' => str_repeat('a', 20001)], ['release_year' => 999], ['watched_on' => 'invalid']] as $invalid) {
-                $this->patch($url, $invalid + ['overview' => 'No guardar'])->assertSessionHasErrors(array_key_first($invalid));
+                $this->patchMetadata($url, $invalid + ['overview' => 'No guardar'])->assertSessionHasErrors(array_key_first($invalid));
                 $this->assertSame(20000, strlen($entry->fresh()->overview));
             }
-            $this->patch($url, ['overview' => '', 'release_year' => null])->assertRedirect($url);
+            $this->patchMetadata($url, ['overview' => '', 'release_year' => null])->assertRedirect($url);
             $this->assertNull($entry->fresh()->overview);
             $this->assertNull($entry->fresh()->tmdb_id);
             $this->assertSame('Conservar', $entry->ratings()->sole()->note);
 
             $other = Space::create(['name' => 'Otra '.$collection, 'owner_id' => $this->angel->id]);
             $other->members()->attach($this->angel->id);
-            $this->patch('/espacios/'.$other->id.'/'.($collection === 'movies' ? 'peliculas' : 'series').'/'.$entry->id, ['title' => 'Ajena'])->assertNotFound();
+            $this->patchMetadata('/espacios/'.$other->id.'/'.($collection === 'movies' ? 'peliculas' : 'series').'/'.$entry->id, ['title' => 'Ajena'])->assertNotFound();
             $other->members()->attach($this->alejandra->id);
-            $this->patch('/espacios/'.$other->id.'/'.($collection === 'movies' ? 'peliculas' : 'series').'/'.$entry->id, ['title' => 'Ajena'])->assertNotFound();
+            $this->patchMetadata('/espacios/'.$other->id.'/'.($collection === 'movies' ? 'peliculas' : 'series').'/'.$entry->id, ['title' => 'Ajena'])->assertNotFound();
             $this->assertSame('Corregida', $entry->fresh()->title);
 
-            $entry->update(['tmdb_id' => 999, 'overview' => 'Importada']);
-            $this->patch($url, ['title' => 'No guardar', 'overview' => 'Manual'])->assertSessionHasErrors('overview');
+            $entry->forceFill(['tmdb_id' => 999, 'overview' => 'Importada', 'catalog_fields' => ['title', 'overview']])->save();
+            $this->patchMetadata($url, ['title' => 'No guardar', 'overview' => 'Manual'])->assertSessionHasErrors('save');
             $this->assertSame('Corregida', $entry->fresh()->title);
             $this->assertSame('Importada', $entry->fresh()->overview);
         }
@@ -118,7 +118,7 @@ class MvpTest extends TestCase
                 }
             });
             try {
-                $this->actingAs($this->angel)->from($url)->patch($url, ['title' => 'Intento', 'overview' => 'Conservar en formulario'])
+                $this->actingAs($this->angel)->from($url)->patchMetadata($url, ['title' => 'Intento', 'overview' => 'Conservar en formulario'])
                     ->assertRedirect($url)->assertSessionHasErrors('save')->assertSessionHasInput('overview', 'Conservar en formulario');
                 $this->assertSame('Original', $entry->fresh()->title);
                 $this->assertNull($entry->fresh()->overview);
@@ -146,13 +146,13 @@ class MvpTest extends TestCase
                 ['user_id' => $this->alejandra->id, 'score' => 70, 'note' => 'Corregida'],
             ], $expected);
 
-            $this->patch($url, ['overview' => 'Manual', 'score' => 20, 'note' => 'No guardar', 'user_id' => $this->angel->id])->assertRedirect($url);
+            $this->patchMetadata($url, ['overview' => 'Manual', 'score' => 20, 'note' => 'No guardar', 'user_id' => $this->angel->id])->assertSessionHasErrors('save');
             $this->assertSame($expected, $entry->ratings()->orderBy('user_id')->get(['user_id', 'score', 'note'])->toArray());
             Http::fake(['api.themoviedb.org/3/*' => Http::response([
                 'id' => 123, 'title' => 'Ficha', 'name' => 'Ficha', 'release_date' => '2020-01-01', 'first_air_date' => '2020-01-01',
             ])]);
             $this->post($base, ['tmdb_id' => 123, 'candidate_id' => $entry->id])->assertRedirect($url);
-            $this->patch($url, ['watched_on' => '2024-02-01', 'score' => 1, 'note' => 'No guardar'])->assertRedirect($url);
+            $this->patchMetadata($url, ['watched_on' => '2024-02-01', 'score' => 1, 'note' => 'No guardar'])->assertSessionHasErrors('save');
             $this->assertSame($expected, $entry->ratings()->orderBy('user_id')->get(['user_id', 'score', 'note'])->toArray());
             foreach ([$this->angel, $this->alejandra] as $viewer) {
                 $this->actingAs($viewer)->get($url)->assertInertia(fn (Assert $page) => $page
@@ -251,16 +251,16 @@ class MvpTest extends TestCase
         $this->put($url.'/valoracion', ['score' => 0, 'note' => 'Nota A'])->assertRedirect($this->moviesUrl);
         $this->actingAs($this->alejandra)->put($url.'/valoracion', ['score' => 100, 'note' => 'Nota B'])->assertRedirect($this->moviesUrl);
         $this->put($url.'/valoracion', ['score' => 50, 'note' => null, 'user_id' => $this->angel->id])->assertSessionHasErrors('user_id');
-        $this->patch($url, ['title' => 'Alien: el octavo pasajero'])->assertRedirect($url);
-        $this->actingAs($this->angel)->patch($url, ['watched_on' => '2024-01-02'])->assertRedirect($url);
-        $this->actingAs($this->alejandra)->patch($url, ['watched_on' => '2024-01-03'])->assertRedirect($url);
+        $this->patchMetadata($url, ['title' => 'Alien: el octavo pasajero'])->assertRedirect($url);
+        $this->actingAs($this->angel)->patchMetadata($url, ['watched_on' => '2024-01-02'])->assertRedirect($url);
+        $this->actingAs($this->alejandra)->patchMetadata($url, ['watched_on' => '2024-01-03'])->assertRedirect($url);
         $this->get($url)->assertInertia(fn (Assert $page) => $page
             ->where('movie.title', 'Alien: el octavo pasajero')->where('movie.watched_on', '2024-01-03')
             ->where('movie.ratings.0.note', 'Nota A')->where('movie.ratings.1.note', 'Nota B'));
         $this->delete($url)->assertSessionHasErrors('confirmed');
         $this->assertDatabaseCount('movie_ratings', 2);
         $this->delete($url, ['confirmed' => true])->assertRedirect($this->moviesUrl);
-        $this->actingAs($this->angel)->patch($url, ['title' => 'Tarde'])->assertNotFound();
+        $this->actingAs($this->angel)->patchMetadata($url, ['title' => 'Tarde'])->assertNotFound();
         $this->assertDatabaseCount('movies', 0);
         $this->assertDatabaseCount('movie_ratings', 0);
     }

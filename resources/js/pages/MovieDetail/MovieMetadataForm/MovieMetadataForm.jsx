@@ -1,76 +1,82 @@
-// Edición de los datos compartidos de la ficha.
-
-import { useState } from "react";
+// Edición de los datos compartidos según la procedencia de cada campo.
 import { useForm } from "@inertiajs/react";
 import Field from "../../../components/Field/Field";
 
-export default function MovieMetadataForm({ movie, url, className }) {
-  const common = useForm({
-    title: movie.title,
-    release_year: movie.release_year ?? "",
-    watched_on: movie.watched_on,
-    ...(movie.tmdb_id === null ? { overview: movie.overview ?? "" } : {}),
-  });
-  const [savedCommon, setSavedCommon] = useState(common.data);
+const fields = [
+  { name: "title", label: "Título", required: true, maxLength: 255 },
+  {
+    name: "release_year",
+    label: "Año de estreno (opcional)",
+    type: "number",
+    min: 1000,
+    max: 9999,
+  },
+  {
+    name: "watched_on",
+    label: "Fecha de visionado",
+    type: "date",
+    required: true,
+  },
+  {
+    name: "overview",
+    label: "Sinopsis (opcional)",
+    multiline: true,
+    maxLength: 20000,
+  },
+];
+
+export default function MovieMetadataForm({
+  movie,
+  editableMetadata,
+  url,
+  className,
+}) {
+  const values = Object.fromEntries(
+    fields.map(({ name }) => [name, movie[name] ?? ""]),
+  );
+  const form = useForm(values);
+  const changes = Object.fromEntries(
+    Object.entries(form.data).filter(
+      ([name, value]) =>
+        editableMetadata.includes(name) && String(value) !== String(values[name]),
+    ),
+  );
 
   return (
-    <details className={className} open={common.hasErrors || undefined}>
+    <details className={className} open={form.hasErrors || undefined}>
       <summary>Editar datos comunes</summary>
+      <p>
+        Los datos del catálogo están protegidos. Puedes completar los que faltan y
+        corregir los añadidos a mano.
+      </p>
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          common.transform((data) =>
-            Object.fromEntries(
-              Object.entries(data).filter(
-                ([key, value]) => String(value) !== String(savedCommon[key]),
-              ),
-            ),
-          );
-          common.patch(url, {
-            preserveScroll: true,
-            onSuccess: () => setSavedCommon(common.data),
-          });
+          if (Object.keys(changes).length === 0) return;
+          form.transform(() => ({
+            ...changes,
+            metadata_version: movie.metadata_version,
+          }));
+          form.patch(url, { preserveScroll: true });
         }}
       >
-        <Field
-          label="Título"
-          required
-          maxLength={255}
-          value={common.data.title}
-          onChange={(event) => common.setData("title", event.target.value)}
-          error={common.errors.title}
-        />
-        <Field
-          label="Año de estreno (opcional)"
-          type="number"
-          min="1000"
-          max="9999"
-          value={common.data.release_year}
-          onChange={(event) =>
-            common.setData("release_year", event.target.value)
-          }
-          error={common.errors.release_year}
-        />
-        <Field
-          label="Fecha de visionado"
-          type="date"
-          required
-          value={common.data.watched_on}
-          onChange={(event) => common.setData("watched_on", event.target.value)}
-          error={common.errors.watched_on}
-        />
-        {movie.tmdb_id === null && (
+        {fields.map(({ name, ...field }) => (
           <Field
-            label="Sinopsis (opcional)"
-            multiline
-            maxLength={20000}
-            value={common.data.overview}
-            onChange={(event) => common.setData("overview", event.target.value)}
-            error={common.errors.overview}
+            key={name}
+            {...field}
+            disabled={!editableMetadata.includes(name) || form.processing}
+            value={editableMetadata.includes(name) ? form.data[name] : values[name]}
+            onChange={(event) => form.setData(name, event.target.value)}
+            error={form.errors[name]}
           />
+        ))}
+        {form.errors.save && <p role="alert">{form.errors.save}</p>}
+        {form.errors.metadata_version && (
+          <p role="alert">Recarga la ficha antes de guardar.</p>
         )}
-        {common.errors.save && <p role="alert">{common.errors.save}</p>}
-        <button disabled={common.processing}>Guardar datos comunes</button>
+        <button disabled={form.processing || Object.keys(changes).length === 0}>
+          Guardar datos comunes
+        </button>
       </form>
     </details>
   );

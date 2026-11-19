@@ -66,6 +66,7 @@ abstract class CollectionController extends Controller
         return Inertia::render('MovieDetail/MovieDetail', [
             'series' => static::SERIES, 'spaceId' => $space->id,
             'movie' => $movie->load('ratings'),
+            'editableMetadata' => $movie->editableMetadata(),
             'people' => $space->members()->orderBy('users.id')->get(['users.id', 'name'])->map->only(['id', 'name']),
             'viewerId' => $request->user()->id,
         ]);
@@ -86,6 +87,8 @@ abstract class CollectionController extends Controller
             return to_route(static::ROUTE.'.show', [$space, $existing]);
         }
 
+        $observedCandidate = ! empty($input['candidate_id']) && $tmdbId
+            ? $this->entries($space)->findOrFail($input['candidate_id']) : null;
         $metadata = $tmdbId
             ? $tmdb->find($tmdbId, static::SERIES)
             : $request->validate([
@@ -95,7 +98,7 @@ abstract class CollectionController extends Controller
         $year = $metadata['release_year'] ?? null;
 
         try {
-            return DB::transaction(function () use ($request, $space, $input, $tmdbId, $metadata, $year) {
+            return DB::transaction(function () use ($request, $space, $input, $tmdbId, $metadata, $year, $observedCandidate) {
                 $sameTitle = $this->entries($space)->when($tmdbId, fn ($query) => $query->whereNull('tmdb_id'))
                     ->orderBy('id')->get(['id', 'title', 'release_year', 'watched_on'])
                     ->filter(fn ($movie) => mb_strtolower($movie->title) === mb_strtolower($metadata['title']));
@@ -109,11 +112,20 @@ abstract class CollectionController extends Controller
 
                 if ($candidateId = $input['candidate_id'] ?? null) {
                     $candidate = $candidates->firstWhere('id', $candidateId);
-                    if ($candidate && (! $tmdbId || $this->entries($space)->whereKey($candidateId)->whereNull('tmdb_id')->update([
-                        'tmdb_id' => $tmdbId,
-                        'poster_path' => $metadata['poster_path'],
-                        'overview' => $metadata['overview'],
-                    ]))) {
+                    if ($candidate) {
+                        if ($tmdbId) {
+                            $fields = $observedCandidate::presentCatalogFields($metadata);
+                            $changes = array_intersect_key($metadata, array_flip($fields));
+                            $changes['tmdb_id'] = $tmdbId;
+                            $changes['catalog_fields'] = json_encode($fields, JSON_THROW_ON_ERROR);
+                            $changes['metadata_version'] = $observedCandidate->metadata_version + 1;
+                            $updated = $this->entries($space)->whereKey($candidateId)->whereNull('tmdb_id')
+                                ->where('metadata_version', $observedCandidate->metadata_version)->update($changes);
+                            if ($updated === 0) {
+                                throw ValidationException::withMessages(['match' => 'La ficha ha cambiado. Recárgala antes de vincular.']);
+                            }
+                        }
+
                         return to_route(static::ROUTE.'.show', [$space, $candidate]);
                     }
                 }
@@ -132,7 +144,8 @@ abstract class CollectionController extends Controller
                 $date = $request->validate([
                     'watched_on' => ($tmdbId ? 'nullable' : 'required').'|date_format:Y-m-d|before_or_equal:today',
                 ]);
-                $movie = $this->entries($space)->create($metadata + ['watched_on' => $date['watched_on'] ?? today()->toDateString()]);
+                $movie = $this->entries($space)->make($metadata + ['watched_on' => $date['watched_on'] ?? today()->toDateString()]);
+                $movie->forceFill(['catalog_fields' => $tmdbId ? $movie::presentCatalogFields($metadata) : [], 'metadata_version' => 0])->save();
 
                 return to_route(static::ROUTE.'.show', [$space, $movie]);
             });
@@ -141,7 +154,13 @@ abstract class CollectionController extends Controller
                 return to_route(static::ROUTE.'.show', [$space, $existing]);
             }
 
-            throw $exception;
+            report($exception);
+
+            throw ValidationException::withMessages(['save' => 'No se pudo guardar la ficha. Inténtalo de nuevo.']);
+        } catch (QueryException $error) {
+            report($error);
+
+            throw ValidationException::withMessages(['save' => 'No se pudo guardar la ficha. Inténtalo de nuevo.']);
         }
     }
 
@@ -149,16 +168,25 @@ abstract class CollectionController extends Controller
     {
         $movie = $this->entries($space)->findOrFail($entry);
 
-        if ($movie->tmdb_id !== null && $request->exists('overview')) {
-            throw ValidationException::withMessages(['overview' => 'La sinopsis del catálogo no se puede modificar.']);
+        $allowed = $movie->editableMetadata();
+        $protected = array_diff(array_keys($request->except(['_token', '_method', 'metadata_version'])), $allowed);
+        if ($protected !== []) {
+            throw ValidationException::withMessages(['save' => 'La solicitud contiene datos que no se pueden modificar.']);
         }
 
         $data = $request->validate([
+            'metadata_version' => 'required|integer|min:0',
             'title' => 'sometimes|required|string|max:255',
             'overview' => 'sometimes|nullable|string|max:20000',
             'release_year' => 'sometimes|nullable|integer|between:1000,9999',
             'watched_on' => 'sometimes|required|date_format:Y-m-d|before_or_equal:today',
         ]);
+        $version = (int) $data['metadata_version'];
+        unset($data['metadata_version']);
+        if ($version !== $movie->metadata_version) {
+            throw ValidationException::withMessages(['save' => 'La ficha ha cambiado. Recárgala antes de guardar.']);
+        }
+        $data = array_filter($data, fn ($value, $field) => (string) $movie->{$field} !== (string) $value, ARRAY_FILTER_USE_BOTH);
 
         $title = $data['title'] ?? $movie->title;
         $year = array_key_exists('release_year', $data) ? $data['release_year'] : $movie->release_year;
@@ -169,7 +197,16 @@ abstract class CollectionController extends Controller
         }
 
         try {
-            $movie->update($data);
+            if ($data !== []) {
+                $updated = $this->entries($space)->whereKey($entry)->where('metadata_version', $version)
+                    ->update($data + [
+                        'metadata_version' => $version + 1,
+                        'catalog_fields' => json_encode($movie->importedMetadata(), JSON_THROW_ON_ERROR),
+                    ]);
+                if ($updated === 0) {
+                    throw ValidationException::withMessages(['save' => 'La ficha ha cambiado. Recárgala antes de guardar.']);
+                }
+            }
         } catch (QueryException $error) {
             report($error);
 

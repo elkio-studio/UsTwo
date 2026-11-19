@@ -12,6 +12,7 @@ import styles from "./CollectionEntryDetail.module.css";
 
 export default function CollectionEntryDetail({
   movie,
+  editableMetadata,
   people,
   viewerId,
   spaceId,
@@ -35,7 +36,7 @@ export default function CollectionEntryDetail({
         className={styles.section}
       />
       <CollectionRatingForm ownRating={ownRating} url={url} className={styles.section} />
-      <MovieMetadataForm movie={movie} url={url} className={styles.section} />
+      <MovieMetadataForm movie={movie} editableMetadata={editableMetadata} url={url} className={styles.section} />
       <DeleteMovie item={item} url={url} className={styles.section} />
     </JournalLayout>
   );

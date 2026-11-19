@@ -7,6 +7,15 @@ use Illuminate\View\FileViewFinder;
 
 abstract class TestCase extends BaseTestCase
 {
+    protected function patchMetadata(string $url, array $data = [])
+    {
+        preg_match('~/espacios/\d+/(peliculas|series|lecturas)/(\d+)~', $url, $match);
+        $table = ['peliculas' => 'movies', 'series' => 'series', 'lecturas' => 'readings'][$match[1]];
+        $version = \Illuminate\Support\Facades\DB::table($table)->where('id', $match[2])->value('metadata_version') ?? 0;
+
+        return $this->patch($url, $data + ['metadata_version' => $version]);
+    }
+
     protected function setUp(): void
     {
         parent::setUp();

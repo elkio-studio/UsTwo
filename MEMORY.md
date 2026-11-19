@@ -2,11 +2,13 @@
 
 ## Foco actual
 
-La spec 027 está completada y verificada con `PASS` en
-`feat/proteger-aportaciones-personales`. Pendientes de autorización:
-commit, publicación, integración en dev y traslado de la spec a documentation.
-La web local y Vite se conservan activos. La política completa de catálogo
-de DT-007 sigue fuera del alcance de esta implementación.
+La spec 028 está completada y verificada con `PASS` en
+`feat/reglas-metadatos-catalogo`. Pendientes de autorización: commit,
+publicación, integración en dev y traslado de la documentación a documentation.
+Migración SQLite local aplicada con respaldo y datos previos conservados.
+PostgreSQL y producción no están verificados por las pruebas locales.
+El despliegue requiere su propia autorización y una ventana sin escrituras
+de metadatos. El agente no ha abierto el navegador.
 
 La especificación 009 «El recibidor» está completada y verificada en
 `feat/login-calido`. Las pruebas automatizadas y la comprobación manual

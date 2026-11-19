@@ -8,14 +8,12 @@ const fields = [
   { name: "description", label: "Descripción", multiline: true, maxLength: 20000 },
 ];
 
-export default function ReadingMetadataForm({ reading, url, className }) {
+export default function ReadingMetadataForm({ reading, editableMetadata, url, className }) {
   const original = Object.fromEntries(
     fields.map(({ name }) => [name, reading[name] ?? ""]),
   );
   const form = useForm(original);
-  const catalog = reading.provider !== null;
-  const isEditable = (name) =>
-    !catalog || (name !== "title" && reading[name] === null);
+  const isEditable = (name) => editableMetadata.includes(name);
   const changes = Object.fromEntries(
     Object.entries(form.data).filter(
       ([name, value]) => isEditable(name) && value !== original[name],
@@ -25,11 +23,18 @@ export default function ReadingMetadataForm({ reading, url, className }) {
   return (
     <details className={className} open={form.hasErrors || undefined}>
       <summary>Editar datos comunes</summary>
+      <p>
+        Los datos del catálogo están protegidos. Puedes completar los que faltan y
+        corregir los añadidos a mano.
+      </p>
       <form
         onSubmit={(event) => {
           event.preventDefault();
           if (Object.keys(changes).length === 0) return;
-          form.transform(() => changes);
+          form.transform(() => ({
+            ...changes,
+            metadata_version: reading.metadata_version,
+          }));
           form.patch(url, { preserveScroll: true });
         }}
       >
@@ -47,6 +52,9 @@ export default function ReadingMetadataForm({ reading, url, className }) {
           />
         ))}
         {form.errors.save && <p role="alert">{form.errors.save}</p>}
+        {form.errors.metadata_version && (
+          <p role="alert">Recarga la ficha antes de guardar.</p>
+        )}
         <button disabled={form.processing || Object.keys(changes).length === 0}>
           Guardar datos comunes
         </button>

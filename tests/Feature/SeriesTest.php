@@ -76,7 +76,7 @@ class SeriesTest extends TestCase
         $other->members()->attach($this->guest->id);
         $this->space->members()->attach($this->guest->id);
         $this->get('/espacios/'.$other->id.'/series/'.$series->id)->assertNotFound();
-        $this->patch($detail, ['title' => 'Editada'])->assertRedirect($detail);
+        $this->patchMetadata($detail, ['title' => 'Editada'])->assertRedirect($detail);
         $this->put($detail.'/valoracion', ['score' => 101, 'note' => null])->assertSessionHasErrors('score');
         $this->put($detail.'/valoracion', ['score' => 90, 'note' => null, 'user_id' => $this->owner->id])->assertSessionHasErrors('user_id');
         $this->put($detail.'/valoracion', ['score' => 90, 'note' => null])->assertRedirect($this->url);

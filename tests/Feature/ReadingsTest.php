@@ -212,12 +212,12 @@ class ReadingsTest extends TestCase
         $member = $this->account();
         [$reading, $url, $entry] = $this->savedReading($member);
         $this->withoutVite();
-        $this->actingAs($member)->from($entry)->patch($entry, [
+        $this->actingAs($member)->from($entry)->patchMetadata($entry, [
             'title' => ' ', 'description' => 'Cambio que no debe guardarse',
         ])->assertSessionHasErrors('title');
         $this->assertDatabaseHas('readings', ['id' => $reading->id, 'title' => 'Ficha original', 'description' => null]);
 
-        $this->patch($entry, [
+        $this->patchMetadata($entry, [
             'title' => 'Nueva   ficha', 'author' => 'Una autora',
             'publication_date' => '2020-09-14', 'description' => 'Sinopsis nueva',
         ])->assertRedirect($entry);
@@ -241,14 +241,14 @@ class ReadingsTest extends TestCase
             $member = $this->account($category);
             [$reading, $url, $entry] = $this->savedReading($member, ['category' => $category]);
             $reading->ratings()->create(['user_id' => $member->id, 'score' => 70, 'note' => 'Personal']);
-            $this->actingAs($member)->from($entry)->patch($entry, [
+            $this->actingAs($member)->from($entry)->patchMetadata($entry, [
                 'author' => 'Autora', 'publication_date' => '2020-01-02', 'description' => str_repeat('a', 20000),
             ])->assertRedirect($entry);
             $this->assertSame(20000, strlen($reading->fresh()->description));
-            $this->patch($entry, ['author' => 'No guardar', 'description' => str_repeat('a', 20001)])
+            $this->patchMetadata($entry, ['author' => 'No guardar', 'description' => str_repeat('a', 20001)])
                 ->assertSessionHasErrors('description');
             $this->assertSame('Autora', $reading->fresh()->author);
-            $this->patch($entry, ['author' => '', 'publication_date' => '', 'description' => ''])->assertRedirect($entry);
+            $this->patchMetadata($entry, ['author' => '', 'publication_date' => '', 'description' => ''])->assertRedirect($entry);
             $this->assertNull($reading->fresh()->author);
             $this->assertNull($reading->fresh()->publication_date);
             $this->assertNull($reading->fresh()->description);
@@ -266,19 +266,19 @@ class ReadingsTest extends TestCase
         [$reading, , $entry] = $this->savedReading($member, [
             'author' => 'Autoría importada', 'provider' => 'manga_updates', 'external_id' => '27', 'record_type' => 'series',
         ]);
-        $this->actingAs($member)->from($entry)->patch($entry, [
+        $this->actingAs($member)->from($entry)->patchMetadata($entry, [
             'author' => 'Otro autor', 'description' => 'Sinopsis no guardada',
         ])->assertSessionHasErrors('save');
-        $this->patch($entry, ['external_id' => '28'])->assertSessionHasErrors('save');
-        $this->patch($entry, ['title' => 'Título distinto'])->assertSessionHasErrors('save');
+        $this->patchMetadata($entry, ['external_id' => '28'])->assertSessionHasErrors('save');
+        $this->patchMetadata($entry, ['title' => 'Título distinto'])->assertSessionHasErrors('save');
         $this->assertDatabaseHas('readings', [
             'id' => $reading->id, 'author' => 'Autoría importada', 'description' => null, 'external_id' => '27',
         ]);
-        $this->patch($entry, ['description' => 'Sinopsis añadida', 'publication_date' => '2021-04-21'])
+        $this->patchMetadata($entry, ['description' => 'Segunda sinopsis', 'publication_date' => '2021-04-21'])
             ->assertRedirect($entry);
-        $this->patch($entry, ['description' => 'Segunda sinopsis'])->assertSessionHasErrors('save');
+        $this->patchMetadata($entry, ['description' => 'Segunda sinopsis'])->assertRedirect($entry);
         $this->assertDatabaseHas('readings', [
-            'id' => $reading->id, 'description' => 'Sinopsis añadida', 'publication_date' => '2021-04-21',
+            'id' => $reading->id, 'description' => 'Segunda sinopsis', 'publication_date' => '2021-04-21',
             'provider' => 'manga_updates', 'record_type' => 'series', 'external_id' => '27',
         ]);
     }
@@ -294,17 +294,17 @@ class ReadingsTest extends TestCase
         $this->actingAs($member)->get($entry)->assertInertia(fn (Assert $page) => $page
             ->component('Readings/Detail')
             ->where('reading.provider', 'open_library')->where('reading.external_id', null));
-        $this->from($entry)->patch($entry, ['author' => 'Cambio', 'description' => 'No se guarda'])
+        $this->from($entry)->patchMetadata($entry, ['author' => 'Cambio', 'description' => 'No se guarda'])
             ->assertSessionHasErrors('save');
         $this->assertDatabaseHas('readings', ['id' => $reading->id, 'author' => 'Autoría importada', 'description' => null]);
-        $this->patch($entry, ['description' => 'Sinopsis añadida'])->assertRedirect($entry);
+        $this->patchMetadata($entry, ['description' => 'Sinopsis añadida'])->assertRedirect($entry);
         $this->assertDatabaseHas('readings', [
             'id' => $reading->id, 'provider' => 'open_library', 'record_type' => 'work',
             'external_id' => null, 'description' => 'Sinopsis añadida',
         ]);
         $other = $this->shelf('Otra', $member).'/'.$reading->id;
         $this->get($other)->assertNotFound();
-        $this->patch($other, ['description' => 'Otro cambio'])->assertNotFound();
+        $this->patchMetadata($other, ['description' => 'Otro cambio'])->assertNotFound();
     }
 
     public function test_filling_catalog_fields_rejects_a_conflicting_write_without_partial_changes(): void
@@ -315,11 +315,11 @@ class ReadingsTest extends TestCase
         DB::connection()->beforeExecuting(function ($sql) use (&$interleaved, $reading): void {
             if (! $interleaved && str_starts_with($sql, 'update "readings"')) {
                 $interleaved = true;
-                Reading::whereKey($reading->id)->update(['author' => 'Otra persona']);
+                Reading::whereKey($reading->id)->update(['author' => 'Otra persona', 'metadata_version' => 1]);
             }
         });
 
-        $this->actingAs($member)->from($entry)->patch($entry, [
+        $this->actingAs($member)->from($entry)->patchMetadata($entry, [
             'author' => 'Mi autor', 'description' => 'Sinopsis no guardada',
         ])->assertSessionHasErrors('save');
         $this->assertTrue($interleaved);
@@ -331,11 +331,11 @@ class ReadingsTest extends TestCase
         $member = $this->account();
         [$reading, $url, $entry] = $this->savedReading($member, ['category' => 'comics']);
         $other = $this->shelf('Otra', $member).'/'.$reading->id;
-        $this->patch($entry, ['title' => 'Otro'])->assertRedirect('/acceso');
+        $this->patchMetadata($entry, ['title' => 'Otro'])->assertRedirect('/acceso');
         $this->delete($entry, ['confirmed' => true])->assertRedirect('/acceso');
-        $this->actingAs($this->account('ale'))->patch($entry, ['title' => 'Otro'])->assertNotFound();
+        $this->actingAs($this->account('ale'))->patchMetadata($entry, ['title' => 'Otro'])->assertNotFound();
         $this->delete($entry, ['confirmed' => true])->assertNotFound();
-        $this->actingAs($member)->patch($other, ['title' => 'Otro'])->assertNotFound();
+        $this->actingAs($member)->patchMetadata($other, ['title' => 'Otro'])->assertNotFound();
         $this->delete($other, ['confirmed' => true])->assertNotFound();
         $this->from($entry)->delete($entry, ['confirmed' => false])->assertSessionHasErrors('confirmed');
         $this->assertDatabaseHas('readings', ['id' => $reading->id, 'title' => 'Ficha original']);
@@ -357,7 +357,7 @@ class ReadingsTest extends TestCase
             }
         });
 
-        $this->actingAs($member)->from($entry)->patch($entry, ['title' => 'Cambio'])
+        $this->actingAs($member)->from($entry)->patchMetadata($entry, ['title' => 'Cambio'])
             ->assertRedirect($entry)->assertSessionHasErrors('save')->assertSessionHasInput('title', 'Cambio');
         $this->delete($entry, ['confirmed' => true])->assertRedirect($entry)->assertSessionHasErrors('delete');
         $this->assertDatabaseHas('readings', ['id' => $reading->id, 'title' => 'Ficha original']);
@@ -451,10 +451,10 @@ class ReadingsTest extends TestCase
                         ->assertRedirect($url.'?category='.$category);
                 }
                 $expected = $reading->ratings()->orderBy('user_id')->get(['user_id', 'score', 'note'])->toArray();
-                $this->patch($entry, ['author' => 'Autoría', 'score' => 1, 'note' => 'Manipulada', 'user_id' => $owner->id])
+                $this->patchMetadata($entry, ['author' => 'Autoría', 'score' => 1, 'note' => 'Manipulada', 'user_id' => $owner->id])
                     ->assertSessionHasErrors('save');
                 $this->assertNull($reading->fresh()->author);
-                $this->patch($entry, ['author' => 'Autoría'])->assertRedirect($entry);
+                $this->patchMetadata($entry, ['author' => 'Autoría'])->assertRedirect($entry);
                 $this->assertSame($expected, $reading->ratings()->orderBy('user_id')->get(['user_id', 'score', 'note'])->toArray());
                 $this->put($entry.'/valoracion', ['score' => 10, 'note' => 'Manipulada', 'user_id' => $owner->id])
                     ->assertSessionHasErrors('user_id');
