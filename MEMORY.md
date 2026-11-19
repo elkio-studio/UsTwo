@@ -2,6 +2,11 @@
 
 ## Foco actual
 
+La spec 025 y DT-007 están preparadas en `docs/edicion-metadatos`.
+Pendiente de commit, publicación, integración en dev y traslado de la
+documentación a `documentation`, sujetos a autorización específica.
+La política no se ha aplicado al código ni a las bases de datos.
+
 La especificación 009 «El recibidor» está completada y verificada en
 `feat/login-calido`. Las pruebas automatizadas y la comprobación manual
 del desarrollador constan en las tareas de la spec.

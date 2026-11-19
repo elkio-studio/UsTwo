@@ -130,6 +130,29 @@ presentar alternativas, pero no elegir ni implementar una de ellas.
 - Despliegue: [007-despliegue-render/spec.md](specs/ep-00-base-proyecto/007-despliegue-render/spec.md).
 - Especificación: [005-mvp-ustwo/spec.md](specs/ep-00-base-proyecto/005-mvp-ustwo/spec.md).
 
+### DT-007 — Edición según procedencia de los metadatos
+
+- Fecha: 2026-11-19.
+- Estado: política y plan aprobados por Ángel. Entrega documental; su
+  aplicación al código corresponde a historias posteriores.
+- Contexto: unificar las reglas de Películas, Series y Lecturas sin
+  confundir el origen de la ficha con la procedencia de cada campo.
+- Decisión: proteger los valores importados; permitir completar campos
+  ausentes y corregir después esas aportaciones manuales. Las fichas
+  manuales mantienen la edición. Las notas y puntuaciones personales
+  conservan su autoría y no se alteran al editar metadatos compartidos.
+- Vinculación: prevalece el valor del catálogo y queda protegido. Si no
+  devuelve un dato previamente escrito a mano, este se conserva editable.
+- Compatibilidad: Ángel confirma que las fichas de catálogo existentes en
+  producción no contienen metadatos manuales; sus valores se pueden
+  clasificar como importados. Se conservan fichas, IDs y valoraciones.
+- Límites: portadas ausentes con reemplazo; añadir portadas manuales se
+  definirá aparte. No autoriza borrar datos, migrar ni elegir el mecanismo
+  de persistencia de la procedencia por campo. El código actual aún no
+  aplica toda esta política.
+- Inventario, excepciones y casos:
+  [spec 025](specs/ep-06-gestion-contenido-metadatos/025-edicion-metadatos/spec.md).
+
 Cuando se apruebe una decisión relevante, se añadirá aquí de forma concisa con:
 
 - identificador y título;
