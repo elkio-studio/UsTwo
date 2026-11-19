@@ -433,6 +433,45 @@ class ReadingsTest extends TestCase
             ->assertRedirect($url.'?category=comics');
     }
 
+    public function test_every_reading_category_preserves_both_authors_when_metadata_requests_include_personal_fields(): void
+    {
+        $this->withoutVite();
+        foreach (['books', 'manga', 'comics'] as $category) {
+            foreach ([false, true] as $catalog) {
+                $suffix = $category.($catalog ? 'catalog' : 'manual');
+                $owner = $this->account($suffix);
+                $member = $this->account($suffix.'other');
+                [$reading, $url, $entry] = $this->savedReading($owner, [
+                    'category' => $category, 'provider' => $catalog ? 'open_library' : null,
+                ]);
+                $space = $owner->spaces()->firstOrFail();
+                $space->members()->attach($member);
+                foreach ([$owner, $member] as $author) {
+                    $this->actingAs($author)->put($entry.'/valoracion', ['score' => 75, 'note' => $author->name])
+                        ->assertRedirect($url.'?category='.$category);
+                }
+                $expected = $reading->ratings()->orderBy('user_id')->get(['user_id', 'score', 'note'])->toArray();
+                $this->patch($entry, ['author' => 'Autoría', 'score' => 1, 'note' => 'Manipulada', 'user_id' => $owner->id])
+                    ->assertSessionHasErrors('save');
+                $this->assertNull($reading->fresh()->author);
+                $this->patch($entry, ['author' => 'Autoría'])->assertRedirect($entry);
+                $this->assertSame($expected, $reading->ratings()->orderBy('user_id')->get(['user_id', 'score', 'note'])->toArray());
+                $this->put($entry.'/valoracion', ['score' => 10, 'note' => 'Manipulada', 'user_id' => $owner->id])
+                    ->assertSessionHasErrors('user_id');
+                $this->put($entry.'/valoracion', ['score' => 80, 'note' => 'Propia', 'id' => $reading->ratings()->where('user_id', $owner->id)->value('id')])
+                    ->assertRedirect($url.'?category='.$category);
+                $this->assertSame(2, $reading->ratings()->count());
+                $this->assertSame($owner->name, $reading->ratings()->where('user_id', $owner->id)->sole()->note);
+                $this->assertSame('Propia', $reading->ratings()->where('user_id', $member->id)->sole()->note);
+                $this->get($entry)->assertInertia(fn (Assert $page) => $page
+                    ->where('viewerId', $member->id)->has('reading.ratings', 2));
+                $crossed = $this->shelf('Otra', $owner).'/'.$reading->id.'/valoracion';
+                $this->actingAs($owner)->put($crossed, ['score' => 1, 'note' => 'Ajena'])->assertNotFound();
+                $this->assertSame($owner->name, $reading->ratings()->where('user_id', $owner->id)->sole()->note);
+            }
+        }
+    }
+
     public function test_reading_rating_write_failure_keeps_the_previous_rating_and_input(): void
     {
         $owner = $this->account();

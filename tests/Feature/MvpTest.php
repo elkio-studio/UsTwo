@@ -128,6 +128,87 @@ class MvpTest extends TestCase
         }
     }
 
+    public function test_movie_and_series_ratings_stay_with_their_author_through_metadata_changes_and_linking(): void
+    {
+        config(['services.tmdb.token' => 'test-token']);
+        foreach (['movies' => 'peliculas', 'series' => 'series'] as $collection => $path) {
+            $entry = $this->space->{$collection}()->create(['title' => 'Ficha', 'release_year' => 2020, 'watched_on' => '2024-01-01']);
+            $base = '/espacios/'.$this->space->id.'/'.$path;
+            $url = $base.'/'.$entry->id;
+            $ratingUrl = $url.'/valoracion';
+            $this->actingAs($this->angel)->put($ratingUrl, ['score' => 0, 'note' => 'Ángel'])->assertRedirect($base);
+            $this->actingAs($this->alejandra)->put($ratingUrl, ['score' => 100, 'note' => 'Ale'])->assertRedirect($base);
+            $this->put($ratingUrl, ['score' => 70, 'note' => 'Corregida', 'id' => $entry->ratings()->where('user_id', $this->angel->id)->value('id')])->assertRedirect($base);
+            $this->put($ratingUrl, ['score' => 10, 'note' => 'Suplantada', 'user_id' => $this->angel->id])->assertSessionHasErrors('user_id');
+            $expected = $entry->ratings()->orderBy('user_id')->get(['user_id', 'score', 'note'])->toArray();
+            $this->assertSame([
+                ['user_id' => $this->angel->id, 'score' => 0, 'note' => 'Ángel'],
+                ['user_id' => $this->alejandra->id, 'score' => 70, 'note' => 'Corregida'],
+            ], $expected);
+
+            $this->patch($url, ['overview' => 'Manual', 'score' => 20, 'note' => 'No guardar', 'user_id' => $this->angel->id])->assertRedirect($url);
+            $this->assertSame($expected, $entry->ratings()->orderBy('user_id')->get(['user_id', 'score', 'note'])->toArray());
+            Http::fake(['api.themoviedb.org/3/*' => Http::response([
+                'id' => 123, 'title' => 'Ficha', 'name' => 'Ficha', 'release_date' => '2020-01-01', 'first_air_date' => '2020-01-01',
+            ])]);
+            $this->post($base, ['tmdb_id' => 123, 'candidate_id' => $entry->id])->assertRedirect($url);
+            $this->patch($url, ['watched_on' => '2024-02-01', 'score' => 1, 'note' => 'No guardar'])->assertRedirect($url);
+            $this->assertSame($expected, $entry->ratings()->orderBy('user_id')->get(['user_id', 'score', 'note'])->toArray());
+            foreach ([$this->angel, $this->alejandra] as $viewer) {
+                $this->actingAs($viewer)->get($url)->assertInertia(fn (Assert $page) => $page
+                    ->where('viewerId', $viewer->id)->has('movie.ratings', 2));
+            }
+
+            $other = Space::create(['name' => 'Otra '.$collection, 'owner_id' => $this->angel->id]);
+            $other->members()->attach($this->angel->id);
+            $crossed = '/espacios/'.$other->id.'/'.$path.'/'.$entry->id.'/valoracion';
+            $this->put($crossed, ['score' => 1, 'note' => 'Ajena'])->assertNotFound();
+            $other->members()->attach($this->alejandra->id);
+            $this->put($crossed, ['score' => 1, 'note' => 'Ajena'])->assertNotFound();
+            $this->space->members()->detach($this->alejandra->id);
+            $this->put($ratingUrl, ['score' => 1, 'note' => 'Ajena'])->assertNotFound();
+            $this->space->members()->attach($this->alejandra->id);
+            $this->assertSame($expected, $entry->ratings()->orderBy('user_id')->get(['user_id', 'score', 'note'])->toArray());
+            $this->actingAs($this->angel)->put($ratingUrl, ['score' => null, 'note' => null])->assertRedirect($base);
+            $this->assertSame(2, $entry->ratings()->count());
+            $this->assertNull($entry->ratings()->where('user_id', $this->angel->id)->sole()->score);
+            $this->assertSame('Corregida', $entry->ratings()->where('user_id', $this->alejandra->id)->sole()->note);
+        }
+    }
+
+    public function test_movie_and_series_rating_errors_preserve_both_authors_and_input(): void
+    {
+        foreach (['movies' => 'peliculas', 'series' => 'series'] as $collection => $path) {
+            $entry = $this->space->{$collection}()->create(['title' => 'Ficha', 'watched_on' => '2024-01-01']);
+            foreach ([$this->angel, $this->alejandra] as $person) {
+                $entry->ratings()->create(['user_id' => $person->id, 'score' => 65, 'note' => 'Anterior']);
+            }
+            $url = '/espacios/'.$this->space->id.'/'.$path.'/'.$entry->id;
+            $ratingUrl = $url.'/valoracion';
+            $this->actingAs($this->angel)->from($url);
+            $this->put($ratingUrl, ['score' => 100, 'note' => str_repeat('a', 5000)])->assertRedirect();
+            $before = $entry->ratings()->orderBy('user_id')->get(['user_id', 'score', 'note'])->toArray();
+            foreach ([['score' => -1, 'note' => null], ['score' => 101, 'note' => null], ['score' => 4.5, 'note' => null], ['score' => 80, 'note' => str_repeat('a', 5001)]] as $invalid) {
+                $this->put($ratingUrl, $invalid)->assertSessionHasErrors();
+                $this->assertSame($before, $entry->ratings()->orderBy('user_id')->get(['user_id', 'score', 'note'])->toArray());
+            }
+            $fail = true;
+            $table = $collection === 'movies' ? 'movie_ratings' : 'series_ratings';
+            DB::connection()->beforeExecuting(function ($sql) use ($table, &$fail) {
+                if ($fail && str_starts_with($sql, 'insert into "'.$table.'"')) {
+                    throw new QueryException('sqlite', $sql, [], new \RuntimeException('Fallo simulado'));
+                }
+            });
+            try {
+                $this->put($ratingUrl, ['score' => 80, 'note' => 'Borrador'])->assertRedirect($url)
+                    ->assertSessionHasErrors('save')->assertSessionHasInput('note', 'Borrador');
+                $this->assertSame($before, $entry->ratings()->orderBy('user_id')->get(['user_id', 'score', 'note'])->toArray());
+            } finally {
+                $fail = false;
+            }
+        }
+    }
+
     public function test_manual_candidates_require_confirmation_and_allow_distinct_films(): void
     {
         $movie = $this->space->movies()->create(['title' => 'Crash', 'watched_on' => '2024-01-01']);

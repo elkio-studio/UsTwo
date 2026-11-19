@@ -189,11 +189,17 @@ abstract class CollectionController extends Controller
             'user_id' => 'prohibited',
         ])->validate();
 
-        $movie->ratings()->upsert(
-            [['user_id' => $request->user()->id] + $data],
-            [static::FOREIGN_KEY, 'user_id'],
-            ['score', 'note'],
-        );
+        try {
+            $movie->ratings()->upsert(
+                [['user_id' => $request->user()->id] + $data],
+                [static::FOREIGN_KEY, 'user_id'],
+                ['score', 'note'],
+            );
+        } catch (QueryException $error) {
+            report($error);
+
+            throw ValidationException::withMessages(['save' => 'No se pudo guardar la valoración. Inténtalo de nuevo.']);
+        }
 
         return to_route(static::ROUTE.'.index', $space);
     }
