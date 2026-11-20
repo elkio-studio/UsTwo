@@ -180,7 +180,16 @@ class CatalogMetadataTest extends TestCase
 
     public function test_migration_classifies_existing_records_without_changing_values_or_ratings(): void
     {
-        $this->assertSame(':memory:', DB::connection()->getDatabaseName());
+        $connection = DB::connection();
+        $isolatedSqlite = $connection->getDriverName() === 'sqlite'
+            && $connection->getDatabaseName() === ':memory:';
+        $isolatedPostgres = $connection->getDriverName() === 'pgsql'
+            && $connection->getDatabaseName() === 'ustwo_ci'
+            && $connection->getConfig('host') === '127.0.0.1'
+            && (int) $connection->getConfig('port') === 55432
+            && $connection->getConfig('username') === 'ustwo_ci';
+        $this->assertTrue(app()->environment('testing') && ($isolatedSqlite || $isolatedPostgres),
+            'La prueba de migración requiere SQLite en memoria o el PostgreSQL aislado de phpunit.pgsql.xml.');
         $migration = require database_path('migrations/2026_11_19_000011_add_catalog_metadata_provenance.php');
         $migration->down();
         $snapshots = [];
