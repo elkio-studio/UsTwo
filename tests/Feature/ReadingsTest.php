@@ -9,6 +9,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -190,6 +191,38 @@ class ReadingsTest extends TestCase
             ->assertExactJson(['items' => [], 'hasMore' => false]);
         $this->getJson($url.'/catalogo?category=manga&q=Naruto')->assertUnprocessable()->assertJsonValidationErrors('catalog');
         $this->post($url, ['category' => 'manga', 'title' => 'Naruto'])->assertRedirect($url.'?category=manga');
+    }
+
+    public function test_catalog_failures_log_only_safe_diagnostics_and_preserve_the_public_error(): void
+    {
+        $member = $this->account();
+        $url = $this->shelf('Casa', $member);
+        $this->actingAs($member);
+        $logger = \Mockery::mock(\Psr\Log\LoggerInterface::class);
+        Log::shouldReceive('channel')->with('stderr')->andReturn($logger);
+        $cases = [
+            ['reason' => 'connection', 'details' => ['curl_code' => 28]],
+            ['reason' => 'http', 'details' => ['status' => 503]],
+            ['reason' => 'http', 'details' => ['status' => 302]],
+            ['reason' => 'invalid_response', 'details' => ['status' => 200]],
+        ];
+        Http::fake(['openlibrary.org/*' => Http::sequence()
+            ->pushFailedConnection('cURL error 28: private-query-and-key')
+            ->push('private-provider-body', 503)
+            ->push('', 302, ['Location' => 'https://example.test/private-query-and-key'])
+            ->push('private-provider-body', 200),
+        ]);
+        foreach ($cases as $case) {
+            $logger->shouldReceive('warning')->once()->with('Reading catalog request failed', \Mockery::on(function ($context) use ($case) {
+                return $context['host'] === 'openlibrary.org'
+                    && $context['reason'] === $case['reason']
+                    && is_int($context['elapsed_ms']) && $context['elapsed_ms'] >= 0
+                    && array_diff_key($context, array_flip(['host', 'reason', 'elapsed_ms', ...array_keys($case['details'])])) === []
+                    && array_intersect_key($context, $case['details']) === $case['details'];
+            }));
+            $this->getJson($url.'/catalogo/ficha?category=books&id=OL1W')->assertUnprocessable()
+                ->assertJsonPath('errors.catalog.0', 'El catálogo no está disponible.');
+        }
     }
 
     public function test_save_failure_returns_a_form_error_and_keeps_input(): void

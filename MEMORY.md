@@ -2,13 +2,17 @@
 
 ## Foco actual
 
-La spec 028 está completada y verificada con `PASS` en
-`feat/reglas-metadatos-catalogo`. Pendientes de autorización: commit,
-publicación, integración en dev y traslado de la documentación a documentation.
-Migración SQLite local aplicada con respaldo y datos previos conservados.
-PostgreSQL y producción no están verificados por las pruebas locales.
-El despliegue requiere su propia autorización y una ventana sin escrituras
-de metadatos. El agente no ha abierto el navegador.
+Investigación Open Library en `fix/diagnostico-open-library`, sin publicar.
+Desde Brave la petición de producción falla tras unos 3,33 s. La consulta
+pública por IPv4 responde 200 en menos de 1 s; el cliente PHP local con su
+certificado configurado recupera la ficha en 1,3 s. Causa exacta en Render
+pendiente: no hay acceso de terminal/API a ese servicio en este entorno.
+Preparado diagnóstico seguro en stderr con host, motivo, duración y código
+cURL/HTTP, sin consultas, claves, respuestas ni texto de excepciones.
+Suite SQLite: 68 pruebas, 2 001 aserciones, 0 fallos, 2 omisiones PostgreSQL.
+No se han cambiado tiempos de espera, TLS ni lógica pública. Pendientes de
+autorización: commit y publicación del diagnóstico; se necesita observar
+el fallo desde Render antes de elegir una corrección de conectividad.
 
 La especificación 009 «El recibidor» está completada y verificada en
 `feat/login-calido`. Las pruebas automatizadas y la comprobación manual

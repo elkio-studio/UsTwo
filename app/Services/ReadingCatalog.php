@@ -5,6 +5,7 @@ namespace App\Services;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class ReadingCatalog
@@ -222,23 +223,42 @@ class ReadingCatalog
 
     private function request(string $url, array $data = [], bool $post = false): array
     {
+        $started = hrtime(true);
         try {
             $client = Http::acceptJson()->withUserAgent('UsTwo/1.0')->connectTimeout(3)->timeout(6)
                 ->withoutRedirecting();
             $response = $post ? $client->post($url, $data) : $client->get($url, $data);
-        } catch (ConnectionException) {
+        } catch (ConnectionException $error) {
+            preg_match('/\bcURL error (\d{1,3})\b/', $error->getMessage(), $match);
+            $code = isset($match[1]) ? (int) $match[1] : null;
+            $this->logFailure($url, $started, 'connection', ['curl_code' => $code]);
             $this->unavailable();
         }
 
         if ($response->status() === 429) {
+            $this->logFailure($url, $started, 'rate_limit', ['status' => 429]);
             $this->unavailable('El catálogo ha alcanzado su límite. Inténtalo más tarde.');
         }
         $result = $response->json();
         if (! $response->successful() || ! is_array($result)) {
+            $this->logFailure($url, $started, $response->successful() ? 'invalid_response' : 'http', [
+                'status' => $response->status(),
+            ]);
             $this->unavailable();
         }
 
         return $result;
+    }
+
+    private function logFailure(string $url, int $started, string $reason, array $details): void
+    {
+        // Solo etiquetas y números: las URLs y excepciones pueden contener claves.
+        Log::channel('stderr')->warning('Reading catalog request failed', [
+            'host' => parse_url($url, PHP_URL_HOST),
+            'reason' => $reason,
+            'elapsed_ms' => (int) round((hrtime(true) - $started) / 1_000_000),
+            ...$details,
+        ]);
     }
 
     private function unavailable(string $message = 'El catálogo no está disponible.'): never
