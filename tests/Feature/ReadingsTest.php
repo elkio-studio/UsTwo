@@ -201,7 +201,7 @@ class ReadingsTest extends TestCase
         $logger = \Mockery::mock(\Psr\Log\LoggerInterface::class);
         Log::shouldReceive('channel')->with('stderr')->andReturn($logger);
         $cases = [
-            ['reason' => 'connection', 'details' => ['curl_code' => 28]],
+            ['reason' => 'connection', 'details' => ['curl_code' => 28, 'transport' => ['timings_available' => false]]],
             ['reason' => 'http', 'details' => ['status' => 503]],
             ['reason' => 'http', 'details' => ['status' => 302]],
             ['reason' => 'invalid_response', 'details' => ['status' => 200]],
@@ -220,6 +220,48 @@ class ReadingsTest extends TestCase
                     && array_diff_key($context, array_flip(['host', 'reason', 'elapsed_ms', ...array_keys($case['details'])])) === []
                     && array_intersect_key($context, $case['details']) === $case['details'];
             }));
+            $this->getJson($url.'/catalogo/ficha?category=books&id=OL1W')->assertUnprocessable()
+                ->assertJsonPath('errors.catalog.0', 'El catálogo no está disponible.');
+        }
+    }
+
+    public function test_connection_diagnostics_capture_only_numeric_transport_milestones(): void
+    {
+        $member = $this->account();
+        $url = $this->shelf('Casa', $member);
+        $this->actingAs($member);
+        $logger = \Mockery::mock(\Psr\Log\LoggerInterface::class);
+        Log::shouldReceive('channel')->with('stderr')->andReturn($logger);
+        $cases = [
+            ['namelookup_time' => 0.0, 'connect_time' => 0.0, 'appconnect_time' => 0.0],
+            ['namelookup_time' => 0.003, 'connect_time' => 0.0, 'appconnect_time' => 0.0],
+            ['namelookup_time' => 0.003, 'connect_time' => 0.04, 'appconnect_time' => 0.0],
+            ['namelookup_time' => 0.003, 'connect_time' => 0.04, 'appconnect_time' => 0.1],
+        ];
+        $queue = $cases;
+        Http::fake(function ($request, $options) use (&$queue) {
+            $stats = array_shift($queue) + [
+                'starttransfer_time' => 0.0, 'total_time' => 3.0,
+                'url' => 'https://example.test/private-key-and-query',
+                'primary_ip' => '192.0.2.1', 'request_header' => 'private-key-and-query',
+            ];
+            ($options['on_stats'])(new \GuzzleHttp\TransferStats($request->toPsrRequest(), null, 3.0, 28, $stats));
+
+            return Http::failedConnection('cURL error 28: private-key-and-query')($request);
+        });
+        foreach ($cases as $case) {
+            $expected = [
+                'timings_available' => true,
+                'dns_completed_ms' => round($case['namelookup_time'] * 1000, 3),
+                'tcp_connected_ms' => round($case['connect_time'] * 1000, 3),
+                'tls_completed_ms' => round($case['appconnect_time'] * 1000, 3),
+                'first_byte_ms' => 0.0, 'total_ms' => 3000.0,
+            ];
+            $logger->shouldReceive('warning')->once()->with('Reading catalog request failed', \Mockery::on(fn ($context) =>
+                $context['transport'] === $expected && $context['curl_code'] === 28
+                && ! str_contains(json_encode($context), 'private-key-and-query')
+                && ! str_contains(json_encode($context), '192.0.2.1')
+            ));
             $this->getJson($url.'/catalogo/ficha?category=books&id=OL1W')->assertUnprocessable()
                 ->assertJsonPath('errors.catalog.0', 'El catálogo no está disponible.');
         }

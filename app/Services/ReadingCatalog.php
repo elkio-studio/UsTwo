@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use GuzzleHttp\TransferStats;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -224,14 +225,18 @@ class ReadingCatalog
     private function request(string $url, array $data = [], bool $post = false): array
     {
         $started = hrtime(true);
+        $transport = ['timings_available' => false];
         try {
             $client = Http::acceptJson()->withUserAgent('UsTwo/1.0')->connectTimeout(3)->timeout(6)
+                ->withOptions(['on_stats' => function (TransferStats $stats) use (&$transport): void {
+                    $transport = $this->connectionTimings($stats);
+                }])
                 ->withoutRedirecting();
             $response = $post ? $client->post($url, $data) : $client->get($url, $data);
         } catch (ConnectionException $error) {
             preg_match('/\bcURL error (\d{1,3})\b/', $error->getMessage(), $match);
             $code = isset($match[1]) ? (int) $match[1] : null;
-            $this->logFailure($url, $started, 'connection', ['curl_code' => $code]);
+            $this->logFailure($url, $started, 'connection', ['curl_code' => $code, 'transport' => $transport]);
             $this->unavailable();
         }
 
@@ -248,6 +253,27 @@ class ReadingCatalog
         }
 
         return $result;
+    }
+
+    private function connectionTimings(TransferStats $stats): array
+    {
+        $timings = [];
+        foreach ([
+            'namelookup_time' => 'dns_completed_ms',
+            'connect_time' => 'tcp_connected_ms',
+            'appconnect_time' => 'tls_completed_ms',
+            'starttransfer_time' => 'first_byte_ms',
+            'total_time' => 'total_ms',
+        ] as $source => $label) {
+            $value = $stats->getHandlerStat($source);
+            if (is_numeric($value) && is_finite((float) $value) && $value >= 0) {
+                $timings[$label] = round((float) $value * 1000, 3);
+            }
+        }
+
+        // Son hitos acumulados desde el inicio, no duraciones de cada fase.
+        // Un cero no prueba por sí solo un fallo: puede haber caché o conexión reutilizada.
+        return ['timings_available' => $timings !== [], ...$timings];
     }
 
     private function logFailure(string $url, int $started, string $reason, array $details): void

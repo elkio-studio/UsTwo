@@ -2,17 +2,18 @@
 
 ## Foco actual
 
-Investigación Open Library en `fix/diagnostico-open-library`, sin publicar.
-Desde Brave la petición de producción falla tras unos 3,33 s. La consulta
-pública por IPv4 responde 200 en menos de 1 s; el cliente PHP local con su
-certificado configurado recupera la ficha en 1,3 s. Causa exacta en Render
-pendiente: no hay acceso de terminal/API a ese servicio en este entorno.
-Preparado diagnóstico seguro en stderr con host, motivo, duración y código
-cURL/HTTP, sin consultas, claves, respuestas ni texto de excepciones.
-Suite SQLite: 68 pruebas, 2 001 aserciones, 0 fallos, 2 omisiones PostgreSQL.
+Investigación Open Library en `fix/fases-conexion-open-library`, sin publicar.
+El diagnóstico ya desplegado confirma cURL 28 tras 3 005–3 012 ms en Render.
+Preparada ampliación con hitos acumulados de DNS, TCP, TLS, primer byte y
+transferencia mediante on_stats; sin URLs, claves, consultas ni IPs.
+Un valor cero no identifica por sí solo la fase fallida; puede haber caché
+o conexiones reutilizadas. Sin estadísticas se indica timings_available=false.
+Suite SQLite: 69 pruebas, 2 013 aserciones, 0 fallos, 2 omisiones PostgreSQL.
 No se han cambiado tiempos de espera, TLS ni lógica pública. Pendientes de
-autorización: commit y publicación del diagnóstico; se necesita observar
-el fallo desde Render antes de elegir una corrección de conectividad.
+autorización: commit y publicación; se necesita repetir el fallo en Render
+con estas métricas antes de decidir una corrección de conectividad.
+No hay acceso de terminal/API a Render configurado en este entorno.
+El usuario ha indicado no usar Brave.
 
 La especificación 009 «El recibidor» está completada y verificada en
 `feat/login-calido`. Las pruebas automatizadas y la comprobación manual
