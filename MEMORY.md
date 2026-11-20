@@ -2,18 +2,22 @@
 
 ## Foco actual
 
-Investigación Open Library en `fix/fases-conexion-open-library`, sin publicar.
-El diagnóstico ya desplegado confirma cURL 28 tras 3 005–3 012 ms en Render.
-Preparada ampliación con hitos acumulados de DNS, TCP, TLS, primer byte y
-transferencia mediante on_stats; sin URLs, claves, consultas ni IPs.
-Un valor cero no identifica por sí solo la fase fallida; puede haber caché
-o conexiones reutilizadas. Sin estadísticas se indica timings_available=false.
-Suite SQLite: 69 pruebas, 2 013 aserciones, 0 fallos, 2 omisiones PostgreSQL.
-No se han cambiado tiempos de espera, TLS ni lógica pública. Pendientes de
-autorización: commit y publicación; se necesita repetir el fallo en Render
-con estas métricas antes de decidir una corrección de conectividad.
-No hay acceso de terminal/API a Render configurado en este entorno.
-El usuario ha indicado no usar Brave.
+Despliegue del diagnóstico de Open Library completado el 20 de noviembre
+de 2026 con el commit `d983f63`: CI y Render en verde; salud y acceso HTTP 200.
+Ángel confirma que la búsqueda vuelve a funcionar. No se ha identificado la
+causa exacta del fallo anterior (cURL 28 tras unos 3 segundos); no se han
+cambiado tiempos de espera, TLS ni lógica pública para resolverlo.
+
+Se conservan las métricas seguras en stderr por decisión de Ángel. Si vuelve
+a fallar, reproducir y revisar `Reading catalog request failed`: host, motivo,
+duración, código cURL/HTTP e hitos acumulados DNS/TCP/TLS/primer byte/total,
+sin URLs completas, claves, consultas ni IPs. Un cero no identifica por sí
+solo una fase fallida; puede haber caché o conexión reutilizada. Sin métricas
+del transporte se indica `timings_available=false`.
+
+Ambas ramas de diagnóstico están integradas en dev y main y borradas en
+local y origin. La copia original queda en dev. No hay acceso de terminal/API
+a Render configurado en este entorno. El usuario ha indicado no usar Brave.
 
 La especificación 009 «El recibidor» está completada y verificada en
 `feat/login-calido`. Las pruebas automatizadas y la comprobación manual
