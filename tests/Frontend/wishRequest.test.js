@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import wishRequest from "../../resources/js/pages/Wishes/utils/wishRequest.js";
+import wishRequest from "../../resources/js/utils/wishRequest.js";
 
 test("las peticiones JSON mantienen CSRF y explican errores sin perder los datos del llamador", async () => {
   const originalFetch = globalThis.fetch;

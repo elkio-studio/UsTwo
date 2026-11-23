@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Field from "../../../components/Field/Field";
-import wishRequest from "../utils/wishRequest";
+import wishRequest from "../../../utils/wishRequest";
 
 export default function WishListForm({ url, onCreated, onCancel }) {
   const [name, setName] = useState("");

@@ -41,6 +41,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/deseos/nuevo', [WishController::class, 'create'])->name('wishes.create');
         Route::post('/deseos', [WishController::class, 'store']);
         Route::post('/deseos/listas', [WishListController::class, 'store']);
+        Route::get('/deseos/{wish}/editar', [WishController::class, 'edit'])->whereNumber('wish')->name('wishes.edit');
+        Route::patch('/deseos/{wish}', [WishController::class, 'update'])->whereNumber('wish')->name('wishes.update');
+        Route::delete('/deseos/{wish}', [WishController::class, 'destroy'])->whereNumber('wish')->name('wishes.destroy');
         Route::get('/lecturas', [ReadingController::class, 'index'])->name('readings.index');
         Route::get('/lecturas/nueva/{category}', [ReadingController::class, 'create'])
             ->whereIn('category', \App\Models\Reading::CATEGORIES)->name('readings.create');

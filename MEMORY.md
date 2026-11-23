@@ -2,23 +2,22 @@
 
 ## Foco actual
 
-Spec 032 en docs/consulta-deseos: spec y plan aprobados; ejecución de
-verificación solicitada con SQLite en memoria, sin modificar código ni abrir
-navegador. Consulta de Deseos existente: alta manual y EUR, sin extracción.
-La 031 está integrada en dev; Ángel confirmó CI verde y se borró su rama.
+Spec 033 en feat/editar-borrar-deseos: spec, plan y contratos aprobados;
+implementación solicitada y realizada, sin commit ni publicación autorizados.
+Edición de URL/título/descripción/precio EUR/lista, menú de tres puntos y
+borrado contextual confirmado. Cualquier miembro puede operar conservando
+autor original. Sin migración nueva ni edición de datos locales/Supabase.
 
-T-01–T-04 correctas: 12 pruebas/267 aserciones existentes y 3 pruebas/133
-aserciones efímeras, todas con SQLite :memory:. Guardia anterior a
-RefreshDatabase y preflight de configuración sin caché/URL externa.
-Sin cambios de aplicación/tests persistentes ni datos locales/Supabase.
-
-Ángel confirma consulta en escritorio/móvil/teclado, apertura en otra pestaña
-y recarga. Spec 032 cerrada localmente con revisión PASS: 23/11/2026,
-19:36–19:58 CET, 22 minutos; GitHub Projects: 0.5 h estimadas.
-Ángel autoriza commit/publicación, actualizar dev antes de integrar y actualizar
-documentation antes de copiar solo los artefactos de la spec 032. La
-comprobación de CI tras publicar queda a cargo de Ángel.
-Evidencias en la spec 032.
+Suite con preflight SQLite :memory: sin URL/caché: 86 pruebas/2456 aserciones,
+sin fallos; 2 omisiones PostgreSQL. Node (1) y build (695 módulos) correctos.
+Ángel confirma edición, movimiento y borrado en escritorio/móvil/teclado.
+Reauditoría test_reviewer PASS; spec033 completada localmente, evidencias
+en tareas. Inicio 20:07, cierre 20:26 CET 23/11/2026: 19 minutos, sin pausas
+comunicadas; GitHub Projects 0.25 h estimadas. Utilidad wishRequest en
+resources/js/utils, carpetas vacías ReadingCard/Wishes/utils eliminadas;
+Node y build repetidos correctamente. Publicación/integración/CI pendientes.
+No abrir navegador ni publicar. La 032 ya integrada, CI verde confirmado por
+Ángel y rama eliminada; no arrastra permisos de publicación a la 033.
 
 SQLite local conserva las migraciones 013/014 aplicadas y datos previos.
 Web 8000 y Vite 5173 se dejaron activos; no detener mientras Ángel los use.

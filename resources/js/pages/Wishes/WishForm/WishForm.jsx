@@ -6,15 +6,19 @@ import Field from "../../../components/Field/Field";
 import WishListForm from "../WishListForm/WishListForm";
 import styles from "./WishForm.module.css";
 
-export default function WishForm({ spaceId, lists: initialLists }) {
+export default function WishForm({
+  spaceId,
+  lists: initialLists,
+  wish = null,
+}) {
   const [lists, setLists] = useState(initialLists);
   const [creating, setCreating] = useState(false);
   const form = useForm({
-    list_id: "",
-    url: "",
-    title: "",
-    description: "",
-    price: "",
+    list_id: wish ? String(wish.list_id) : "",
+    url: wish?.url ?? "",
+    title: wish?.title ?? "",
+    description: wish?.description ?? "",
+    price: wish?.price ?? "",
   });
   const listControl = useRef(null);
   const createButton = useRef(null);
@@ -26,7 +30,8 @@ export default function WishForm({ spaceId, lists: initialLists }) {
   function save(event) {
     event.preventDefault();
     if (form.processing) return;
-    form.post(base, { preserveScroll: true });
+    if (wish) form.patch(`${base}/${wish.id}`, { preserveScroll: true });
+    else form.post(base, { preserveScroll: true });
   }
 
   return (
@@ -76,14 +81,16 @@ export default function WishForm({ spaceId, lists: initialLists }) {
               {form.errors.list_id}
             </p>
           )}
-          <button
-            ref={createButton}
-            type="button"
-            onClick={() => setCreating(true)}
-            disabled={creating}
-          >
-            Crear lista
-          </button>
+          {!wish && (
+            <button
+              ref={createButton}
+              type="button"
+              onClick={() => setCreating(true)}
+              disabled={creating}
+            >
+              Crear lista
+            </button>
+          )}
         </div>
         <Field
           label="URL del enlace"
@@ -123,7 +130,11 @@ export default function WishForm({ spaceId, lists: initialLists }) {
         <p>El precio es orientativo y no se actualiza automáticamente.</p>
         {form.errors.save && <p role="alert">{form.errors.save}</p>}
         <button disabled={form.processing || !lists.length}>
-          {form.processing ? "Guardando…" : "Guardar deseo"}
+          {form.processing
+            ? "Guardando…"
+            : wish
+              ? "Guardar cambios"
+              : "Guardar deseo"}
         </button>
       </form>
     </div>

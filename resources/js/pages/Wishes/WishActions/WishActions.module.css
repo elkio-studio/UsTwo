@@ -1,0 +1,26 @@
+.actions {
+  display: contents;
+}
+
+.actions > button {
+  grid-column: 2;
+}
+
+.panel {
+  grid-column: 1 / -1;
+  margin-block-start: var(--space-small);
+  overflow-wrap: anywhere;
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-small);
+}
+
+.buttons a,
+.buttons a:hover,
+.actions button:hover {
+  text-decoration: none;
+}

@@ -25,6 +25,7 @@ const pages = {
     import("./pages/Readings/ReadingDetail/ReadingDetail"),
   "Wishes/Wishes": () => import("./pages/Wishes/WishesView/WishesView"),
   "Wishes/Create": () => import("./pages/Wishes/WishCreate/WishCreate"),
+  "Wishes/Edit": () => import("./pages/Wishes/WishEdit/WishEdit"),
 };
 
 router.on("navigate", ({ detail: { page, type } }) => {
@@ -35,6 +36,9 @@ router.on("navigate", ({ detail: { page, type } }) => {
   }
   if (page.component === "Readings/Readings") {
     router.reload({ only: ["readings", "people"] });
+  }
+  if (page.component === "Wishes/Wishes") {
+    router.reload({ only: ["lists", "selectedListId"] });
   }
 });
 

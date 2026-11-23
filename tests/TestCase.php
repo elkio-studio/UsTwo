@@ -39,6 +39,7 @@ abstract class TestCase extends BaseTestCase
                         'Readings/Detail' => 'Readings/ReadingDetail/ReadingDetail',
                         'Wishes/Wishes' => 'Wishes/WishesView/WishesView',
                         'Wishes/Create' => 'Wishes/WishCreate/WishCreate',
+                        'Wishes/Edit' => 'Wishes/WishEdit/WishEdit',
                         default => $name,
                     });
                 }

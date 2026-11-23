@@ -1,4 +1,4 @@
-// Vista inicial del cajón de Deseos, pendiente del alta de enlaces.
+// Colección de deseos de la estantería y selección de lista.
 
 import JournalLayout from "../../../components/Journal/JournalLayout/JournalLayout";
 import { Link } from "@inertiajs/react";
@@ -36,7 +36,7 @@ export default function WishesView({
         </nav>
       )}
       {selected ? (
-        <WishList list={selected} />
+        <WishList list={selected} spaceId={spaceId} />
       ) : (
         <section className={styles.empty} aria-label="Tu colección de deseos">
           <h2>Todavía no hay deseos en esta estantería</h2>

@@ -151,6 +151,164 @@ class WishesTest extends TestCase
         $this->assertDatabaseCount('wishes', 0);
     }
 
+    public function test_members_edit_move_and_clear_optional_fields_without_changing_authorship(): void
+    {
+        Http::preventStrayRequests();
+        $list = $this->space->wishLists()->create(['name' => 'Origen']);
+        $destination = $this->space->wishLists()->create(['name' => 'Destino']);
+        $wish = $this->wish($list->id);
+        $member = $this->account('member');
+        $this->space->members()->attach($member);
+        $url = $this->base.'/'.$wish->id;
+        $this->actingAs($member)->get($url.'/editar')->assertInertia(fn (Assert $page) => $page
+            ->component('Wishes/Edit')->has('lists', 2)->where('wish.id', $wish->id)
+            ->where('wish.list_id', $list->id)->where('wish.price', '12.34')
+            ->where('wish.description', 'Original'));
+        $data = ['list_id' => $destination->id, 'url' => 'https://example.com/changed',
+            'title' => '  Corregido  ', 'description' => 'Nueva nota', 'price' => '19,99',
+            'author_id' => $member->id, 'status' => 'bought', 'space_id' => 999, 'id' => 999];
+        $this->patch($url, $data)->assertRedirect($this->base.'?list='.$destination->id);
+        $this->assertDatabaseHas('wishes', ['id' => $wish->id, 'wish_list_id' => $destination->id,
+            'author_id' => $this->owner->id, 'status' => 'pending', 'title' => 'Corregido',
+            'url' => $data['url'], 'description' => 'Nueva nota', 'price_minor' => 1999, 'currency' => 'EUR']);
+        $this->assertDatabaseCount('wishes', 1);
+        $this->assertDatabaseCount('wish_lists', 2);
+        $this->get($this->base.'?list='.$list->id)->assertInertia(fn (Assert $page) => $page->has('lists.0.wishes', 0));
+        foreach (['0', '99999999.99', ''] as $price) {
+            $this->patch($url, array_replace($data, ['price' => $price, 'description' => '']))->assertRedirect();
+            $this->assertSame(\App\Support\WishPrice::minor($price), $wish->fresh()->price_minor);
+        }
+        $this->assertNull($wish->fresh()->description);
+        $this->assertNull($wish->fresh()->currency);
+        foreach (range(1, 2) as $attempt) {
+            $this->get($this->base.'?list='.$destination->id)->assertInertia(fn (Assert $page) => $page
+                ->where('selectedListId', $destination->id)->where('lists.1.wishes.0.title', 'Corregido')
+                ->where('lists.1.wishes.0.price', null));
+        }
+        Http::assertNothingSent();
+    }
+
+    public function test_edit_validation_keeps_every_previous_value_and_input(): void
+    {
+        Http::preventStrayRequests();
+        $list = $this->space->wishLists()->create(['name' => 'Propia']);
+        $wish = $this->wish($list->id);
+        $before = $wish->fresh()->getAttributes();
+        $url = $this->base.'/'.$wish->id;
+        $valid = ['list_id' => $list->id, 'url' => 'https://example.com', 'title' => 'Conservar input'];
+        $cases = [
+            ['title' => '   '], ['title' => str_repeat('x', 256)], ['description' => str_repeat('x', 5001)],
+            ['url' => 'javascript:alert(1)'], ['url' => 'https://user:pass@example.com'],
+            ['url' => 'https://127.1'], ['url' => 'https://example.com\\@localhost'],
+            ['price' => '-1'], ['price' => '1.234'], ['price' => '100000000'], ['price' => '1e3'],
+            ['price' => '2', 'currency' => 'USD'], ['currency' => 'EUR'], ['list_id' => 999999],
+        ];
+        $this->actingAs($this->owner);
+        foreach ($cases as $invalid) {
+            $this->from($url.'/editar')->patch($url, array_replace($valid, $invalid))
+                ->assertSessionHasErrors()->assertSessionHasInput('url', $invalid['url'] ?? $valid['url']);
+            $this->assertSame($before, $wish->fresh()->getAttributes());
+        }
+        Http::assertNothingSent();
+    }
+
+    public function test_edit_and_delete_are_scoped_even_when_member_belongs_to_both_spaces(): void
+    {
+        $list = $this->space->wishLists()->create(['name' => 'Propia']);
+        $wish = $this->wish($list->id);
+        $other = Space::create(['name' => 'Otra', 'owner_id' => $this->owner->id]);
+        $other->members()->attach($this->owner);
+        $foreignList = $other->wishLists()->create(['name' => 'Ajena']);
+        $foreign = $this->wish($foreignList->id);
+        $data = ['list_id' => $foreignList->id, 'url' => 'https://example.com', 'title' => 'No cambiar'];
+        $url = $this->base.'/'.$wish->id;
+        $this->actingAs($this->owner)->patch($url, $data)->assertSessionHasErrors('list_id');
+        foreach ([$foreign->id, 999999] as $id) {
+            $this->get($this->base.'/'.$id.'/editar')->assertNotFound();
+            $this->patch($this->base.'/'.$id, $data)->assertNotFound();
+            $this->delete($this->base.'/'.$id, ['confirmed' => true])->assertNotFound();
+        }
+        $this->actingAs($this->account('outsider'));
+        $this->get($url.'/editar')->assertNotFound();
+        $this->patch($url, $data)->assertNotFound();
+        $this->delete($url, ['confirmed' => true])->assertNotFound();
+        $this->actingAs($this->owner);
+        $this->space->members()->detach($this->owner);
+        $this->get($url.'/editar')->assertNotFound();
+        $this->patch($url, $data)->assertNotFound();
+        $this->delete($url, ['confirmed' => true])->assertNotFound();
+        $this->app['auth']->guard()->logout();
+        $this->get($url.'/editar')->assertRedirect('/acceso');
+        $this->patch($url, $data)->assertRedirect('/acceso');
+        $this->delete($url, ['confirmed' => true])->assertRedirect('/acceso');
+        $this->assertDatabaseCount('wishes', 2);
+        $this->assertSame($list->id, $wish->fresh()->wish_list_id);
+        $this->assertSame('Original', $wish->fresh()->title);
+    }
+
+    public function test_deletion_requires_confirmation_and_keeps_empty_list_and_other_wishes(): void
+    {
+        Http::preventStrayRequests();
+        $list = $this->space->wishLists()->create(['name' => 'Conservar vacía']);
+        $other = $this->space->wishLists()->create(['name' => 'Otro']);
+        $wish = $this->wish($list->id);
+        $kept = $this->wish($other->id);
+        $member = $this->account('deleter');
+        $this->space->members()->attach($member);
+        $url = $this->base.'/'.$wish->id;
+        $this->actingAs($member);
+        foreach ([[], ['confirmed' => false], ['confirmed' => 'no']] as $data) {
+            $this->delete($url, $data)->assertSessionHasErrors('confirmed');
+            $this->assertDatabaseCount('wishes', 2);
+        }
+        $this->delete($url, ['confirmed' => true])->assertRedirect($this->base.'?list='.$list->id);
+        $this->assertDatabaseMissing('wishes', ['id' => $wish->id]);
+        $this->assertDatabaseHas('wishes', ['id' => $kept->id]);
+        $this->assertDatabaseHas('wish_lists', ['id' => $list->id]);
+        foreach (range(1, 2) as $attempt) {
+            $this->get($this->base.'?list='.$list->id)->assertInertia(fn (Assert $page) => $page
+                ->where('selectedListId', $list->id)->has('lists.0.wishes', 0)->has('lists.1.wishes', 1));
+        }
+        Http::assertNothingSent();
+    }
+
+    public function test_sql_failures_roll_back_updates_and_deletions(): void
+    {
+        $list = $this->space->wishLists()->create(['name' => 'Origen']);
+        $destination = $this->space->wishLists()->create(['name' => 'Destino']);
+        $wish = $this->wish($list->id);
+        $before = $wish->fresh()->getAttributes();
+        $url = $this->base.'/'.$wish->id;
+        $this->actingAs($this->owner);
+        // Fallar después del SQL acredita el rollback, no solo un rechazo previo.
+        Wish::updated(function () { throw new QueryException('testing', 'update wishes', [], new \Exception('failure')); });
+        try {
+            $this->from($url.'/editar')->patch($url, ['list_id' => $destination->id,
+                'url' => 'https://example.com/changed', 'title' => 'Conservar', 'price' => '25'])
+                ->assertSessionHasErrors('save')->assertSessionHasInput('title', 'Conservar');
+            $this->assertSame($before, $wish->fresh()->getAttributes());
+        } finally { Wish::flushEventListeners(); }
+        Wish::deleted(function () { throw new QueryException('testing', 'delete wishes', [], new \Exception('failure')); });
+        try {
+            $this->from($this->base.'?list='.$list->id)->delete($url, ['confirmed' => true])
+                ->assertSessionHasErrors('delete');
+            $this->assertSame($before, $wish->fresh()->getAttributes());
+            $this->assertDatabaseCount('wish_lists', 2);
+        } finally { Wish::flushEventListeners(); }
+    }
+
+    private function wish(int $listId): Wish
+    {
+        $wish = new Wish(['url' => 'https://example.com/item', 'title' => 'Original',
+            'description' => 'Original', 'price_minor' => 1234, 'currency' => 'EUR']);
+        $wish->wish_list_id = $listId;
+        $wish->author_id = $this->owner->id;
+        $wish->status = 'pending';
+        $wish->save();
+
+        return $wish;
+    }
+
     private function account(string $username): User
     {
         return User::create(['name' => $username, 'username' => $username, 'username_key' => $username,
