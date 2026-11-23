@@ -1,0 +1,17 @@
+.entries {
+  padding-inline-start: 1.25rem;
+}
+
+.entries li {
+  padding-block: var(--space-medium);
+  overflow-wrap: anywhere;
+}
+
+.description {
+  white-space: pre-wrap;
+}
+
+.url {
+  color: var(--cinema-muted);
+  font-size: 0.9rem;
+}

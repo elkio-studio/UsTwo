@@ -1,0 +1,35 @@
+.layout,
+.form {
+  display: grid;
+  gap: var(--space-medium);
+}
+
+.layout {
+  max-width: 44rem;
+}
+
+.listChoice {
+  display: grid;
+  gap: var(--space-small);
+}
+
+.listChoice select {
+  width: 100%;
+  min-height: var(--control-min-height);
+  padding: 0.45rem 0.75rem;
+  background: var(--color-surface);
+  color: var(--color-warm-linen);
+  color-scheme: dark;
+  border: var(--border-width) solid var(--color-control-border);
+  border-radius: var(--radius-control);
+  font: inherit;
+}
+
+.listChoice button {
+  justify-self: start;
+}
+
+.listChoice option {
+  background: var(--color-surface);
+  color: var(--color-warm-linen);
+}

@@ -3,7 +3,31 @@
   padding-block: var(--space-medium);
 }
 
-.empty button:disabled {
-  cursor: default;
-  color: var(--cinema-muted);
+.add,
+.lists a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-min-height);
+  padding: 0.45rem 0.75rem;
+  border: var(--border-width) solid var(--color-control-border);
+  border-radius: var(--radius-control);
+  text-decoration: none;
+}
+
+.add:hover,
+.lists a:hover {
+  text-decoration: none;
+}
+
+.lists {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-small);
+  margin-block: var(--space-medium);
+  overflow-wrap: anywhere;
+}
+
+.lists a[aria-current="page"] {
+  background: var(--color-link);
+  color: var(--color-surface);
 }

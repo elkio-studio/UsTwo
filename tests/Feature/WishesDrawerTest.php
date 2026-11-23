@@ -50,8 +50,8 @@ class WishesDrawerTest extends TestCase
         $this->assertDatabaseHas('spaces', ['id' => $space->id, 'movie_slot' => 4, 'wish_slot' => 8]);
         $this->assertNull($other->fresh()->wish_slot);
 
-        // No hay un alta simulada ni una ruta de creación todavía.
-        $this->post($base.'/deseos', ['title' => 'No guardar'])->assertStatus(405);
+        // El alta añadida en 031 sigue validando antes de guardar.
+        $this->post($base.'/deseos', ['title' => 'No guardar'])->assertSessionHasErrors(['url', 'list_id']);
         $space->members()->detach($member);
         $this->get($base.'/deseos')->assertNotFound();
         $this->put($base.'/cajones/deseos', ['slot' => 2])->assertNotFound();

@@ -8,6 +8,7 @@ use App\Http\Controllers\SeriesController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\SpaceController;
 use App\Http\Controllers\WishController;
+use App\Http\Controllers\WishListController;
 use App\Http\Middleware\RequireSpaceMembership;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -37,6 +38,9 @@ Route::middleware('auth')->group(function () {
         Route::put('/cajones/lecturas', [SpaceController::class, 'placeReadingDrawer']);
         Route::put('/cajones/deseos', [SpaceController::class, 'placeWishDrawer']);
         Route::get('/deseos', [WishController::class, 'index'])->name('wishes.index');
+        Route::get('/deseos/nuevo', [WishController::class, 'create'])->name('wishes.create');
+        Route::post('/deseos', [WishController::class, 'store']);
+        Route::post('/deseos/listas', [WishListController::class, 'store']);
         Route::get('/lecturas', [ReadingController::class, 'index'])->name('readings.index');
         Route::get('/lecturas/nueva/{category}', [ReadingController::class, 'create'])
             ->whereIn('category', \App\Models\Reading::CATEGORIES)->name('readings.create');

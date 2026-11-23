@@ -2,22 +2,30 @@
 
 ## Foco actual
 
-Spec 030 en `feat/cajon-deseos`: especificación, plan y propuesta técnica
-aprobados; implementación solicitada y realizada sin navegador ni publicación.
-Deseos incorpora caja/tarjeta WebP, vista vacía y alta deshabilitada con aviso.
-Migración `2026_11_23_000012_add_wish_slot_to_spaces` aplicada en SQLite local
-(lote 5), con copia consistente y comparación de datos anteriores idéntica.
-Suite SQLite: 73 pruebas, 2 160 aserciones, cero fallos; dos pruebas omitidas
-porque requieren PostgreSQL aislado. Build correcto.
+Spec 031 en feat/alta-deseos: Ángel aprueba la revisión a **solo alta manual y
+solo euros**, retirando autocompletado por la escasa cobertura de las tiendas
+probadas. No mantener servicios/parser/endpoint/hook de extracción sin uso.
+Listas obligatorias creadas expresamente, URL/título y opcionales descripción
+/precio EUR; autor de sesión y estado pending. Sin selector de moneda.
 
-Spec 030 cerrada localmente con revisión PASS tras la comprobación de Ángel
-en escritorio y móvil, teclado y movimiento reducido. Horario 23/11/2026,
-14:14–14:53 CET; GitHub Projects: 0.75 h estimadas.
+Migración 013 aplicada en SQLite local, lote 6. Migración 014 de EUR-only
+aplicada en lote 7, con copia consistente y datos anteriores idénticos;
+conserva también una lista y un deseo EUR ya creados por Ángel. Si encuentra
+otra moneda, la migración se detiene sin convertir o borrar.
+Copia: %TEMP%/ustwo-spec031-eur/backups/before-spec031-20261123-191410.sqlite.
+
+Suite SQLite tras revisión: 81 pruebas, 2280 aserciones, cero fallos y dos
+omisiones por PostgreSQL aislado. Test Node y build (692 módulos) correctos;
+auditoría sin defectos adicionales. Ángel confirma el alta manual final en euros
+en escritorio, móvil y teclado; spec 031 cerrada localmente con revisión PASS.
+23/11/2026, 15:02–19:23 CET: descontadas 2 horas fuera comunicadas por Ángel,
+quedan 2 h 21 min efectivos; GitHub Projects: 2.5 h tras redondeo.
 Ángel autoriza commit/publicación, actualizar dev antes de integrar y actualizar
-documentation antes de copiar solo los artefactos de la spec 030. CI/PostgreSQL
-pendientes de comprobación por Ángel tras publicar; no darlos por validados.
-Web local 8000 y Vite 5173 arrancados en segundo plano; no detener mientras
-Ángel los use. El servidor local fuerza SQLite sin modificar el archivo .env.
+documentation antes de copiar la spec 031 y el informe de enlaces. La
+comprobación de CI/PostgreSQL tras publicar queda a cargo de Ángel.
+
+Web 8000 y Vite 5173 se dejaron activos; no detener mientras Ángel los use.
+Servidor local fuerza SQLite sin cambiar .env. No abrir navegador.
 
 ## Último despliegue
 
@@ -80,4 +88,3 @@ del desarrollador constan en las tareas de la spec.
 
 El cierre documental está registrado en la rama de trabajo. La primera
 publicación de la spec 009 requiere la ventana de mantenimiento del README.
-

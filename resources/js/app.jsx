@@ -24,6 +24,7 @@ const pages = {
   "Readings/Detail": () =>
     import("./pages/Readings/ReadingDetail/ReadingDetail"),
   "Wishes/Wishes": () => import("./pages/Wishes/WishesView/WishesView"),
+  "Wishes/Create": () => import("./pages/Wishes/WishCreate/WishCreate"),
 };
 
 router.on("navigate", ({ detail: { page, type } }) => {
