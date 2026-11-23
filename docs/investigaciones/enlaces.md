@@ -8,6 +8,13 @@ implementado extracción en UsTwo ni comprobado su funcionamiento desde Render.
 
 Informe aprobado por Ángel el 23 de noviembre de 2026. La investigación queda cerrada; su aprobación no autoriza implementar la funcionalidad.
 
+Decisión posterior de implementación: en la
+[spec 031](../specs/ep-03-enlaces-compras-regalos/031-alta-deseos/spec.md),
+Ángel elige alta exclusivamente manual y precios solo en euros, y retira
+el autocompletado tras probar tiendas que bloqueaban las consultas. Los
+resultados de investigación siguientes se conservan como evidencia histórica;
+no describen una extracción implementada actualmente en Deseos.
+
 ## Resultado
 
 Es viable proponer título y descripción desde los metadatos públicos de
