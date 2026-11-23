@@ -1,0 +1,9 @@
+.empty {
+  max-width: 42rem;
+  padding-block: var(--space-medium);
+}
+
+.empty button:disabled {
+  cursor: default;
+  color: var(--cinema-muted);
+}

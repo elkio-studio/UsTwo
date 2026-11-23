@@ -2,6 +2,25 @@
 
 ## Foco actual
 
+Spec 030 en `feat/cajon-deseos`: especificación, plan y propuesta técnica
+aprobados; implementación solicitada y realizada sin navegador ni publicación.
+Deseos incorpora caja/tarjeta WebP, vista vacía y alta deshabilitada con aviso.
+Migración `2026_11_23_000012_add_wish_slot_to_spaces` aplicada en SQLite local
+(lote 5), con copia consistente y comparación de datos anteriores idéntica.
+Suite SQLite: 73 pruebas, 2 160 aserciones, cero fallos; dos pruebas omitidas
+porque requieren PostgreSQL aislado. Build correcto.
+
+Spec 030 cerrada localmente con revisión PASS tras la comprobación de Ángel
+en escritorio y móvil, teclado y movimiento reducido. Horario 23/11/2026,
+14:14–14:53 CET; GitHub Projects: 0.75 h estimadas.
+Ángel autoriza commit/publicación, actualizar dev antes de integrar y actualizar
+documentation antes de copiar solo los artefactos de la spec 030. CI/PostgreSQL
+pendientes de comprobación por Ángel tras publicar; no darlos por validados.
+Web local 8000 y Vite 5173 arrancados en segundo plano; no detener mientras
+Ángel los use. El servidor local fuerza SQLite sin modificar el archivo .env.
+
+## Último despliegue
+
 Despliegue del diagnóstico de Open Library completado el 20 de noviembre
 de 2026 con el commit `d983f63`: CI y Render en verde; salud y acceso HTTP 200.
 Ángel confirma que la búsqueda vuelve a funcionar. No se ha identificado la

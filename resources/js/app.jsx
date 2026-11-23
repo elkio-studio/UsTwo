@@ -17,9 +17,13 @@ const pages = {
   "Movies/Movies": () =>
     import("./pages/Movies/WatchedCollection/WatchedCollection"),
   "Places/Places": () => import("./pages/Places/PlacesView/PlacesView"),
-  "Readings/Readings": () => import("./pages/Readings/ReadingsView/ReadingsView"),
-  "Readings/Create": () => import("./pages/Readings/ReadingCreate/ReadingCreate"),
-  "Readings/Detail": () => import("./pages/Readings/ReadingDetail/ReadingDetail"),
+  "Readings/Readings": () =>
+    import("./pages/Readings/ReadingsView/ReadingsView"),
+  "Readings/Create": () =>
+    import("./pages/Readings/ReadingCreate/ReadingCreate"),
+  "Readings/Detail": () =>
+    import("./pages/Readings/ReadingDetail/ReadingDetail"),
+  "Wishes/Wishes": () => import("./pages/Wishes/WishesView/WishesView"),
 };
 
 router.on("navigate", ({ detail: { page, type } }) => {

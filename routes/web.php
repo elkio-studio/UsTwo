@@ -7,6 +7,7 @@ use App\Http\Controllers\ReadingController;
 use App\Http\Controllers\SeriesController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\SpaceController;
+use App\Http\Controllers\WishController;
 use App\Http\Middleware\RequireSpaceMembership;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -34,6 +35,8 @@ Route::middleware('auth')->group(function () {
         Route::put('/cajones/series', [SpaceController::class, 'placeSeriesDrawer']);
         Route::put('/cajones/sitios', [SpaceController::class, 'placePlacesDrawer']);
         Route::put('/cajones/lecturas', [SpaceController::class, 'placeReadingDrawer']);
+        Route::put('/cajones/deseos', [SpaceController::class, 'placeWishDrawer']);
+        Route::get('/deseos', [WishController::class, 'index'])->name('wishes.index');
         Route::get('/lecturas', [ReadingController::class, 'index'])->name('readings.index');
         Route::get('/lecturas/nueva/{category}', [ReadingController::class, 'create'])
             ->whereIn('category', \App\Models\Reading::CATEGORIES)->name('readings.create');

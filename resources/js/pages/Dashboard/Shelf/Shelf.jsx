@@ -5,6 +5,7 @@ import { Link, router, useForm } from "@inertiajs/react";
 import styles from "./Shelf.module.css";
 import GlobeSurface from "../GlobeSurface/GlobeSurface";
 import ReadingSpines from "../ReadingSpines/ReadingSpines";
+import WishBox from "../WishBox/WishBox";
 import placesGlobe from "../../../../images/estanteria/sitios/globo-sitios.webp";
 import woodenDrawer from "../../../../images/estanteria/cajon/cajon-madera.webp";
 
@@ -31,6 +32,11 @@ const drawers = [
     label: "Lecturas",
     path: "lecturas",
     position: "reading_slot",
+  },
+  {
+    label: "Deseos",
+    path: "deseos",
+    position: "wish_slot",
   },
 ];
 
@@ -91,6 +97,8 @@ export default function Shelf({ activeSpace }) {
                       href={`/espacios/${activeSpace.id}/lecturas`}
                       variant="clasico"
                     />
+                  ) : drawer?.path === "deseos" ? (
+                    <WishBox href={`/espacios/${activeSpace.id}/deseos`} />
                   ) : drawer ? (
                     <Link
                       href={`/espacios/${activeSpace.id}/${drawer.path}`}

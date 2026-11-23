@@ -73,6 +73,8 @@ class PlacesDrawerTest extends TestCase
         Space::whereKey($space->id)->update(['movie_slot' => 2, 'series_slot' => 3, 'places_slot' => 4]);
         $migration = require database_path('migrations/2026_11_13_000006_add_places_slot_to_spaces.php');
         $readings = require database_path('migrations/2026_11_16_000008_add_reading_slot_to_spaces.php');
+        $wishes = require database_path('migrations/2026_11_23_000012_add_wish_slot_to_spaces.php');
+        $wishes->down();
         $readings->down();
 
         try {
@@ -89,6 +91,7 @@ class PlacesDrawerTest extends TestCase
         } finally {
             $migration->up();
             $readings->up();
+            $wishes->up();
         }
     }
 
@@ -147,13 +150,16 @@ class PlacesDrawerTest extends TestCase
         $slots = ['movie_slot' => 2, 'series_slot' => 3, 'places_slot' => 4];
         Space::whereKey($space->id)->update($slots + ['reading_slot' => 8]);
         $migration = require database_path('migrations/2026_11_16_000008_add_reading_slot_to_spaces.php');
+        $wishes = require database_path('migrations/2026_11_23_000012_add_wish_slot_to_spaces.php');
 
+        $wishes->down();
         $migration->down();
         try {
             $this->assertFalse(Schema::hasColumn('spaces', 'reading_slot'));
             $this->assertDatabaseHas('spaces', ['id' => $space->id] + $slots);
         } finally {
             $migration->up();
+            $wishes->up();
         }
     }
 

@@ -11,7 +11,7 @@ class Space extends Model
 {
     protected $fillable = ['name', 'owner_id'];
 
-    protected $casts = ['movie_slot' => 'integer', 'series_slot' => 'integer', 'places_slot' => 'integer', 'reading_slot' => 'integer'];
+    protected $casts = ['movie_slot' => 'integer', 'series_slot' => 'integer', 'places_slot' => 'integer', 'reading_slot' => 'integer', 'wish_slot' => 'integer'];
 
     protected static function booted(): void
     {
