@@ -6,6 +6,8 @@ status: completed
 
 # 033 — Editar y eliminar deseos compartidos
 
+**GitHub Projects: `0.25` h estimadas.**
+
 Historia de la [épica EP-03, issue #25](https://github.com/elkio-studio/UsTwo/issues/25).
 Referencias: [alta manual 031](../031-alta-deseos/spec.md) y
 [consulta 032](../032-consulta-deseos/spec.md).
@@ -213,9 +215,9 @@ Integración y CI externo pendientes de autorización y comprobación posteriore
 - Inicio: 23/11/2026, 20:07 CET.
 - Cierre local: 23/11/2026, 20:26 CET, al registrar la confirmación de Ángel.
 - Tiempo transcurrido: 19 minutos; sin pausas comunicadas para esta spec.
-- GitHub Projects: **0.25 h estimadas**, calculadas por tiempo transcurrido:
-  un cuarto completo y cuatro minutos restantes, redondeados hacia abajo
-  según la regla acordada. No es una medición de dedicación efectiva.
+- Cálculo del valor indicado al principio: un cuarto completo y cuatro minutos
+  restantes, redondeados hacia abajo según la regla acordada. No es una
+  medición de dedicación efectiva.
 
 Se incluye la limpieza solicitada: utilidad wishRequest en resources/js/utils
 y eliminación de las carpetas vacías Wishes/utils y Readings/ReadingCard,
