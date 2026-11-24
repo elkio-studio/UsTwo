@@ -156,8 +156,13 @@ de cierre y el tiempo transcurrido desde que se inició la especificación.
 Si solo se conocen las fechas, expresa la duración en días o indica que
 se cerró el mismo día.
 
-Al cerrar cada spec, deja escrito en su spec.md el valor que se debe
-introducir en GitHub Projects, en horas decimales, y comunícaselo a Ángel.
+Al cerrar cada spec, coloca el valor para GitHub Projects al principio de
+spec.md, inmediatamente después del título principal y antes de referencias
+o secciones, y comunícaselo a Ángel. Usa el formato
+``**GitHub Projects: `0.5` h estimadas.**``, sustituyendo el número por las
+horas decimales correspondientes. Identifica como estimados solo los valores
+calculados por tiempo transcurrido. Conserva fechas, pausas y explicación del
+cálculo en el apartado de cierre, sin duplicar allí el valor final.
 Si Ángel indica el tiempo efectivo descontando pausas, usa ese dato. En
 caso contrario, usa el tiempo transcurrido y señálalo como estimación.
 Redondea el valor en incrementos de

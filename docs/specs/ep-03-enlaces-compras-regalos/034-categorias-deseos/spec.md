@@ -6,6 +6,8 @@ status: completed
 
 # 034 — Verificar las listas de Deseos como categorías
 
+**GitHub Projects: `0.5` h estimadas.**
+
 Historia de la [épica EP-03, issue #25](https://github.com/elkio-studio/UsTwo/issues/25).
 Referencias: [alta 031](../031-alta-deseos/spec.md),
 [consulta 032](../032-consulta-deseos/spec.md) y
@@ -224,9 +226,9 @@ commit, publicación, integración y CI externos pendientes de autorización.
 - Inicio: 24/11/2026, 11:33 CET.
 - Cierre local: 24/11/2026, 12:05 CET, al registrar la confirmación de Ángel.
 - Tiempo transcurrido: 32 minutos; sin pausas comunicadas para esta spec.
-- GitHub Projects: **0.5 h estimadas**, por tiempo transcurrido: dos cuartos
-  completos y dos minutos restantes redondeados hacia abajo según la regla
-  acordada. No equivale a una medición de dedicación efectiva.
+- Cálculo del valor indicado al principio: dos cuartos completos y dos minutos
+  restantes redondeados hacia abajo según la regla acordada. No equivale a
+  una medición de dedicación efectiva.
 
 Las listas satisfacen la clasificación sin campos/categorías paralelos ni
 migración. Regalos sorpresa sigue fuera. Se incluyen los ajustes de UI
