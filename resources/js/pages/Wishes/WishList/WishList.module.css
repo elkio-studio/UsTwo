@@ -21,8 +21,3 @@
 .description {
   white-space: pre-wrap;
 }
-
-.url {
-  color: var(--cinema-muted);
-  font-size: 0.9rem;
-}

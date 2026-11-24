@@ -8,6 +8,24 @@
   max-width: 44rem;
 }
 
+.notice {
+  display: grid;
+  gap: var(--space-small);
+  padding: var(--space-medium);
+  border: var(--border-width) solid var(--color-error);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  color: var(--color-error);
+}
+
+.notice p {
+  margin: 0;
+}
+
+.notice button {
+  justify-self: start;
+}
+
 .listChoice {
   display: grid;
   gap: var(--space-small);

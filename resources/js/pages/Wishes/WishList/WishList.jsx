@@ -25,7 +25,6 @@ export default function WishList({ list, spaceId }) {
                   onDeleted={() => heading.current?.focus()}
                 />
               </div>
-              <p className={styles.url}>{wish.url}</p>
               {wish.description && (
                 <p className={styles.description}>{wish.description}</p>
               )}

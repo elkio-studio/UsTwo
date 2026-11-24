@@ -2,26 +2,23 @@
 
 ## Foco actual
 
-Spec 033 en feat/editar-borrar-deseos: spec, plan y contratos aprobados;
-implementación solicitada y realizada, sin commit ni publicación autorizados.
-Edición de URL/título/descripción/precio EUR/lista, menú de tres puntos y
-borrado contextual confirmado. Cualquier miembro puede operar conservando
-autor original. Sin migración nueva ni edición de datos locales/Supabase.
+Spec 034 completada localmente en docs/categorias-deseos (base 4681a0c).
+Listas como categorías verificadas, sin campo paralelo ni lista por defecto;
+privacidad especial de regalos fuera de alcance.
+19 pruebas/602 aserciones correctas en SQLite :memory:, con guardias previas.
+Sin cambios backend/tests persistentes/esquema/.env ni datos locales.
 
-Suite con preflight SQLite :memory: sin URL/caché: 86 pruebas/2456 aserciones,
-sin fallos; 2 omisiones PostgreSQL. Node (1) y build (695 módulos) correctos.
-Ángel confirma edición, movimiento y borrado en escritorio/móvil/teclado.
-Reauditoría test_reviewer PASS; spec033 completada localmente, evidencias
-en tareas. Inicio 20:07, cierre 20:26 CET 23/11/2026: 19 minutos, sin pausas
-comunicadas; GitHub Projects 0.25 h estimadas. Utilidad wishRequest en
-resources/js/utils, carpetas vacías ReadingCard/Wishes/utils eliminadas;
-Node y build repetidos correctamente. Publicación/integración/CI pendientes.
-No abrir navegador ni publicar. La 032 ya integrada, CI verde confirmado por
-Ángel y rama eliminada; no arrastra permisos de publicación a la 033.
+Ángel autorizó en esta misma rama ajustes de WishForm y CSS (Guardar habilitado,
+aviso destacado, Crear lista accesible y conservación de input) y WishList/CSS
+(retirar URL duplicada manteniendo el título enlazado). Prettier/build695/diff
+correctos; Ángel confirma escritorio/móvil/teclado y no perder datos al crear
+lista. Reauditoría test_reviewer PASS. Evidencias en tareas034.
 
-SQLite local conserva las migraciones 013/014 aplicadas y datos previos.
-Web 8000 y Vite 5173 se dejaron activos; no detener mientras Ángel los use.
-Servidor local fuerza SQLite sin cambiar .env. No abrir navegador.
+Inicio 24/11/2026 11:33, cierre 12:05 CET: 32 minutos, sin pausas comunicadas.
+GitHub Projects: 0.5 h estimadas. Pendientes commit, publicación, integración,
+CI externo y copia de artefactos a documentation, sin permisos implícitos.
+No abrir navegador ni publicar. Archivos efímeros de pruebas retirados;
+ninguna base ni directorio borrado. PHP8000 y Vite5173 activos, no detener.
 
 ## Último despliegue
 

@@ -1,6 +1,6 @@
 // Formulario manual de un deseo con lista obligatoria y precio en euros.
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "@inertiajs/react";
 import Field from "../../../components/Field/Field";
 import WishListForm from "../WishListForm/WishListForm";
@@ -22,36 +22,52 @@ export default function WishForm({
   });
   const listControl = useRef(null);
   const createButton = useRef(null);
+  const listNotice = useRef(null);
+  const listCreation = useRef(null);
   const base = `/espacios/${spaceId}/deseos`;
+
+  useEffect(() => {
+    if (form.errors.list_id) listNotice.current?.focus();
+  }, [form.errors.list_id]);
+
+  useEffect(() => {
+    if (creating) listCreation.current?.querySelector("input")?.focus();
+  }, [creating]);
+
+  function openListCreation() {
+    form.clearErrors("list_id");
+    setCreating(true);
+    listCreation.current?.querySelector("input")?.focus();
+  }
   function change(key, value) {
     form.setData(key, value);
+    form.clearErrors(key);
+  }
+
+  function validateList(event) {
+    if (form.data.list_id) return true;
+    event.preventDefault();
+    form.setError(
+      "list_id",
+      lists.length
+        ? "Elige una lista para guardar el deseo."
+        : "Crea una lista para poder guardar el deseo.",
+    );
+    listNotice.current?.focus();
+    return false;
   }
 
   function save(event) {
     event.preventDefault();
     if (form.processing) return;
+    if (!validateList(event)) return;
     if (wish) form.patch(`${base}/${wish.id}`, { preserveScroll: true });
     else form.post(base, { preserveScroll: true });
   }
 
   return (
     <div className={styles.layout}>
-      {creating && (
-        <WishListForm
-          url={`${base}/listas`}
-          onCancel={() => {
-            setCreating(false);
-            createButton.current?.focus();
-          }}
-          onCreated={(list) => {
-            setLists((current) => [...current, list]);
-            change("list_id", String(list.id));
-            setCreating(false);
-            listControl.current?.focus();
-          }}
-        />
-      )}
-      <form onSubmit={save} className={styles.form}>
+      <form key="wish-details" onSubmit={save} className={styles.form}>
         <div className={styles.listChoice}>
           <label htmlFor="wish-list">Lista</label>
           <select
@@ -77,16 +93,15 @@ export default function WishForm({
             ))}
           </select>
           {form.errors.list_id && (
-            <p id="wish-list-error" role="alert">
-              {form.errors.list_id}
-            </p>
+            <p id="wish-list-error">{form.errors.list_id}</p>
           )}
           {!wish && (
             <button
               ref={createButton}
               type="button"
-              onClick={() => setCreating(true)}
-              disabled={creating}
+              onClick={openListCreation}
+              aria-expanded={creating}
+              aria-controls="wish-list-creation"
             >
               Crear lista
             </button>
@@ -128,8 +143,28 @@ export default function WishForm({
           error={form.errors.price}
         />
         <p>El precio es orientativo y no se actualiza automáticamente.</p>
+        {form.errors.list_id && (
+          <div
+            className={styles.notice}
+            role="alert"
+            tabIndex={-1}
+            ref={listNotice}
+          >
+            <strong>No se ha guardado el deseo</strong>
+            <p>{form.errors.list_id}</p>
+            <button
+              type="button"
+              onClick={() => {
+                if (lists.length) listControl.current?.focus();
+                else openListCreation();
+              }}
+            >
+              {lists.length ? "Elegir lista" : "Crear lista"}
+            </button>
+          </div>
+        )}
         {form.errors.save && <p role="alert">{form.errors.save}</p>}
-        <button disabled={form.processing || !lists.length}>
+        <button disabled={form.processing} onClick={validateList}>
           {form.processing
             ? "Guardando…"
             : wish
@@ -137,6 +172,28 @@ export default function WishForm({
               : "Guardar deseo"}
         </button>
       </form>
+      {creating && (
+        <div id="wish-list-creation" ref={listCreation} key="create-wish-list">
+          <WishListForm
+            key="create-wish-list"
+            url={`${base}/listas`}
+            onCancel={() => {
+              setCreating(false);
+              createButton.current?.focus();
+            }}
+            onCreated={(list) => {
+              setLists((current) => [...current, list]);
+              form.setData((current) => ({
+                ...current,
+                list_id: String(list.id),
+              }));
+              form.clearErrors("list_id");
+              setCreating(false);
+              listControl.current?.focus();
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }
