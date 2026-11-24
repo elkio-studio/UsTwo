@@ -21,7 +21,8 @@ const sources = {
 };
 
 export default function ReadingInformation({ reading }) {
-  const { title, author, publication_date, cover_url, provider, external_id } = reading;
+  const { title, author, publication_date, cover_url, provider, external_id } =
+    reading;
   const source = Object.hasOwn(sources, provider) ? sources[provider] : null;
   const id = external_id?.trim();
 
@@ -30,16 +31,28 @@ export default function ReadingInformation({ reading }) {
       poster={<ReadingCover title={title} url={cover_url} eager />}
       synopsis={readingDescription(reading.description, provider)}
     >
-      {author && <><dt>Autoría</dt><dd>{author}</dd></>}
+      {author && (
+        <>
+          <dt>Autoría</dt>
+          <dd>{author}</dd>
+        </>
+      )}
       {publication_date && (
-        <><dt>Publicación</dt><dd><time dateTime={publication_date}>{publication_date}</time></dd></>
+        <>
+          <dt>Publicación</dt>
+          <dd>
+            <time dateTime={publication_date}>{publication_date}</time>
+          </dd>
+        </>
       )}
       <dt>Ficha</dt>
       <dd>
         {source && id ? (
-          <a href={source.url(id)}>{source.linkLabel}</a>
+          <a data-link-kind="external" href={source.url(id)}>
+            {source.linkLabel}
+          </a>
         ) : (
-          source?.label ?? provider ?? "Añadida a mano"
+          (source?.label ?? provider ?? "Añadida a mano")
         )}
       </dd>
     </CollectionInformation>

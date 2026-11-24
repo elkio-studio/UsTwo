@@ -1,0 +1,51 @@
+.buttons {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-small);
+}
+.buttons button {
+  padding: 0.3rem 0.65rem;
+}
+.buttons .edit {
+  display: flex;
+  align-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--color-link);
+  text-align: left;
+}
+.buttons .danger {
+  background: var(--color-danger);
+  border-color: var(--color-error);
+  color: var(--color-warm-linen);
+}
+.dialog {
+  width: min(28rem, calc(100% - 2rem));
+  max-height: calc(100dvh - 2rem);
+  overflow: auto;
+  margin: auto;
+  padding: 1.25rem;
+  background: var(--color-surface);
+  color: var(--color-warm-linen);
+  border: var(--border-width) solid var(--color-control-border);
+  border-radius: var(--radius-control);
+}
+.dialog::backdrop {
+  background: var(--palette-shelf-backdrop);
+}
+.form {
+  display: grid;
+  gap: var(--space-medium);
+}
+.form h2,
+.form p {
+  margin: 0;
+}
+.form [data-field] {
+  margin: 0;
+  max-width: none;
+}
+.form .buttons {
+  display: flex;
+  flex-wrap: wrap;
+}

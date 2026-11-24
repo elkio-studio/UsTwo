@@ -1,7 +1,7 @@
 // Formulario manual de un deseo con lista obligatoria y precio en euros.
 
 import { useEffect, useRef, useState } from "react";
-import { useForm } from "@inertiajs/react";
+import { Link, useForm } from "@inertiajs/react";
 import Field from "../../../components/Field/Field";
 import WishListForm from "../WishListForm/WishListForm";
 import styles from "./WishForm.module.css";
@@ -10,6 +10,7 @@ export default function WishForm({
   spaceId,
   lists: initialLists,
   wish = null,
+  cancelHref = null,
 }) {
   const [lists, setLists] = useState(initialLists);
   const [creating, setCreating] = useState(false);
@@ -29,10 +30,6 @@ export default function WishForm({
   useEffect(() => {
     if (form.errors.list_id) listNotice.current?.focus();
   }, [form.errors.list_id]);
-
-  useEffect(() => {
-    if (creating) listCreation.current?.querySelector("input")?.focus();
-  }, [creating]);
 
   function openListCreation() {
     form.clearErrors("list_id");
@@ -70,41 +67,46 @@ export default function WishForm({
       <form key="wish-details" onSubmit={save} className={styles.form}>
         <div className={styles.listChoice}>
           <label htmlFor="wish-list">Lista</label>
-          <select
-            ref={listControl}
-            id="wish-list"
-            required
-            value={form.data.list_id}
-            onChange={(event) => change("list_id", event.target.value)}
-            aria-invalid={!!form.errors.list_id}
-            aria-describedby={
-              form.errors.list_id ? "wish-list-error" : undefined
-            }
-          >
-            <option value="">
-              {lists.length
-                ? "Elige una lista"
-                : "Crea una lista para guardar tu deseo"}
-            </option>
-            {lists.map((list) => (
-              <option key={list.id} value={list.id}>
-                {list.name}
+          <div className={styles.select}>
+            <select
+              ref={listControl}
+              id="wish-list"
+              required
+              value={form.data.list_id}
+              onChange={(event) => change("list_id", event.target.value)}
+              aria-invalid={!!form.errors.list_id}
+              aria-describedby={
+                form.errors.list_id ? "wish-list-error" : undefined
+              }
+            >
+              <option value="" disabled hidden>
+                {lists.length
+                  ? "Elige una lista"
+                  : "Crea una lista para guardar tu deseo"}
               </option>
-            ))}
-          </select>
-          {form.errors.list_id && (
-            <p id="wish-list-error">{form.errors.list_id}</p>
-          )}
+              {lists.map((list) => (
+                <option key={list.id} value={list.id}>
+                  {list.name}
+                </option>
+              ))}
+            </select>
+          </div>
           {!wish && (
             <button
               ref={createButton}
               type="button"
               onClick={openListCreation}
               aria-expanded={creating}
+              aria-haspopup="dialog"
               aria-controls="wish-list-creation"
             >
               Crear lista
             </button>
+          )}
+          {form.errors.list_id && (
+            <p id="wish-list-error" className={styles.listError}>
+              {form.errors.list_id}
+            </p>
           )}
         </div>
         <Field
@@ -164,16 +166,19 @@ export default function WishForm({
           </div>
         )}
         {form.errors.save && <p role="alert">{form.errors.save}</p>}
-        <button disabled={form.processing} onClick={validateList}>
-          {form.processing
-            ? "Guardando…"
-            : wish
-              ? "Guardar cambios"
-              : "Guardar deseo"}
-        </button>
+        <div className={styles.submitActions}>
+          <button disabled={form.processing} onClick={validateList}>
+            {form.processing
+              ? "Guardando…"
+              : wish
+                ? "Guardar cambios"
+                : "Guardar deseo"}
+          </button>
+          {cancelHref && <Link href={cancelHref}>Cancelar</Link>}
+        </div>
       </form>
       {creating && (
-        <div id="wish-list-creation" ref={listCreation} key="create-wish-list">
+        <div ref={listCreation} key="create-wish-list">
           <WishListForm
             key="create-wish-list"
             url={`${base}/listas`}

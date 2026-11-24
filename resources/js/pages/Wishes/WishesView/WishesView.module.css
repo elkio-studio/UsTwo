@@ -4,7 +4,7 @@
 }
 
 .add,
-.lists a {
+.listChoices > a {
   display: inline-flex;
   align-items: center;
   min-height: var(--control-min-height);
@@ -15,19 +15,33 @@
 }
 
 .add:hover,
-.lists a:hover {
+.listChoices > a:hover {
   text-decoration: none;
 }
 
 .lists {
   display: flex;
-  flex-wrap: wrap;
+  align-items: flex-start;
   gap: var(--space-small);
   margin-block: var(--space-medium);
   overflow-wrap: anywhere;
 }
 
-.lists a[aria-current="page"] {
+.listChoices > a[aria-current="page"] {
   background: var(--color-link);
   color: var(--color-surface);
+}
+
+.listChoices {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-small);
+  min-width: 0;
+  max-width: 100%;
+}
+.listChoices > a {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }

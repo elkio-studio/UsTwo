@@ -2,23 +2,24 @@
 
 ## Foco actual
 
-Spec 034 completada localmente en docs/categorias-deseos (base 4681a0c).
-Listas como categorías verificadas, sin campo paralelo ni lista por defecto;
-privacidad especial de regalos fuera de alcance.
-19 pruebas/602 aserciones correctas en SQLite :memory:, con guardias previas.
-Sin cambios backend/tests persistentes/esquema/.env ni datos locales.
+Spec 035 completada localmente en feat/rediseno-deseos (base97b356e).
+Ángel confirma escritorio, móvil y teclado; revisión de diseño APTO y
+reauditoría test_reviewer PASS. Inicio 24/11/2026 12:28 CET, cierre 21:29 CET;
+9 h estimadas para GitHub Projects por tiempo transcurrido, sin pausas comunicadas.
 
-Ángel autorizó en esta misma rama ajustes de WishForm y CSS (Guardar habilitado,
-aviso destacado, Crear lista accesible y conservación de input) y WishList/CSS
-(retirar URL duplicada manteniendo el título enlazado). Prettier/build695/diff
-correctos; Ángel confirma escritorio/móvil/teclado y no perder datos al crear
-lista. Reauditoría test_reviewer PASS. Evidencias en tareas034.
+Rediseño compacto, formularios/popup estables, descripción sin duplicación y
+regla de subrayados implementados. Gestión de listas mediante único menú al
+extremo derecho para la seleccionada, renombrado y borrado con confirmación
+única/doble; Editar con el aspecto de los enlaces. Sin migraciones nuevas.
 
-Inicio 24/11/2026 11:33, cierre 12:05 CET: 32 minutos, sin pausas comunicadas.
-GitHub Projects: 0.5 h estimadas. Pendientes commit, publicación, integración,
-CI externo y copia de artefactos a documentation, sin permisos implícitos.
-No abrir navegador ni publicar. Archivos efímeros de pruebas retirados;
-ninguna base ni directorio borrado. PHP8000 y Vite5173 activos, no detener.
+SQLite :memory: con guardia: Deseos22/546; suite91/2559 sin fallos, 2 omitidas
+por requerir PostgreSQL aislado. Node1/build703/formato/diff correctos.
+Validación renderizada atribuida a Ángel; agente sin navegador.
+
+Sin commit ni publicación. Pendientes permiso para commit/publicación,
+integración, CI y documentación en documentation. Mantener .env/SQLite y
+PHP8000/Vite5173 intactos. Regla de subagente de diseño en AGENTS/proceso-sdd
+incluida en el trabajo pendiente de esta rama. Evidencias detalladas en spec/tasks035.
 
 ## Último despliegue
 

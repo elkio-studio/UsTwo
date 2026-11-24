@@ -131,6 +131,20 @@ a {
   text-underline-offset: 0.18em;
 }
 
+a,
+a:hover,
+button,
+button:hover {
+  text-decoration: none;
+}
+
+a[data-link-kind="external"],
+a[data-link-kind="external"]:hover,
+a[data-link-kind="documentation"],
+a[data-link-kind="documentation"]:hover {
+  text-decoration: underline;
+}
+
 textarea {
   min-height: 6rem;
   resize: vertical;

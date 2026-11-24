@@ -24,17 +24,29 @@ export default function ReadingSearch({ category, url, onSelect, onManual }) {
     setError("");
 
     try {
-      const response = await fetch(`${url}/catalogo${path}?${new URLSearchParams({ category, ...params })}`, {
-        headers: { Accept: "application/json" },
-        signal: controller.signal,
-      });
+      const response = await fetch(
+        `${url}/catalogo${path}?${new URLSearchParams({ category, ...params })}`,
+        {
+          headers: { Accept: "application/json" },
+          signal: controller.signal,
+        },
+      );
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.errors?.catalog?.[0] ?? data.errors?.q?.[0] ?? "No se pudo consultar el catálogo.");
+        throw new Error(
+          data.errors?.catalog?.[0] ??
+            data.errors?.q?.[0] ??
+            "No se pudo consultar el catálogo.",
+        );
       }
       onSuccess(data);
     } catch (error) {
-      if (!controller.signal.aborted) setError(error instanceof SyntaxError ? "No se pudo consultar el catálogo." : error.message);
+      if (!controller.signal.aborted)
+        setError(
+          error instanceof SyntaxError
+            ? "No se pudo consultar el catálogo."
+            : error.message,
+        );
     } finally {
       if (!controller.signal.aborted) setBusy(false);
     }
@@ -42,9 +54,17 @@ export default function ReadingSearch({ category, url, onSelect, onManual }) {
 
   function search(term, page = 1, selectedVolume = volume) {
     if (page === 1) setResults(null);
-    load("", { q: term, page, ...(selectedVolume ? { volume: selectedVolume.id } : {}) }, (data) => {
-      setResults({ ...data, term, page });
-    });
+    load(
+      "",
+      {
+        q: term,
+        page,
+        ...(selectedVolume ? { volume: selectedVolume.id } : {}),
+      },
+      (data) => {
+        setResults({ ...data, term, page });
+      },
+    );
   }
 
   function choose(item) {
@@ -60,44 +80,71 @@ export default function ReadingSearch({ category, url, onSelect, onManual }) {
 
   return (
     <div className={styles.search}>
-      <form onSubmit={(event) => {
-        event.preventDefault();
-        search(query.trim());
-      }}>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          search(query.trim());
+        }}
+      >
         {volume && (
           <p>
-            <strong>{volume.title}</strong> {volume.context}
-            {" "}
-            <button type="button" disabled={busy} onClick={() => {
-              setVolume(null);
-              setQuery("");
-              setResults(null);
-              setError("");
-              field.current?.focus();
-            }}>Cambiar colección</button>
+            <strong>{volume.title}</strong> {volume.context}{" "}
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => {
+                setVolume(null);
+                setQuery("");
+                setResults(null);
+                setError("");
+                field.current?.focus();
+              }}
+            >
+              Cambiar colección
+            </button>
           </p>
         )}
         <Field
           ref={field}
           autoFocus
-          label={volume ? "Número (opcional)" : choosingVolume ? "Nombre de la colección" : "Título"}
+          label={
+            volume
+              ? "Número (opcional)"
+              : choosingVolume
+                ? "Nombre de la colección"
+                : "Título"
+          }
           value={query}
           maxLength={volume ? 24 : 120}
           onChange={(event) => setQuery(event.target.value)}
         />
         <button disabled={busy || (!volume && !query.trim())}>Buscar</button>
       </form>
-      {comics && <a href="https://comicvine.gamespot.com/">Comic Vine</a>}
-      {category === "manga" && <a href="https://www.mangaupdates.com/">MangaUpdates</a>}
+      {comics && (
+        <a data-link-kind="external" href="https://comicvine.gamespot.com/">
+          Comic Vine
+        </a>
+      )}
+      {category === "manga" && (
+        <a data-link-kind="external" href="https://www.mangaupdates.com/">
+          MangaUpdates
+        </a>
+      )}
       {busy && <p role="status">Consultando el catálogo…</p>}
-      {error && <p role="alert">{error} Puedes añadir la lectura manualmente.</p>}
+      {error && (
+        <p role="alert">{error} Puedes añadir la lectura manualmente.</p>
+      )}
       {results && (
         <div aria-busy={busy}>
           {results.items.length ? (
             <ul className={styles.results}>
               {results.items.map((item) => (
                 <li key={item.id}>
-                  <button type="button" disabled={busy} onClick={() => choose(item)}>
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => choose(item)}
+                  >
                     <ReadingCover title={item.title} url={item.cover_url} />
                     <span>
                       {item.title}
@@ -107,19 +154,35 @@ export default function ReadingSearch({ category, url, onSelect, onManual }) {
                 </li>
               ))}
             </ul>
-          ) : <p role="status">Sin coincidencias.</p>}
+          ) : (
+            <p role="status">Sin coincidencias.</p>
+          )}
           <div className={styles.pagination}>
             {results.page > 1 && (
-              <button type="button" disabled={busy} onClick={() => search(results.term, results.page - 1)}>Anterior</button>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => search(results.term, results.page - 1)}
+              >
+                Anterior
+              </button>
             )}
             {results.hasMore && results.page < 100 && (
-              <button type="button" disabled={busy} onClick={() => search(results.term, results.page + 1)}>Siguiente</button>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => search(results.term, results.page + 1)}
+              >
+                Siguiente
+              </button>
             )}
           </div>
         </div>
       )}
       <div>
-        <button type="button" onClick={onManual}>Añadir a mano</button>
+        <button type="button" onClick={onManual}>
+          Añadir a mano
+        </button>
       </div>
     </div>
   );

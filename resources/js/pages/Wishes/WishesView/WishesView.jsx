@@ -2,7 +2,9 @@
 
 import JournalLayout from "../../../components/Journal/JournalLayout/JournalLayout";
 import { Link } from "@inertiajs/react";
+import { useRef } from "react";
 import WishList from "../WishList/WishList";
+import WishListActions from "../WishListActions/WishListActions";
 import "../../../../css/global.css";
 import styles from "./WishesView.module.css";
 
@@ -13,26 +15,55 @@ export default function WishesView({
   selectedListId,
 }) {
   const selected = lists.find((list) => list.id === selectedListId);
+  const navigation = useRef(null);
+  const addLink = useRef(null);
+  function focusAfterDelete() {
+    requestAnimationFrame(() => {
+      const target =
+        navigation.current?.querySelector('[aria-current="page"]') ??
+        addLink.current;
+      target?.focus();
+    });
+  }
   return (
     <JournalLayout
       theme="cinema"
       title="Deseos"
       back={{ href: "/" + spaceSlug, label: "Volver a la estantería" }}
     >
-      <Link href={`/espacios/${spaceId}/deseos/nuevo`} className={styles.add}>
+      <Link
+        ref={addLink}
+        href={`/espacios/${spaceId}/deseos/nuevo`}
+        className={styles.add}
+      >
         Añadir enlace
       </Link>
       {lists.length > 0 && (
-        <nav aria-label="Listas de deseos" className={styles.lists}>
-          {lists.map((list) => (
-            <Link
-              key={list.id}
-              href={`/espacios/${spaceId}/deseos?list=${list.id}`}
-              aria-current={selectedListId === list.id ? "page" : undefined}
-            >
-              {list.name}
-            </Link>
-          ))}
+        <nav
+          ref={navigation}
+          aria-label="Listas de deseos"
+          className={styles.lists}
+        >
+          <div className={styles.listChoices}>
+            {lists.map((list) => (
+              <Link
+                key={list.id}
+                href={`/espacios/${spaceId}/deseos?list=${list.id}`}
+                aria-current={selectedListId === list.id ? "page" : undefined}
+              >
+                {list.name}
+              </Link>
+            ))}
+          </div>
+          {selected && (
+            <WishListActions
+              key={selected.id}
+              list={selected}
+              spaceId={spaceId}
+              selectedListId={selectedListId}
+              onDeleted={focusAfterDelete}
+            />
+          )}
         </nav>
       )}
       {selected ? (

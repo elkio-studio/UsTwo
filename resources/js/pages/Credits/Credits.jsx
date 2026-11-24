@@ -12,7 +12,11 @@ export default function Credits() {
     >
       <p className={styles.attribution}>
         El catálogo, las portadas y las sinopsis de películas y series proceden
-        de <a href="https://www.themoviedb.org">The Movie Database (TMDB)</a>.
+        de{" "}
+        <a data-link-kind="external" href="https://www.themoviedb.org">
+          The Movie Database (TMDB)
+        </a>
+        .
       </p>
       <img src="/tmdb.svg" width="72" alt="TMDB" />
       <p lang="en">

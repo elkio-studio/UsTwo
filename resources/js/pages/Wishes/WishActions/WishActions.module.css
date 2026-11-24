@@ -1,26 +1,19 @@
-.actions {
-  display: contents;
-}
-
-.actions > button {
-  grid-column: 2;
-}
-
-.panel {
-  grid-column: 1 / -1;
-  margin-block-start: var(--space-small);
-  overflow-wrap: anywhere;
-}
-
 .buttons {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  display: grid;
+  justify-items: start;
   gap: var(--space-small);
 }
-
-.buttons a,
-.buttons a:hover,
-.actions button:hover {
-  text-decoration: none;
+.buttons a {
+  display: flex;
+  align-items: center;
+  min-height: var(--control-min-height);
+  padding: 0.3rem 0.65rem;
+}
+.buttons button {
+  padding: 0.3rem 0.65rem;
+}
+.buttons .danger {
+  background: var(--color-danger);
+  border-color: var(--color-error);
+  color: var(--color-warm-linen);
 }

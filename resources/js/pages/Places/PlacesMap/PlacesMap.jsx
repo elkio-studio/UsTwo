@@ -13,7 +13,14 @@ import {
 import "leaflet/dist/leaflet.css";
 import styles from "./PlacesMap.module.css";
 
-export default function PlacesMap({ tilesKey, lists, point, onPick, onSelect, destination }) {
+export default function PlacesMap({
+  tilesKey,
+  lists,
+  point,
+  onPick,
+  onSelect,
+  destination,
+}) {
   const container = useRef(null);
   const mapRef = useRef(null);
   const saved = useRef(null);
@@ -26,7 +33,10 @@ export default function PlacesMap({ tilesKey, lists, point, onPick, onSelect, de
   useEffect(() => {
     if (!tilesKey) return;
 
-    const instance = map(container.current, { zoomControl: false }).setView([40.4, -3.7], 5);
+    const instance = map(container.current, { zoomControl: false }).setView(
+      [40.4, -3.7],
+      5,
+    );
     control.zoom({ position: "topright" }).addTo(instance);
     const tiles = tileLayer(
       "https://maps.geoapify.com/v1/tile/osm-carto/{z}/{x}/{y}.png?apiKey=" +
@@ -34,7 +44,7 @@ export default function PlacesMap({ tilesKey, lists, point, onPick, onSelect, de
       {
         maxZoom: 20,
         attribution:
-          'Powered by <a href="https://www.geoapify.com/">Geoapify</a> | © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          'Powered by <a data-link-kind="external" href="https://www.geoapify.com/">Geoapify</a> | © <a data-link-kind="external" href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       },
     );
     tiles.on("tileerror", () => setTileError(true));

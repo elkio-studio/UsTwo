@@ -63,11 +63,17 @@ Para trabajo de interfaz, aplica las skills locales `ui-ux-pro-max`,
 del flujo» de `docs/proceso-sdd.md`. Esa sección delimita su uso por fase y
 prevalece sobre sus automatismos y recomendaciones genéricas.
 
-El agente principal es el único escritor. `spec_reviewer`, `plan_reviewer` y
-`test_reviewer` son revisores lógicos de solo lectura: no modifican archivos,
-no toman decisiones y no reparan hallazgos. Sus permisos técnicos se heredan de
-la sesión padre, por lo que esta restricción también debe imponerse en la tarea
-que se les delegue.
+La revisión de diseño y usabilidad por un subagente es obligatoria siempre
+que se prepare o implemente un cambio de interfaz, también cuando Ángel
+indique directamente cómo quiere su forma, posición, estilo o comportamiento.
+Aplica el contrato de «Revisión obligatoria de diseño y usabilidad» de
+`docs/proceso-sdd.md`; no sustituirla por una revisión del agente principal.
+
+El agente principal es el único escritor. `spec_reviewer`, `plan_reviewer`,
+`test_reviewer` y el subagente de diseño son revisores lógicos de solo lectura:
+no modifican archivos, no toman decisiones y no reparan hallazgos. Sus permisos
+técnicos se heredan de la sesión padre, por lo que esta restricción también
+debe imponerse en la tarea que se les delegue.
 
 ## Git
 

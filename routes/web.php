@@ -41,6 +41,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/deseos/nuevo', [WishController::class, 'create'])->name('wishes.create');
         Route::post('/deseos', [WishController::class, 'store']);
         Route::post('/deseos/listas', [WishListController::class, 'store']);
+        Route::patch('/deseos/listas/{listId}', [WishListController::class, 'update'])->whereNumber('listId');
+        Route::delete('/deseos/listas/{listId}', [WishListController::class, 'destroy'])->whereNumber('listId');
         Route::get('/deseos/{wish}/editar', [WishController::class, 'edit'])->whereNumber('wish')->name('wishes.edit');
         Route::patch('/deseos/{wish}', [WishController::class, 'update'])->whereNumber('wish')->name('wishes.update');
         Route::delete('/deseos/{wish}', [WishController::class, 'destroy'])->whereNumber('wish')->name('wishes.destroy');

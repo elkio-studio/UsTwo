@@ -1,0 +1,30 @@
+.dialog {
+  width: min(28rem, calc(100% - 2rem));
+  max-height: calc(100dvh - 2rem);
+  overflow: auto;
+  margin: auto;
+  padding: 1.25rem;
+  background: var(--color-surface);
+  color: var(--color-warm-linen);
+  border: var(--border-width) solid var(--color-control-border);
+  border-radius: var(--radius-control);
+}
+.dialog::backdrop {
+  background: var(--palette-shelf-backdrop);
+}
+.form {
+  display: grid;
+  gap: var(--space-medium);
+}
+.form h2 {
+  margin: 0;
+}
+.form [data-field] {
+  margin: 0;
+  max-width: none;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-small);
+}

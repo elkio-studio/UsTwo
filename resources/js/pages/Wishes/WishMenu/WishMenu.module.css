@@ -1,0 +1,42 @@
+.actions {
+  position: relative;
+}
+.actions:has(.panel) {
+  z-index: 10;
+}
+.actions > button {
+  min-width: var(--control-min-height);
+  padding-inline: 0.5rem;
+}
+.panel {
+  position: absolute;
+  z-index: 20;
+  width: max-content;
+  max-width: calc(100vw - 1rem);
+  overflow: auto;
+  padding: var(--space-small);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-control-border);
+  border-radius: var(--radius-control);
+  box-shadow: 0 0.5rem 1rem var(--palette-drawer-deep-shadow);
+  overflow-wrap: anywhere;
+}
+.confirmation {
+  width: 18rem;
+}
+.menu {
+  padding: 0.25rem;
+}
+.menu > div {
+  display: grid;
+  gap: 0;
+  justify-items: start;
+}
+.menu a,
+.menu button {
+  min-height: var(--control-min-height);
+  padding: 0.3rem 0.65rem;
+}
+.panel p {
+  margin: 0 0 var(--space-small);
+}

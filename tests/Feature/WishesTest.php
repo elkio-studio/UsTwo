@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Space;
 use App\Models\User;
 use App\Models\Wish;
+use App\Models\WishList;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -295,6 +296,132 @@ class WishesTest extends TestCase
             $this->assertSame($before, $wish->fresh()->getAttributes());
             $this->assertDatabaseCount('wish_lists', 2);
         } finally { Wish::flushEventListeners(); }
+    }
+
+    public function test_any_member_can_rename_a_list_without_changing_its_wishes(): void
+    {
+        Http::preventStrayRequests();
+        $one = $this->space->wishLists()->create(['name' => 'Primera']);
+        $two = $this->space->wishLists()->create(['name' => 'Seleccionada']);
+        $wish = $this->wish($one->id);
+        $before = $wish->fresh()->getAttributes();
+        $member = $this->account('listmember');
+        $this->space->members()->attach($member);
+        $url = $this->base.'/listas/'.$one->id;
+        $this->actingAs($member)->patch($url, ['name' => '  Renombrada  ', 'selected_list_id' => $two->id,
+            'space_id' => 999999, 'id' => 999999])->assertRedirect($this->base.'?list='.$two->id);
+        $this->assertDatabaseHas('wish_lists', ['id' => $one->id, 'name' => 'Renombrada', 'space_id' => $this->space->id]);
+        $this->assertSame($before, $wish->fresh()->getAttributes());
+        foreach (['   ', str_repeat('x', 256)] as $name) {
+            $this->from($this->base)->patch($url, ['name' => $name])->assertSessionHasErrors('name');
+            $this->assertSame('Renombrada', $one->fresh()->name);
+            $this->assertSame($before, $wish->fresh()->getAttributes());
+        }
+        $this->get($this->base.'?list='.$two->id)->assertInertia(fn (Assert $page) => $page
+            ->where('lists.0.name', 'Renombrada')->where('selectedListId', $two->id));
+        Http::assertNothingSent();
+    }
+
+    public function test_list_management_is_scoped_to_the_route_and_current_membership(): void
+    {
+        $own = $this->space->wishLists()->create(['name' => 'Propia']);
+        $otherSpace = Space::create(['name' => 'Otra', 'owner_id' => $this->owner->id]);
+        $otherSpace->members()->attach($this->owner);
+        $foreign = $otherSpace->wishLists()->create(['name' => 'Ajena']);
+        $url = $this->base.'/listas/'.$own->id;
+        $this->patch($url, ['name' => 'No'])->assertRedirect('/acceso');
+        $this->delete($url, ['confirmed' => true, 'confirmed_count' => 0])->assertRedirect('/acceso');
+        $this->actingAs($this->owner);
+        foreach ([$foreign->id, 999999] as $id) {
+            $this->patch($this->base.'/listas/'.$id, ['name' => 'No'])->assertNotFound();
+            $this->delete($this->base.'/listas/'.$id, ['confirmed' => true, 'confirmed_count' => 0])->assertNotFound();
+        }
+        $this->patch($url, ['name' => 'Propia', 'selected_list_id' => $foreign->id])
+            ->assertRedirect($this->base.'?list='.$own->id);
+        $this->actingAs($this->account('listoutsider'));
+        $this->patch($url, ['name' => 'No'])->assertNotFound();
+        $this->delete($url, ['confirmed' => true, 'confirmed_count' => 0])->assertNotFound();
+        $this->actingAs($this->owner);
+        $this->space->members()->detach($this->owner);
+        $this->patch($url, ['name' => 'No'])->assertNotFound();
+        $this->delete($url, ['confirmed' => true, 'confirmed_count' => 0])->assertNotFound();
+        $this->assertDatabaseHas('wish_lists', ['id' => $own->id, 'name' => 'Propia']);
+        $this->assertDatabaseHas('wish_lists', ['id' => $foreign->id, 'name' => 'Ajena']);
+    }
+
+    public function test_deleting_lists_requires_confirmation_and_a_current_count(): void
+    {
+        Http::preventStrayRequests();
+        $list = $this->space->wishLists()->create(['name' => 'Objetivo']);
+        $url = $this->base.'/listas/'.$list->id;
+        $this->actingAs($this->owner);
+        foreach ([[], ['confirmed' => false, 'confirmed_count' => 0], ['confirmed' => true],
+            ['confirmed' => true, 'confirmed_count' => -1], ['confirmed' => true, 'confirmed_count' => []]] as $invalid) {
+            $this->delete($url, $invalid)->assertSessionHasErrors();
+            $this->assertDatabaseHas('wish_lists', ['id' => $list->id]);
+        }
+        // Una lista vacía al abrir la confirmación recibe un deseo antes del envío.
+        $wish = $this->wish($list->id);
+        $this->from($this->base)->delete($url, ['confirmed' => true, 'confirmed_count' => 0])
+            ->assertSessionHasErrors('confirmed_count');
+        $this->assertDatabaseHas('wish_lists', ['id' => $list->id]);
+        $this->assertDatabaseHas('wishes', ['id' => $wish->id]);
+        $this->get($this->base)->assertInertia(fn (Assert $page) => $page->has('lists.0.wishes', 1));
+        // Solo una confirmación nueva con el recuento actual permite borrar.
+        $this->delete($url, ['confirmed' => true, 'confirmed_count' => 1])->assertRedirect($this->base);
+        $this->assertDatabaseCount('wish_lists', 0);
+        $this->assertDatabaseCount('wishes', 0);
+        $this->get($this->base)->assertInertia(fn (Assert $page) => $page
+            ->has('lists', 0)->where('selectedListId', null));
+        Http::assertNothingSent();
+    }
+
+    public function test_list_deletion_cascades_only_its_wishes_and_preserves_a_valid_selection(): void
+    {
+        $one = $this->space->wishLists()->create(['name' => 'Primera']);
+        $target = $this->space->wishLists()->create(['name' => 'Borrar']);
+        $selected = $this->space->wishLists()->create(['name' => 'Seleccionada']);
+        $keep = $this->wish($one->id);
+        $removed = $this->wish($target->id);
+        $this->wish($target->id);
+        $before = $keep->fresh()->getAttributes();
+        $member = $this->account('listdeleter');
+        $this->space->members()->attach($member);
+        $this->actingAs($member)->delete($this->base.'/listas/'.$target->id, [
+            'confirmed' => true, 'confirmed_count' => 2, 'selected_list_id' => $selected->id,
+        ])->assertRedirect($this->base.'?list='.$selected->id);
+        $this->assertDatabaseMissing('wish_lists', ['id' => $target->id]);
+        $this->assertDatabaseMissing('wishes', ['id' => $removed->id]);
+        $this->assertDatabaseCount('wishes', 1);
+        $this->assertSame($before, $keep->fresh()->getAttributes());
+        $this->delete($this->base.'/listas/'.$selected->id, [
+            'confirmed' => true, 'confirmed_count' => 0, 'selected_list_id' => $selected->id,
+        ])->assertRedirect($this->base.'?list='.$one->id);
+        $this->get($this->base.'?list='.$one->id)->assertInertia(fn (Assert $page) => $page
+            ->where('selectedListId', $one->id)->has('lists', 1)->has('lists.0.wishes', 1));
+    }
+
+    public function test_failed_list_rename_or_delete_rolls_back_list_and_cascaded_wishes(): void
+    {
+        $list = $this->space->wishLists()->create(['name' => 'Conservar']);
+        $this->wish($list->id);
+        $snapshot = fn () => [DB::table('wish_lists')->orderBy('id')->get()->toArray(),
+            DB::table('wishes')->orderBy('id')->get()->toArray()];
+        $before = $snapshot();
+        $url = $this->base.'/listas/'.$list->id;
+        $this->actingAs($this->owner);
+        WishList::updated(function () { throw new QueryException('testing', 'update wish_lists', [], new \Exception('failure')); });
+        try {
+            $this->from($this->base)->patch($url, ['name' => 'Input conservado'])
+                ->assertSessionHasErrors('save')->assertSessionHasInput('name', 'Input conservado');
+            $this->assertEquals($before, $snapshot());
+        } finally { WishList::flushEventListeners(); }
+        WishList::deleted(function () { throw new QueryException('testing', 'delete wish_lists', [], new \Exception('failure')); });
+        try {
+            $this->from($this->base)->delete($url, ['confirmed' => true, 'confirmed_count' => 1])
+                ->assertSessionHasErrors('delete');
+            $this->assertEquals($before, $snapshot());
+        } finally { WishList::flushEventListeners(); }
     }
 
     private function wish(int $listId): Wish

@@ -1,0 +1,9 @@
+.page[data-theme="cinema"] > header {
+  margin-bottom: 0.5rem;
+  padding-block: 0.75rem;
+}
+
+.page[data-theme="cinema"] > h1 {
+  font-size: clamp(1.9rem, 5vw, 3rem);
+  margin-block: 0.5rem;
+}
