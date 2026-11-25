@@ -6,6 +6,7 @@ use App\Models\Space;
 use App\Models\SpaceInvitation;
 use App\Models\User;
 use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -116,17 +117,67 @@ class SpaceController extends Controller
     {
         $data = $request->validate(['slot' => 'required|integer|between:1,8']);
         $slot = (int) $data['slot'];
-        $query = Space::whereKey($space->id);
-        foreach ($otherColumns as $other) {
-            $query->where(fn ($query) => $query->whereNull($other)->orWhere($other, '!=', $slot));
-        }
-        $placed = $query->update([$column => $slot]);
-
-        if (! $placed) {
-            throw ValidationException::withMessages(['slot' => 'Este hueco ya está ocupado. Elige otro.']);
-        }
+        DB::transaction(function () use ($request, $space, $column, $otherColumns, $slot) {
+            $locked = $this->lockShelf($request, $space);
+            foreach ($otherColumns as $other) {
+                if ($locked->$other === $slot) {
+                    throw ValidationException::withMessages(['slot' => 'Este hueco ya está ocupado. Elige otro.']);
+                }
+            }
+            $locked->forceFill([$column => $slot])->save();
+        }, 3);
 
         return to_route('spaces.show', $space->slug);
+    }
+
+    public function moveDrawer(Request $request, Space $space)
+    {
+        $columns = ['peliculas' => 'movie_slot', 'series' => 'series_slot',
+            'sitios' => 'places_slot', 'lecturas' => 'reading_slot', 'deseos' => 'wish_slot'];
+        $rules = ['drawer' => 'required|in:'.implode(',', array_keys($columns)),
+            'slot' => 'required|integer|between:1,8',
+            'expected_positions' => 'required|array:'.implode(',', $columns)];
+        foreach ($columns as $column) $rules['expected_positions.'.$column] = 'present|nullable|integer|between:1,8';
+        $data = $request->validate($rules);
+        $expected = array_map(fn ($value) => $value === null ? null : (int) $value, $data['expected_positions']);
+        $occupied = array_filter($expected, fn ($value) => $value !== null);
+        if (count($occupied) !== count(array_unique($occupied))) {
+            throw ValidationException::withMessages(['movement' => 'La distribución indicada no es válida. Recarga la estantería.']);
+        }
+        try {
+            DB::transaction(function () use ($request, $space, $columns, $data, $expected) {
+                $locked = $this->lockShelf($request, $space);
+                foreach ($columns as $column) {
+                    if ($locked->$column !== $expected[$column]) {
+                        throw ValidationException::withMessages(['movement' => 'La estantería ha cambiado. Revisa sus posiciones antes de volver a mover.']);
+                    }
+                }
+                $source = $columns[$data['drawer']];
+                $origin = $locked->$source;
+                if ($origin === null) {
+                    throw ValidationException::withMessages(['movement' => 'Este cajón todavía no está colocado. Añádelo desde un hueco vacío.']);
+                }
+                $target = (int) $data['slot'];
+                if ($origin === $target) return;
+                $updates = [$source => $target];
+                foreach ($columns as $column) {
+                    if ($column !== $source && $locked->$column === $target) $updates[$column] = $origin;
+                }
+                // Una sentencia conserva las restricciones también al intercambiar.
+                $locked->forceFill($updates)->save();
+            }, 3);
+        } catch (QueryException) {
+            throw ValidationException::withMessages(['movement' => 'No se pudo mover el cajón. Las posiciones anteriores se conservan.']);
+        }
+        return to_route('spaces.show', $space->slug);
+    }
+
+    private function lockShelf(Request $request, Space $space): Space
+    {
+        if (DB::getDriverName() === 'sqlite') DB::table('spaces')->where('id', $space->id)->update(['id' => DB::raw('id')]);
+        $locked = Space::whereKey($space->id)->lockForUpdate()->firstOrFail();
+        abort_unless($locked->members()->whereKey($request->user()->id)->exists(), 404);
+        return $locked;
     }
 
     public function removeMember(Request $request, Space $space, string $member)

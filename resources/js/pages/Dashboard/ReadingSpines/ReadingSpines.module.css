@@ -189,3 +189,9 @@
     }
   }
 }
+
+/* Misma especificidad que hover/foco, después de sus reglas. */
+:global([data-shelf-moving="true"]) .shelf .book {
+  transform: none;
+  transition: none;
+}

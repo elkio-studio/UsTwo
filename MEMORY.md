@@ -2,24 +2,34 @@
 
 ## Foco actual
 
-Spec 035 completada localmente en feat/rediseno-deseos (base97b356e).
-Ángel confirma escritorio, móvil y teclado; revisión de diseño APTO y
-reauditoría test_reviewer PASS. Inicio 24/11/2026 12:28 CET, cierre 21:29 CET;
-9 h estimadas para GitHub Projects por tiempo transcurrido, sin pausas comunicadas.
+Spec036 completada localmente en feat/arrastrar-cajones (base0923c66).
+Inicio25/11/2026 08:22CET; cierre08:59CET, 37min sin pausas comunicadas;
+GitHub Projects0.75h estimadas por tiempo transcurrido, valor bajo título.
+Ángel confirma mover/intercambiar en escritorio, móvil y teclado. Diseño APTO,
+reauditoría final test_reviewer PASS. Evidencias en spec/tasks036.
 
-Rediseño compacto, formularios/popup estables, descripción sin duplicación y
-regla de subrayados implementados. Gestión de listas mediante único menú al
-extremo derecho para la seleccionada, renombrado y borrado con confirmación
-única/doble; Editar con el aspecto de los enlaces. Sin migraciones nuevas.
+Movimiento atómico, snapshot/conflictos y permisos implementados sin migración.
+Ratón, pulsación mantenida móvil, toque destino y teclado. + siempre en vacíos;
+status accesible y sin botón Cancelar (gestos cancelables). Ayuda estática
+retirada posteriormente por petición de Ángel.
+Suite SQLite memoria con guardia96/2736 sin fallos, 2 omisiones PostgreSQL;
+Node3/build705/formato/diff correctos. Sin navegador del agente ni datos borrados.
 
-SQLite :memory: con guardia: Deseos22/546; suite91/2559 sin fallos, 2 omitidas
-por requerir PostgreSQL aislado. Node1/build703/formato/diff correctos.
-Validación renderizada atribuida a Ángel; agente sin navegador.
+PHP8000/Vite5173 activos; lanzador temporal corregido para usar public/index.php
+sin reiniciarlos. .env/SQLite intactos. No commit ni publicación autorizados;
+pendientes commit/integración/dev/CI y documentación en documentation.
+US#46 cerrada en GitHub por instrucción expresa de Ángel tras validar en local;
+no implica integración ni CI. Comentario sobre nueva US de código muerto
+entregado como borrador, no publicado; creación de esa US pendiente.
 
-Sin commit ni publicación. Pendientes permiso para commit/publicación,
-integración, CI y documentación en documentation. Mantener .env/SQLite y
-PHP8000/Vite5173 intactos. Regla de subagente de diseño en AGENTS/proceso-sdd
-incluida en el trabajo pendiente de esta rama. Evidencias detalladas en spec/tasks035.
+Repaso posterior solicitado: sin !important en CSS propio (regla añadida a
+AGENTS/convenciones), hook en resources/js/hooks, funciones puras en utils.
+Informe docs/revision-codigo-sin-uso.md revisa front/back/entradas e inventario;
+hallazgos adicionales documentados, sin borrado masivo. Guarda de ocupado del
+alta conservada: no es la ruta de arrastre/intercambio y sigue siendo alcanzable.
+
+Spec035 integrada/publicada previamente en dev0923c66 y documentation97eeaa9,
+CI verde confirmado por Ángel y rama feat/rediseno-deseos borrada local/origin.
 
 ## Último despliegue
 

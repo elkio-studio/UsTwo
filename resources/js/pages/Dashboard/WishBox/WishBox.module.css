@@ -71,3 +71,9 @@
     }
   }
 }
+
+/* Misma especificidad que hover/foco, después de sus reglas. */
+:global([data-shelf-moving="true"]) .link .card {
+  transform: none;
+  transition: none;
+}

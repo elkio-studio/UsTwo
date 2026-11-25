@@ -88,6 +88,44 @@
   place-items: center;
 }
 
+.slot[data-origin="true"] {
+  outline: 2px dashed var(--shelf-focus);
+  outline-offset: -3px;
+}
+.slot[data-target="true"] {
+  outline: 3px solid var(--shelf-focus);
+  outline-offset: -3px;
+}
+.shelf[data-shelf-moving="true"] {
+  user-select: none;
+}
+.shelf[data-shelf-moving="true"] .drawer {
+  transform: none;
+  transition: none;
+}
+.movementNotice {
+  position: relative;
+  z-index: 1;
+  margin-inline: auto;
+  max-width: 48rem;
+  text-align: center;
+  pointer-events: none;
+}
+.movementNotice p {
+  margin-block: 0.25rem;
+}
+.accessibleText {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
 .addDrawer {
   position: relative;
   appearance: none;

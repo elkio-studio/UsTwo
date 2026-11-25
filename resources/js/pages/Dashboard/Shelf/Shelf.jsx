@@ -8,6 +8,7 @@ import ReadingSpines from "../ReadingSpines/ReadingSpines";
 import WishBox from "../WishBox/WishBox";
 import placesGlobe from "../../../../images/estanteria/sitios/globo-sitios.webp";
 import woodenDrawer from "../../../../images/estanteria/cajon/cajon-madera.webp";
+import useShelfMovement from "../../../hooks/useShelfMovement";
 
 const drawers = [
   {
@@ -46,6 +47,14 @@ export default function Shelf({ activeSpace }) {
   const navigation = useRef(null);
   const drawerDialog = useRef(null);
   const placement = useForm({ slot: null });
+  const moving = useShelfMovement(
+    activeSpace,
+    drawers,
+    opening || placement.processing,
+  );
+  const available = drawers.filter(
+    ({ position }) => activeSpace[position] === null,
+  );
 
   useEffect(() => () => window.clearTimeout(navigation.current), []);
 
@@ -80,7 +89,19 @@ export default function Shelf({ activeSpace }) {
   return (
     <>
       <p className={styles.subtitle}>Lo que guardamos juntos</p>
-      <nav aria-label="Colecciones de UsTwo" className={styles.shelf}>
+      <div className={styles.movementNotice}>
+        <p className={styles.accessibleText} role="status" aria-live="polite">
+          {moving.message}
+        </p>
+        {moving.error && <p role="alert">{moving.error}</p>}
+      </div>
+      <nav
+        ref={moving.root}
+        aria-label="Colecciones de UsTwo"
+        className={styles.shelf}
+        data-shelf-moving={!!moving.movement}
+        aria-busy={moving.movement?.mode === "saving"}
+      >
         <div className={styles.scene}>
           <span className={styles.candle} aria-hidden="true" />
           <span className={styles.candle} aria-hidden="true" />
@@ -91,7 +112,16 @@ export default function Shelf({ activeSpace }) {
                 ({ position }) => activeSpace[position] === slot,
               );
               return (
-                <div className={styles.slot} key={slot}>
+                <div
+                  className={styles.slot}
+                  key={slot}
+                  data-slot={slot}
+                  data-drawer={drawer?.path}
+                  data-origin={moving.movement?.origin === slot}
+                  data-target={moving.movement?.target === slot}
+                  tabIndex={-1}
+                  aria-label={`Hueco ${slot}${drawer ? `: ${drawer.label}` : ": vacío"}`}
+                >
                   {drawer?.path === "lecturas" ? (
                     <ReadingSpines
                       href={`/espacios/${activeSpace.id}/lecturas`}
@@ -132,7 +162,7 @@ export default function Shelf({ activeSpace }) {
                         <img src={drawer.image} alt="" />
                         {drawer.path === "sitios" && (
                           <GlobeSurface
-                            spinning={globeHovered}
+                            spinning={globeHovered && !moving.movement}
                             palette="color"
                           />
                         )}
@@ -141,7 +171,7 @@ export default function Shelf({ activeSpace }) {
                         </span>
                       </span>
                     </Link>
-                  ) : (
+                  ) : !moving.movement ? (
                     <button
                       type="button"
                       className={styles.addDrawer}
@@ -152,7 +182,7 @@ export default function Shelf({ activeSpace }) {
                         drawerDialog.current.showModal();
                       }}
                     />
-                  )}
+                  ) : null}
                 </div>
               );
             })}
@@ -165,10 +195,12 @@ export default function Shelf({ activeSpace }) {
         aria-labelledby="drawer-dialog-title"
       >
         <h2 id="drawer-dialog-title">Elige un cajón</h2>
-        <p>Si mueves un cajón, su colección se conserva.</p>
+        {available.length === 0 && (
+          <p>Todos los cajones disponibles ya están colocados.</p>
+        )}
         {placement.errors.slot && <p role="alert">{placement.errors.slot}</p>}
         <div className={styles.drawerActions}>
-          {drawers.map(({ label, path, position }) => (
+          {available.map(({ label, path }) => (
             <button
               key={path}
               type="button"
@@ -180,9 +212,7 @@ export default function Shelf({ activeSpace }) {
                 });
               }}
             >
-              {activeSpace[position]
-                ? `Mover ${label} aquí`
-                : `Añadir ${label}`}
+              {`Añadir ${label}`}
             </button>
           ))}
           <button type="button" onClick={() => drawerDialog.current.close()}>

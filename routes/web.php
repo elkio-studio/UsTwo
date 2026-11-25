@@ -32,6 +32,7 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('/espacios/{space}')->where(['space' => '[0-9]+'])->scopeBindings()->middleware(RequireSpaceMembership::class)->group(function () {
         Route::put('/activo', [SpaceController::class, 'select']);
+        Route::put('/cajones/mover', [SpaceController::class, 'moveDrawer']);
         Route::put('/cajones/peliculas', [SpaceController::class, 'placeMovieDrawer']);
         Route::put('/cajones/series', [SpaceController::class, 'placeSeriesDrawer']);
         Route::put('/cajones/sitios', [SpaceController::class, 'placePlacesDrawer']);

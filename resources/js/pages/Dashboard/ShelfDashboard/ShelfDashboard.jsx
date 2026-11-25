@@ -30,7 +30,7 @@ export default function ShelfDashboard({
       }
     >
       {activeSpace ? (
-        <Shelf activeSpace={activeSpace} />
+        <Shelf key={activeSpace.id} activeSpace={activeSpace} />
       ) : (
         <ShelfPicker spaces={spaces} />
       )}

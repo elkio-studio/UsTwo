@@ -92,6 +92,9 @@ Los commits autorizados se escriben en español con el formato
 
 ## Calidad, documentación y seguridad
 
+En CSS propio nunca uses `!important`. Resuelve la cascada mediante el orden,
+la especificidad y el alcance de los selectores, respetando los estados y temas.
+
 Busca la solución correcta más simple. Aplica SOLID, DRY y Clean Code cuando
 reduzcan el coste de mantenimiento; evita abstracciones prematuras. Revisa
 dependencias e impactos antes de refactorizar y añade pruebas cuando exista una
