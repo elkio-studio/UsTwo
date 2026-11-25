@@ -77,6 +77,48 @@ contexto del proyecto y sus referencias de revisión, e informa de la limitació
 La instalación no activa hooks, reparaciones, nuevas skills ni subagentes de
 Impeccable; se conserva el contrato de un único escritor y los revisores SDD.
 
+### Revisión obligatoria de diseño y usabilidad
+
+Por decisión expresa de Ángel, se establece un subagente de revisión de diseño
+y usabilidad como responsabilidad obligatoria del flujo. La tarea histórica
+«Review design skills» es un antecedente de revisión, no una garantía de que
+se esté ejecutando en cada cambio. No confundir las skills con un agente activo.
+
+- Usarlo **siempre en cualquier implementación que afecte a la interfaz**,
+  tanto funcionalidad nueva como ajustes, correcciones y refactors visuales.
+  También **cada vez que Ángel indique cómo quiere algo**: distribución,
+  posición, espaciado, colores, textos, controles, interacción o comportamiento
+  responsive. Las instrucciones directas no eliminan esta revisión.
+  En una misma revisión pueden agruparse indicaciones relacionadas; no omitirla
+  por considerar un ajuste pequeño.
+- Durante la definición, encargar la revisión de las indicaciones y registrar
+  sus propuestas en la spec existente, separadas de las decisiones confirmadas.
+  En cambios ligeros sin spec, recoger la revisión en la comunicación de la
+  tarea; no crear documentación nueva por sistema.
+- Antes de implementar una interfaz, pedir que contraste el diseño y las
+  tareas con lo aprobado; después, pedir una revisión del resultado antes de
+  finalizar la verificación. Si Ángel aporta un ajuste durante la implementación,
+  volver a consultar al subagente para ese delta antes de modificarlo.
+- Asignar explícitamente el encargo «revisión de diseño y usabilidad» a un
+  subagente de solo lectura, reutilizándolo para los cambios de la misma tarea.
+  Si no hay un tipo de agente dedicado disponible en la sesión, usar un
+  subagente general con ese contrato explícito; no omitirlo ni afirmar que se
+  ha reutilizado una tarea histórica cuyo contexto no está disponible.
+- El subagente consulta las guías locales de diseño según la fase, aporta
+  composición, jerarquía, estados, móvil, teclado, foco y riesgos. No modifica
+  archivos, implementa, instala, cambia configuración ni aprueba decisiones.
+  El agente principal sigue siendo el único escritor y Ángel decide.
+- Las propuestas no se convierten en requisitos por tener una revisión
+  favorable. Si contradicen una indicación, exponer la alternativa y esperar
+  la decisión; no ignorar la preferencia de Ángel por motivos estéticos.
+- Conservar evidencia del encargo, propuestas, decisiones aceptadas y resultado.
+  No atribuir observación visual si solo se revisó código/spec. No abrir un
+  navegador ni ejecutar servicios fuera de la autorización de la tarea.
+
+Esta revisión complementa a spec_reviewer, plan_reviewer y test_reviewer;
+no sustituye sus controles, las aprobaciones SDD ni permisos de Git. En tareas
+sin interfaz no se inventa una revisión visual de backend o documentación.
+
 ### Procedencia de las skills de diseño
 
 Instalación local solicitada por el desarrollador; se conservan las licencias
