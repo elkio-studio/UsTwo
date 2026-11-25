@@ -29,6 +29,8 @@
 ## Estilos
 
 - Escribe CSS estándar en cada módulo para las reglas propias de su vista.
+- No uses `!important` en CSS propio. Resuelve prioridades con selectores,
+  alcance y orden de reglas; comprueba hover, foco y movimiento reducido.
   Usa `var(...)` para consumir colores, tipografías, cursores y demás
   valores de diseño definidos en `resources/css/global.css`.
 - Mantén las variables, los estilos base y los temas compartidos en
@@ -37,6 +39,9 @@
   avisos del editor en su origen. Si un módulo queda sin reglas, elimínalo.
 
 ## Hooks y utilidades
+
+- Los hooks extraídos viven en `resources/js/hooks`; las funciones puras,
+  independientes de React, en `resources/js/utils`.
 
 - Extrae un hook cuando encapsule una responsabilidad clara de React o
   permita compartir esa lógica. El estado sencillo que solo usa un
