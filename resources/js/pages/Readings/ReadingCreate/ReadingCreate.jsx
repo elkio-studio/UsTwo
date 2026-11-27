@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useForm } from "@inertiajs/react";
 import Field from "../../../components/Field/Field";
-import JournalLayout from "../../../components/Journal/JournalLayout/JournalLayout";
+import JournalLayout from "../../../layouts/JournalLayout/JournalLayout";
 import ReadingSearch from "../ReadingSearch/ReadingSearch";
 import ReadingInformation from "../ReadingInformation/ReadingInformation";
 import "../../../../css/global.css";

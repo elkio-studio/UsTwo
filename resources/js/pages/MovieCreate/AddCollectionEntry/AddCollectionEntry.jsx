@@ -3,7 +3,7 @@
 import collectionUrl from "../../../utils/collectionUrl";
 import { useState } from "react";
 import { useForm } from "@inertiajs/react";
-import JournalLayout from "../../../components/Journal/JournalLayout/JournalLayout";
+import JournalLayout from "../../../layouts/JournalLayout/JournalLayout";
 import CatalogSearchForm from "../CatalogSearch/CatalogSearchForm/CatalogSearchForm";
 import CollectionEntryEditor from "../MovieEditor/CollectionEntryEditor/CollectionEntryEditor";
 import "../../../../css/global.css";

@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "@inertiajs/react";
-import JournalLayout from "../../../components/Journal/JournalLayout/JournalLayout";
+import JournalLayout from "../../../layouts/JournalLayout/JournalLayout";
 import PlaceForm from "../PlaceForm/PlaceForm";
 import PlaceLists from "../PlaceLists/PlaceLists";
 import PlaceSearch from "../PlaceSearch/PlaceSearch";

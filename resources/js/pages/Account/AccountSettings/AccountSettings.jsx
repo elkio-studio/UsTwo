@@ -2,7 +2,7 @@
 
 import AccountShelves from "../AccountShelves/AccountShelves";
 import CredentialsForm from "../CredentialsForm/CredentialsForm";
-import JournalLayout from "../../../components/Journal/JournalLayout/JournalLayout";
+import JournalLayout from "../../../layouts/JournalLayout/JournalLayout";
 import "../../../../css/global.css";
 import styles from "./AccountSettings.module.css";
 

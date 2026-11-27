@@ -2,7 +2,7 @@
 
 import { useId, useRef } from "react";
 import { Link, useRemember } from "@inertiajs/react";
-import JournalLayout from "../../../components/Journal/JournalLayout/JournalLayout";
+import JournalLayout from "../../../layouts/JournalLayout/JournalLayout";
 import CollectionGrid from "../../../components/CollectionGrid/CollectionGrid";
 import CollectionCard from "../../../components/CollectionCard/CollectionCard";
 import ReadingCover from "../ReadingCover/ReadingCover";

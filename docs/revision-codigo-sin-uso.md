@@ -55,7 +55,7 @@ valoración actual esté deshabilitada. **No modificado en este repaso.**
 
 ### F-02 — Variante pública de JournalLayout sin consumidores
 
-Archivo: [JournalLayout.jsx](../resources/js/components/Journal/JournalLayout/JournalLayout.jsx),
+Archivo: [JournalLayout.jsx](../resources/js/layouts/JournalLayout/JournalLayout.jsx),
 líneas 14, 21, 44, 47 y 62.
 
 Ningún consumidor pasa `privatePage`; siempre vale true. La variante que

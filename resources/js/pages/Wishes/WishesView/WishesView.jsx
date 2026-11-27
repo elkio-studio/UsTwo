@@ -1,6 +1,6 @@
 // Colección de deseos de la estantería y selección de lista.
 
-import JournalLayout from "../../../components/Journal/JournalLayout/JournalLayout";
+import JournalLayout from "../../../layouts/JournalLayout/JournalLayout";
 import { Link } from "@inertiajs/react";
 import { useRef } from "react";
 import WishList from "../WishList/WishList";

@@ -2,8 +2,8 @@
 
 import { Head, Link } from "@inertiajs/react";
 import { useEffect, useRef } from "react";
-import Invitations from "../../Invitations/Invitations";
-import AccountMenu from "../AccountMenu/AccountMenu";
+import Invitations from "../../components/Invitations/Invitations";
+import AccountMenu from "../../components/Journal/AccountMenu/AccountMenu";
 import styles from "./JournalLayout.module.css";
 
 export default function JournalLayout({

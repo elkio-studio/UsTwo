@@ -5,7 +5,41 @@ import {
   positionsFor,
   releaseAction,
   slotAt,
+  gestureDistance,
+  createShelfGesture,
 } from "../../resources/js/utils/shelfMovement.js";
+
+test("la distancia compartida conserva el umbral de 8px en cualquier dirección", () => {
+  const start = { x: 20, y: 30 };
+  assert.equal(gestureDistance(start, start), 0);
+  assert.equal(gestureDistance(start, { x: 27.9, y: 30 }) < 8, true);
+  assert.equal(gestureDistance(start, { x: 20, y: 38 }), 8);
+  assert.equal(gestureDistance(start, { x: 14, y: 22 }), 10);
+  assert.equal(gestureDistance(start, { x: 26, y: 38 }), 10);
+});
+
+test("el candidato conserva identidad de ratón/dedo y no comparte el punto inicial mutable", () => {
+  const start = { x: 40, y: 50 };
+  const mouse = createShelfGesture("lecturas", 3, start, 11, "mouse");
+  const touch = createShelfGesture("sitios", 4, start, 0, "touch");
+  start.x = 200;
+  assert.deepEqual(mouse, {
+    path: "lecturas",
+    origin: 3,
+    start: { x: 40, y: 50 },
+    id: 11,
+    input: "mouse",
+  });
+  assert.deepEqual(touch, {
+    path: "sitios",
+    origin: 4,
+    start: { x: 40, y: 50 },
+    id: 0,
+    input: "touch",
+  });
+  mouse.start.y = 100;
+  assert.equal(touch.start.y, 50);
+});
 
 const grid = (columns) =>
   Array.from({ length: 8 }, (_, i) => ({

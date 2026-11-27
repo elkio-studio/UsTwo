@@ -1,6 +1,6 @@
 // Página de créditos y atribución del catálogo de películas.
 
-import JournalLayout from "../../components/Journal/JournalLayout/JournalLayout";
+import JournalLayout from "../../layouts/JournalLayout/JournalLayout";
 import "../../../css/global.css";
 import styles from "./Credits.module.css";
 

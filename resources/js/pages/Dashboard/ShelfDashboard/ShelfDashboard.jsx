@@ -3,7 +3,7 @@
 import Shelf from "../Shelf/Shelf";
 import ShelfPicker from "../ShelfList/ShelfPicker/ShelfPicker";
 import ShelfManagementMenu from "../SpaceMenu/ShelfManagementMenu/ShelfManagementMenu";
-import JournalLayout from "../../../components/Journal/JournalLayout/JournalLayout";
+import JournalLayout from "../../../layouts/JournalLayout/JournalLayout";
 import "../../../../css/global.css";
 import styles from "./ShelfDashboard.module.css";
 

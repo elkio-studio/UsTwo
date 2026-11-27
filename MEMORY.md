@@ -2,25 +2,27 @@
 
 ## Foco actual
 
-Spec037 completada localmente en feat/indicadores-destino, base23a3655.
-Inicio27/11/2026 12:22CET; cierre12:38CET, 16min sin pausas comunicadas;
-GitHub Projects0.25h estimadas, bajo título en spec.md.
-Ángel confirma origen distinguible y destino no oculto en escritorio/móvil/
-teclado. Diseño APTO y auditoría final test_reviewer PASS, sin bloqueos.
+Spec 038 implementada en refactor/layouts-movimiento-cajones, base c6a9751.
+Inicio: 27/11/2026, 12:52 CET. Especificación y plan aprobados expresamente
+por Ángel como refactor técnico sin US; implementación solicitada.
+Revisión previa técnica/diseño APTO y plan_reviewer PASS sin bloqueos.
+T-01–T-05 realizadas: layouts Journal/Access, cuatro hooks, estado y referencia
+de supresión de clic únicos y helpers puros, sin cambiar diseño/comportamiento.
+Node: 6 pruebas correctas; build: 709 módulos; Prettier y diff correctos.
+Grafo: 72 módulos sin imports rotos,
+CSS de layouts idéntico a original y cero !important. Diseño posterior APTO
+por lectura. Ángel confirma que todo está bien en local y solicita cerrar y
+subir la rama el 27/11/2026 a las 13:16 CET. T-06 completada con su validación;
+GitHub Projects: 0.5 h estimadas. Sin regresiones técnicas concretas. Frases obsoletas del
+estado de aprobación del plan corregidas, sin cambiar el alcance. Sin backend,
+migraciones ni navegador. Commit y subida de esta rama autorizados; sin
+integración en dev autorizada todavía. Conservar .env/SQLite y
+servidores; no navegador.
 
-Dos ajustes: data-target excluye origen y ghost sin data-origin/data-target;
-estados/gestos, CSS, backend, contratos y datos intactos. Node3/build705/
-Prettier/diff correctos. Validación visual atribuida a Ángel, sin navegador
-por el agente. No fue necesario otro ajuste de composición por oclusión.
-
-PHP8000 y Vite5173 iniciados y comprobados HTTP200 durante esta tarea;
-conservar servidores, .env y SQLite. Sin commit ni publicación. Pendientes
-commit/push, integración dev, CI y traslado de spec a documentation.
-
-Spec036 en origin/dev23a3655 y documentation5bbeae9, CI verde confirmado;
-rama feat/arrastrar-cajones borrada local/origin. US#46 cerrada por petición
-de Ángel. Informe docs/revision-codigo-sin-uso.md pendiente de otra historia
-de limpieza; sus candidatos no se han eliminado.
+Spec 037 integrada/publicada en origin/dev, c6a9751; documentation, 5c5566e,
+contiene solo la spec 037. Ángel confirma CI verde; feat/indicadores-destino borrada local
+/origin tras verificar integración. Informe de código muerto sigue pendiente
+de otra historia; no ampliar este refactor para borrar sus candidatos.
 
 ## Último despliegue
 

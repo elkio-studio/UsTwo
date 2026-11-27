@@ -1,6 +1,6 @@
 import CollectionRatingForm from "../../../components/CollectionRatingForm/CollectionRatingForm";
 import CollectionReviews from "../../../components/CollectionReviews/CollectionReviews";
-import JournalLayout from "../../../components/Journal/JournalLayout/JournalLayout";
+import JournalLayout from "../../../layouts/JournalLayout/JournalLayout";
 import DeleteReading from "../DeleteReading/DeleteReading";
 import ReadingMetadataForm from "../ReadingMetadataForm/ReadingMetadataForm";
 import ReadingInformation from "../ReadingInformation/ReadingInformation";

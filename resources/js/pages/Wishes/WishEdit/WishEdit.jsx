@@ -1,6 +1,6 @@
 // Edición de un deseo compartido conservando su autoría y lista de origen.
 
-import JournalLayout from "../../../components/Journal/JournalLayout/JournalLayout";
+import JournalLayout from "../../../layouts/JournalLayout/JournalLayout";
 import WishForm from "../WishForm/WishForm";
 import "../../../../css/global.css";
 import styles from "./WishEdit.module.css";

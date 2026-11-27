@@ -6,7 +6,7 @@ import CollectionReviews from "../../../components/CollectionReviews/CollectionR
 import CollectionRatingForm from "../../../components/CollectionRatingForm/CollectionRatingForm";
 import MovieMetadataForm from "../MovieMetadataForm/MovieMetadataForm";
 import DeleteMovie from "../DeleteMovie/DeleteMovie";
-import JournalLayout from "../../../components/Journal/JournalLayout/JournalLayout";
+import JournalLayout from "../../../layouts/JournalLayout/JournalLayout";
 import "../../../../css/global.css";
 import styles from "./CollectionEntryDetail.module.css";
 

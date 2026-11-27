@@ -42,3 +42,11 @@ export function releaseAction(mode, origin, target) {
   if (mode === "picked") return "wait";
   return target !== null && target !== origin ? "save" : "cancel";
 }
+
+export function gestureDistance(start, point) {
+  return Math.hypot(point.x - start.x, point.y - start.y);
+}
+
+export function createShelfGesture(path, origin, start, id, input) {
+  return { path, origin, start: { ...start }, id, input };
+}

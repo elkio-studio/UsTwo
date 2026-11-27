@@ -1,6 +1,6 @@
 // Página de alta de un deseo con su lista y datos editables.
 
-import JournalLayout from "../../../components/Journal/JournalLayout/JournalLayout";
+import JournalLayout from "../../../layouts/JournalLayout/JournalLayout";
 import WishForm from "../WishForm/WishForm";
 import "../../../../css/global.css";
 

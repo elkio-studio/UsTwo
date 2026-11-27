@@ -4,7 +4,7 @@ import collectionUrl from "../../../utils/collectionUrl";
 import { Link } from "@inertiajs/react";
 import MovieCard from "../MovieCard/MovieCard";
 import CollectionGrid from "../../../components/CollectionGrid/CollectionGrid";
-import JournalLayout from "../../../components/Journal/JournalLayout/JournalLayout";
+import JournalLayout from "../../../layouts/JournalLayout/JournalLayout";
 import "../../../../css/global.css";
 import styles from "./WatchedCollection.module.css";
 
