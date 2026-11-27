@@ -116,6 +116,8 @@ export default function useShelfMovement(activeSpace, drawers, blocked) {
       });
       clone.removeAttribute("data-slot");
       clone.removeAttribute("data-drawer");
+      clone.removeAttribute("data-origin");
+      clone.removeAttribute("data-target");
       clone
         .querySelectorAll("[id]")
         .forEach((node) => node.removeAttribute("id"));

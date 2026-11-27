@@ -2,34 +2,25 @@
 
 ## Foco actual
 
-Spec036 completada localmente en feat/arrastrar-cajones (base0923c66).
-Inicio25/11/2026 08:22CET; cierre08:59CET, 37min sin pausas comunicadas;
-GitHub Projects0.75h estimadas por tiempo transcurrido, valor bajo título.
-Ángel confirma mover/intercambiar en escritorio, móvil y teclado. Diseño APTO,
-reauditoría final test_reviewer PASS. Evidencias en spec/tasks036.
+Spec037 completada localmente en feat/indicadores-destino, base23a3655.
+Inicio27/11/2026 12:22CET; cierre12:38CET, 16min sin pausas comunicadas;
+GitHub Projects0.25h estimadas, bajo título en spec.md.
+Ángel confirma origen distinguible y destino no oculto en escritorio/móvil/
+teclado. Diseño APTO y auditoría final test_reviewer PASS, sin bloqueos.
 
-Movimiento atómico, snapshot/conflictos y permisos implementados sin migración.
-Ratón, pulsación mantenida móvil, toque destino y teclado. + siempre en vacíos;
-status accesible y sin botón Cancelar (gestos cancelables). Ayuda estática
-retirada posteriormente por petición de Ángel.
-Suite SQLite memoria con guardia96/2736 sin fallos, 2 omisiones PostgreSQL;
-Node3/build705/formato/diff correctos. Sin navegador del agente ni datos borrados.
+Dos ajustes: data-target excluye origen y ghost sin data-origin/data-target;
+estados/gestos, CSS, backend, contratos y datos intactos. Node3/build705/
+Prettier/diff correctos. Validación visual atribuida a Ángel, sin navegador
+por el agente. No fue necesario otro ajuste de composición por oclusión.
 
-PHP8000/Vite5173 activos; lanzador temporal corregido para usar public/index.php
-sin reiniciarlos. .env/SQLite intactos. No commit ni publicación autorizados;
-pendientes commit/integración/dev/CI y documentación en documentation.
-US#46 cerrada en GitHub por instrucción expresa de Ángel tras validar en local;
-no implica integración ni CI. Comentario sobre nueva US de código muerto
-entregado como borrador, no publicado; creación de esa US pendiente.
+PHP8000 y Vite5173 iniciados y comprobados HTTP200 durante esta tarea;
+conservar servidores, .env y SQLite. Sin commit ni publicación. Pendientes
+commit/push, integración dev, CI y traslado de spec a documentation.
 
-Repaso posterior solicitado: sin !important en CSS propio (regla añadida a
-AGENTS/convenciones), hook en resources/js/hooks, funciones puras en utils.
-Informe docs/revision-codigo-sin-uso.md revisa front/back/entradas e inventario;
-hallazgos adicionales documentados, sin borrado masivo. Guarda de ocupado del
-alta conservada: no es la ruta de arrastre/intercambio y sigue siendo alcanzable.
-
-Spec035 integrada/publicada previamente en dev0923c66 y documentation97eeaa9,
-CI verde confirmado por Ángel y rama feat/rediseno-deseos borrada local/origin.
+Spec036 en origin/dev23a3655 y documentation5bbeae9, CI verde confirmado;
+rama feat/arrastrar-cajones borrada local/origin. US#46 cerrada por petición
+de Ángel. Informe docs/revision-codigo-sin-uso.md pendiente de otra historia
+de limpieza; sus candidatos no se han eliminado.
 
 ## Último despliegue
 

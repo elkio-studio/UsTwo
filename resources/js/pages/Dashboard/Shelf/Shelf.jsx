@@ -118,7 +118,10 @@ export default function Shelf({ activeSpace }) {
                   data-slot={slot}
                   data-drawer={drawer?.path}
                   data-origin={moving.movement?.origin === slot}
-                  data-target={moving.movement?.target === slot}
+                  data-target={
+                    moving.movement?.target === slot &&
+                    moving.movement?.origin !== slot
+                  }
                   tabIndex={-1}
                   aria-label={`Hueco ${slot}${drawer ? `: ${drawer.label}` : ": vacío"}`}
                 >
