@@ -5,6 +5,12 @@
 - La página compone la vista y coordina el estado y las acciones que afectan
   a varias partes. Cada formulario, menú, listado u otra pieza con una
   responsabilidad clara puede tener su propio componente.
+- Los layouts viven en `resources/js/layouts/NombreLayout/` con su JSX y CSS
+  Module. Contienen la estructura visual compartida: cabecera, navegación,
+  tema y ubicación del contenido. No gestionan formularios o movimientos.
+  JournalLayout estructura las páginas privadas; AccessLayout representa el
+  recibidor y recibe su modo desde la página. Son componentes envolventes,
+  sin un mecanismo de layout persistente adicional.
 - Un componente exclusivo vive junto a su consumidor. Si lo reutilizan
   varias vistas, muévelo al ámbito común más cercano y comparte la misma
   implementación. Por ejemplo, Películas y Series comparten
@@ -12,7 +18,7 @@
 - Una carpeta de agrupación contiene solo subcarpetas. Cada carpeta final
   contiene `Nombre.jsx` y, si hay estilos propios, `Nombre.module.css`.
   Usa nombres que describan la función de cada pieza. Por ejemplo,
-  `Journal` agrupa `JournalLayout` y `AccountMenu`.
+  `layouts` agrupa `JournalLayout` y `AccessLayout`; los menús siguen en components.
 - Retira las carpetas intermedias que solo envuelven un componente y carecen
   de un propósito concreto.
 
@@ -42,6 +48,11 @@
 
 - Los hooks extraídos viven en `resources/js/hooks`; las funciones puras,
   independientes de React, en `resources/js/utils`.
+- Separa coordinación y adaptadores de entrada cuando tengan responsabilidades
+  reales. En el movimiento de cajones, el coordinador posee una sola operación,
+  snapshot y supresión compartida; puntero/teclado leen referencias vigentes y
+  la copia visual gestiona únicamente su DOM. Re-renderizar no debe reinstalar
+  listeners ni cancelar temporizadores activos. Extraer no implica duplicar estado.
 
 - Extrae un hook cuando encapsule una responsabilidad clara de React o
   permita compartir esa lógica. El estado sencillo que solo usa un

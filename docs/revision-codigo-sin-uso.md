@@ -5,7 +5,7 @@ locales de la spec 036. Revisión solicitada por Ángel; no autoriza eliminar
 en bloque lo encontrado ni publicar cambios.
 
 En esta copia de documentation, los enlaces al código apuntan al commit
-integrado 23a3655, porque esta rama contiene únicamente docs.
+integrado b5e4813, porque esta rama contiene únicamente docs.
 
 ## Alcance y método
 
@@ -44,12 +44,12 @@ una revisión visual en navegador.
 
 ### F-01 — Modo readOnly del formulario de valoración sin consumidores
 
-Archivo: [CollectionRatingForm.jsx](https://github.com/elkio-studio/UsTwo/blob/23a3655/resources/js/components/CollectionRatingForm/CollectionRatingForm.jsx),
+Archivo: [CollectionRatingForm.jsx](https://github.com/elkio-studio/UsTwo/blob/b5e48132c1f10c5a5d1fde641d1b2bc06b72d21a/resources/js/components/CollectionRatingForm/CollectionRatingForm.jsx),
 líneas 6, 18, 27, 35 y 42 en la revisión.
 
 `readOnly = false` condiciona envío, campos y botón. Los únicos consumidores,
-[ReadingDetail](https://github.com/elkio-studio/UsTwo/blob/23a3655/resources/js/pages/Readings/ReadingDetail/ReadingDetail.jsx)
-y [CollectionEntryDetail](https://github.com/elkio-studio/UsTwo/blob/23a3655/resources/js/pages/MovieDetail/CollectionEntryDetail/CollectionEntryDetail.jsx),
+[ReadingDetail](https://github.com/elkio-studio/UsTwo/blob/b5e48132c1f10c5a5d1fde641d1b2bc06b72d21a/resources/js/pages/Readings/ReadingDetail/ReadingDetail.jsx)
+y [CollectionEntryDetail](https://github.com/elkio-studio/UsTwo/blob/b5e48132c1f10c5a5d1fde641d1b2bc06b72d21a/resources/js/pages/MovieDetail/CollectionEntryDetail/CollectionEntryDetail.jsx),
 no pasan esa prop. El modo true no se activa desde la aplicación actual.
 
 Acción sugerida: retirar prop/condicionales de ese modo si no se desea conservar
@@ -58,7 +58,7 @@ valoración actual esté deshabilitada. **No modificado en este repaso.**
 
 ### F-02 — Variante pública de JournalLayout sin consumidores
 
-Archivo: [JournalLayout.jsx](https://github.com/elkio-studio/UsTwo/blob/23a3655/resources/js/components/Journal/JournalLayout/JournalLayout.jsx),
+Archivo: [JournalLayout.jsx](https://github.com/elkio-studio/UsTwo/blob/b5e48132c1f10c5a5d1fde641d1b2bc06b72d21a/resources/js/layouts/JournalLayout/JournalLayout.jsx),
 líneas 14, 21, 44, 47 y 62.
 
 Ningún consumidor pasa `privatePage`; siempre vale true. La variante que
@@ -70,7 +70,7 @@ que no se quiere reutilizar. **No eliminado el layout ni alterada autenticación
 
 ### F-03 — Variable title extraída y no utilizada
 
-Archivo: [ReadingsView.jsx](https://github.com/elkio-studio/UsTwo/blob/23a3655/resources/js/pages/Readings/ReadingsView/ReadingsView.jsx),
+Archivo: [ReadingsView.jsx](https://github.com/elkio-studio/UsTwo/blob/b5e48132c1f10c5a5d1fde641d1b2bc06b72d21a/resources/js/pages/Readings/ReadingsView/ReadingsView.jsx),
 línea 67: segundo `tabs.map(({ category, title, empty }, index) => ...)`.
 
 Dentro de ese callback se usan category/empty/index, pero no title. El primer
@@ -79,7 +79,7 @@ no borrar los títulos de tabs. **Pendiente de limpieza, sin cambio funcional.**
 
 ### F-04 — Siete tokens de color sin consumidores
 
-Archivo: [global.css](https://github.com/elkio-studio/UsTwo/blob/23a3655/resources/css/global.css), líneas 57–66.
+Archivo: [global.css](https://github.com/elkio-studio/UsTwo/blob/b5e48132c1f10c5a5d1fde641d1b2bc06b72d21a/resources/css/global.css), líneas 57–66.
 
 Las siguientes propiedades solo aparecen en su declaración: no hay consumo
 `var(...)` ni acceso JS por nombre en los recursos propios revisados:
@@ -99,7 +99,7 @@ libros, caja, controles o escena. **No eliminados en esta auditoría.**
 
 ### B-01 — Método register vacío del provider
 
-Archivo: [AppServiceProvider.php](https://github.com/elkio-studio/UsTwo/blob/23a3655/app/Providers/AppServiceProvider.php), línea 17.
+Archivo: [AppServiceProvider.php](https://github.com/elkio-studio/UsTwo/blob/b5e48132c1f10c5a5d1fde641d1b2bc06b72d21a/app/Providers/AppServiceProvider.php), línea 17.
 
 El override register no contiene instrucciones, solo un comentario. No aporta
 comportamiento frente al método base vacío. Puede retirarse como limpieza menor.
@@ -110,8 +110,8 @@ de base de datos en producción. **No borrar el provider ni esa protección.**
 
 ### B-02 — PUT /espacios/{space}/activo sin consumidor en la UI actual
 
-Referencias: [routes/web.php](https://github.com/elkio-studio/UsTwo/blob/23a3655/routes/web.php), línea 34, y
-[SpaceController::select](https://github.com/elkio-studio/UsTwo/blob/23a3655/app/Http/Controllers/SpaceController.php), línea 60.
+Referencias: [routes/web.php](https://github.com/elkio-studio/UsTwo/blob/b5e48132c1f10c5a5d1fde641d1b2bc06b72d21a/routes/web.php), línea 34, y
+[SpaceController::select](https://github.com/elkio-studio/UsTwo/blob/b5e48132c1f10c5a5d1fde641d1b2bc06b72d21a/app/Http/Controllers/SpaceController.php), línea 60.
 
 El selector actual navega mediante Link a `/{slug}`; show ya guarda active_space.
 No se encontró una petición frontend a `/activo`. La ruta sigue registrada y
@@ -122,7 +122,7 @@ mantener compatibilidad o retirar ruta/método/pruebas de forma coordinada.
 
 ### B-03 — Completar metadatos por consola sigue activo, pero necesita revisión
 
-Archivo: [routes/console.php](https://github.com/elkio-studio/UsTwo/blob/23a3655/routes/console.php), comando
+Archivo: [routes/console.php](https://github.com/elkio-studio/UsTwo/blob/b5e48132c1f10c5a5d1fde641d1b2bc06b72d21a/routes/console.php), comando
 `ustwo:movie-metadata`, líneas 10–40. Documentado en README.
 
 Es invocable desde Artisan y usa TMDB; no es código muerto. Escribe poster_path
@@ -138,11 +138,11 @@ No ejecutado ni modificado, no se consultó TMDB durante este repaso.
 
 ## La excepción de hueco ocupado no es código muerto
 
-[SpaceController::placeDrawer](https://github.com/elkio-studio/UsTwo/blob/23a3655/app/Http/Controllers/SpaceController.php),
+[SpaceController::placeDrawer](https://github.com/elkio-studio/UsTwo/blob/b5e48132c1f10c5a5d1fde641d1b2bc06b72d21a/app/Http/Controllers/SpaceController.php),
 líneas 116–131, es el contrato de colocación usado por el diálogo + y por las
 cinco rutas de tipo. La UI filtra tipos ya colocados; el cliente envía solo slot.
 
-[moveDrawer](https://github.com/elkio-studio/UsTwo/blob/23a3655/app/Http/Controllers/SpaceController.php), desde línea 133,
+[moveDrawer](https://github.com/elkio-studio/UsTwo/blob/b5e48132c1f10c5a5d1fde641d1b2bc06b72d21a/app/Http/Controllers/SpaceController.php), desde línea 133,
 es el contrato de arrastre/intercambio, que recibe tipo y snapshot completo.
 **Este segundo contrato sí intercambia destinos ocupados.**
 
